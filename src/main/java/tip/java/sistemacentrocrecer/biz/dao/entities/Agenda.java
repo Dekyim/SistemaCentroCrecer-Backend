@@ -1,0 +1,49 @@
+package tip.java.sistemacentrocrecer.biz.dao.entities;
+
+
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Getter
+@Setter
+@Entity
+@Table(name = "agendas")
+public class Agenda {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+    @Column(name = "hora_inicio")
+    private LocalTime hora_inicio;
+    @Column(name = "hora_fin")
+    private LocalTime hora_fin;
+    @Column(name = "descripcion")
+    private String descripcion;
+    @Column(name = "fecha")
+    private LocalDate fecha;
+    @Column(name = "activo")
+    private Boolean activo;
+    @Column(name = "fecha_baja")
+    private LocalDateTime fecha_baja;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "funcionario_id")
+    private Funcionario funcionario;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tipo_agenda_id")
+    private TipoAgenda tipo_agenda_id;
+
+    @OneToMany(mappedBy = "agenda", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<DetalleAgenda> detalles;
+
+    @OneToMany(mappedBy = "agenda", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<AgendaLimpieza> agendasLimpieza;
+}

@@ -1,0 +1,55 @@
+package tip.java.sistemacentrocrecer.biz.dao.entities;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Getter
+@Setter
+@Entity
+@Table(name = "actividades")
+public class Actividad {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+    @Column(name = "nombre", nullable = false)
+    private String nombre;
+    @Column(name = "fecha_desde")
+    private LocalDate fecha_desde;
+    @Column(name = "fecha_hasta")
+    private LocalDate fecha_hasta;
+    @Column(name = "hora_inicio")
+    private LocalTime hora_inicio;
+    @Column(name = "hora_salida")
+    private LocalTime hora_salida;
+    @Column(name = "descripcion")
+    private String descripcion;
+    @Column(name = "activo")
+    private Boolean activo;
+    @Column(name = "fecha_baja")
+    private LocalDateTime fecha_baja;
+    @Column(name = "lugar")
+    private String lugar;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "actividad_ninio",
+            joinColumns = @JoinColumn(name = "actividad_id"),
+            inverseJoinColumns = @JoinColumn(name = "ninio_id")
+    )
+    private List<Ninio> ninios;
+
+    @OneToMany(mappedBy = "actividad", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Permiso> permisos;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "empresa_externa_id")
+    private EmpresaExterna empresaExterna;
+}
