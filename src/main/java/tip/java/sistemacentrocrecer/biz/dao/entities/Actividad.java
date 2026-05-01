@@ -49,7 +49,6 @@ public class Actividad {
     @OneToMany(mappedBy = "actividad", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Permiso> permisos;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "empresa_externa_id")
-    private EmpresaExterna empresaExterna;
+    @OneToMany(mappedBy = "actividad", fetch = FetchType.LAZY)
+    private List<EmpresaExterna> empresasExternas;
 }

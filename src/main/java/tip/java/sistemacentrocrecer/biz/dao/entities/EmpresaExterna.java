@@ -23,6 +23,7 @@ public class EmpresaExterna {
     @Column(name = "telefono")
     private String telefono;
 
-    @OneToMany(mappedBy = "empresaExterna", fetch = FetchType.LAZY)
-    private List<Actividad> actividades;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "actividad_id")
+    private Actividad actividad;
 }

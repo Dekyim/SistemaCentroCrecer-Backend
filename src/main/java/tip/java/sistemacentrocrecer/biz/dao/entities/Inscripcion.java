@@ -6,6 +6,7 @@ import tip.java.sistemacentrocrecer.biz.dao.enums.EstadoInscripcionEnum;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -38,7 +39,6 @@ public class Inscripcion {
     @JoinColumn(name = "ninio_id")
     private Ninio ninio;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "responsable_id")
-    private Responsable responsable;
+    @ManyToMany(mappedBy = "inscripciones", fetch = FetchType.LAZY)
+    private List<Responsable> responsables;
 }

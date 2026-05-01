@@ -39,7 +39,12 @@ public class Responsable {
     @OneToMany(mappedBy = "responsable", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ResponsableNinio> ninios;
 
-    @OneToMany(mappedBy = "responsable", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "responsable_inscripcion",
+            joinColumns = @JoinColumn(name = "responsable_id"),
+            inverseJoinColumns = @JoinColumn(name = "inscripcion_id")
+    )
     private List<Inscripcion> inscripciones;
 
     @ManyToMany(fetch = FetchType.LAZY)
