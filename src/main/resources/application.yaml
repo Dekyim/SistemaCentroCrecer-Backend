@@ -22,7 +22,6 @@ spring:
         order_updates: true
         order_inserts: true
     show-sql: true
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
 logging:
   level:
     org.hibernate.SQL: DEBUG

@@ -1,10 +1,7 @@
 package tip.java.sistemacentrocrecer.biz.dao.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import tip.java.sistemacentrocrecer.biz.dao.enums.SexoNinioEnum;
 
 import java.time.LocalDateTime;
@@ -13,6 +10,7 @@ import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Getter
 @Setter
 @Entity

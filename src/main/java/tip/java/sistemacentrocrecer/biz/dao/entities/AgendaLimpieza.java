@@ -1,8 +1,16 @@
 package tip.java.sistemacentrocrecer.biz.dao.entities;
 
 import jakarta.persistence.*;
+import lombok.*;
 import tip.java.sistemacentrocrecer.biz.dao.enums.EstadoLimpiezaEnum;
 
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Getter
+@Setter
+@Entity
+@Table(name = "agendas_limpiezas")
 public class AgendaLimpieza {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

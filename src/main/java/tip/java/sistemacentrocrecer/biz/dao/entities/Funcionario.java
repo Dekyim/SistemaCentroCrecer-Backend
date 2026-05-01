@@ -43,7 +43,7 @@ public class Funcionario {
     @OneToMany(mappedBy = "funcionario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Reporte> reportes;
 
-    @OneToMany(mappedBy = "funcionario", fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "funcionarios", fetch = FetchType.LAZY)
     private List<Grupo> grupos;
 
     @OneToMany(mappedBy = "funcionario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

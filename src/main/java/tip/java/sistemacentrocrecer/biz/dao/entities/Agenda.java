@@ -38,8 +38,8 @@ public class Agenda {
     private Funcionario funcionario;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tipo_agenda_id")
-    private TipoAgenda tipo_agenda_id;
+    @JoinColumn(name = "tipo")
+    private TipoAgenda tipo;
 
     @OneToMany(mappedBy = "agenda", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<DetalleAgenda> detalles;
