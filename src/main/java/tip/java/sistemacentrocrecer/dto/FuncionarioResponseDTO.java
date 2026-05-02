@@ -1,0 +1,22 @@
+package tip.java.sistemacentrocrecer.dto;
+
+import lombok.Data;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@Data
+public class FuncionarioResponseDTO {
+    private Integer id;
+    private String cedula;
+    private String nombre;
+    private String apellido;
+    private String email;
+    private String telefono;
+    private LocalDate fecha_nacimiento;
+    private boolean activo;
+    private LocalDate fecha_baja;
+    private RolResponseDTO rol;
+    private List<String> grupos;
+
+}

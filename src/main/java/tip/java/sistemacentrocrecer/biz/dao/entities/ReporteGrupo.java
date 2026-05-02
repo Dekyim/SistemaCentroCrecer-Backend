@@ -14,6 +14,10 @@ public class ReporteGrupo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    @Column(name = "grupo_nombre")
+    private String grupo_nombre;
+    @Column(name = "reporte_titulo")
+    private String reporte_titulo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "grupo_id")

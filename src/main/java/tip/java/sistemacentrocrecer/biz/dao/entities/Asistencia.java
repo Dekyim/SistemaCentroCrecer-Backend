@@ -28,9 +28,19 @@ public class Asistencia {
     @Column(name = "activo")
     private Boolean activo;
 
+    @Column(name = "ninio_cedula")
+    private String ninio_cedula;
+    @Column(name = "ninio_nombre")
+    private String ninio_nombre;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ninio_id")
     private Ninio ninio;
+
+    @Column(name = "funcionario_nombre")
+    private String funcionario_nombre;
+    @Column(name = "funcionario_cedula")
+    private String funcionario_cedula;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "funcionario_id")
