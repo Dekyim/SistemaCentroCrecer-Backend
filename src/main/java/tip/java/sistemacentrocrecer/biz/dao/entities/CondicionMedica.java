@@ -19,7 +19,7 @@ public class CondicionMedica {
     @Column(name = "observaciones")
     private String observaciones;
     @Column(name = "es_cronica")
-    private Boolean es_cronica;
+    private Boolean esCronica;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ninio_id")

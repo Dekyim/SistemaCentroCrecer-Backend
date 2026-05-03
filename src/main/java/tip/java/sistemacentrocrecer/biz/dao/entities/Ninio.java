@@ -34,11 +34,11 @@ public class Ninio {
     @Column(name = "observaciones")
     private String observaciones;
     @Column(name = "fecha_nacimiento")
-    private Date fecha_nacimiento;
+    private Date fechaNacimiento;
     @Column(name = "activo")
     private boolean activo;
     @Column(name = "fecha_baja")
-    private LocalDateTime fecha_baja;
+    private LocalDateTime fechaBaja;
 
     @OneToMany(mappedBy = "ninio", cascade = CascadeType.ALL)
     private List<CondicionMedica> condiciones;

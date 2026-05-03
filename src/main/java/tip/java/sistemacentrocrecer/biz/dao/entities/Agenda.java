@@ -21,9 +21,9 @@ public class Agenda {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @Column(name = "hora_inicio")
-    private LocalTime hora_inicio;
+    private LocalTime horaInicio;
     @Column(name = "hora_fin")
-    private LocalTime hora_fin;
+    private LocalTime horaFin;
     @Column(name = "descripcion")
     private String descripcion;
     @Column(name = "fecha")
@@ -31,7 +31,7 @@ public class Agenda {
     @Column(name = "activo")
     private Boolean activo;
     @Column(name = "fecha_baja")
-    private LocalDateTime fecha_baja;
+    private LocalDateTime fechaBaja;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "funcionario_id")

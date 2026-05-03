@@ -20,12 +20,12 @@ public class Permiso {
     @Column(name = "activo")
     private Boolean activo;
     @Column(name = "fecha_baja")
-    private LocalDateTime fecha_baja;
+    private LocalDateTime fechaBaja;
     @Column(name = "autorizado")
     private Boolean autorizado;
 
     @Column(name = "ninio_cedula", unique = true, nullable = false , length = 8)
-    private String ninio_cedula;
+    private String ninioCedula;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "actividad_id")

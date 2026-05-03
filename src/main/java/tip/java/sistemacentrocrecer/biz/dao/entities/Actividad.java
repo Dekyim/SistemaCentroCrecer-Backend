@@ -22,19 +22,19 @@ public class Actividad {
     @Column(name = "nombre", nullable = false)
     private String nombre;
     @Column(name = "fecha_desde")
-    private LocalDate fecha_desde;
+    private LocalDate fechaDesde;
     @Column(name = "fecha_hasta")
-    private LocalDate fecha_hasta;
+    private LocalDate fechaHasta;
     @Column(name = "hora_inicio")
-    private LocalTime hora_inicio;
+    private LocalTime horaInicio;
     @Column(name = "hora_salida")
-    private LocalTime hora_salida;
+    private LocalTime horaSalida;
     @Column(name = "descripcion")
     private String descripcion;
     @Column(name = "activo")
     private Boolean activo;
     @Column(name = "fecha_baja")
-    private LocalDateTime fecha_baja;
+    private LocalDateTime fechaBaja;
     @Column(name = "lugar")
     private String lugar;
 

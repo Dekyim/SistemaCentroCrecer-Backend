@@ -19,7 +19,7 @@ public class Reporte {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @Column(name = "fecha_generacion")
-    private Date fecha_generacion;
+    private Date fechaGeneracion;
     @Column(name = "titulo")
     private String titulo;
     @Column(name = "descripcion")
@@ -29,7 +29,7 @@ public class Reporte {
     @Column(name = "activo")
     private Boolean activo;
     @Column(name = "fecha_baja")
-    private LocalDateTime fecha_baja;
+    private LocalDateTime fechaBaja;
 
     @OneToMany(mappedBy = "reporte", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ReporteNinio> reporteNinios;

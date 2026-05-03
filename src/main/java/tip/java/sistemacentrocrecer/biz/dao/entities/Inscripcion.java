@@ -20,18 +20,18 @@ public class Inscripcion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @Column(name = "fecha_inscripcion")
-    private LocalDate fecha_inscripcion;
+    private LocalDate fechaInscripcion;
     @Column(name = "fecha_inicio")
-    private LocalDate fecha_inicio;
+    private LocalDate fechaInicio;
     @Column(name = "fecha_fin")
-    private LocalDate fecha_fin;
+    private LocalDate fechaFin;
     @Enumerated(EnumType.STRING)
     @Column(name = "estado_inscripcion")
     private EstadoInscripcionEnum estadoInscripcion;
     @Column(name = "fecha_baja")
-    private LocalDateTime fecha_baja;
+    private LocalDateTime fechaBaja;
     @Column(name = "motivo_baja")
-    private String motivo_baja;
+    private String motivoBaja;
     @Column(name = "observaciones")
     private String observaciones;
 

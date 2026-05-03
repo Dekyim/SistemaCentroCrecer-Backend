@@ -19,7 +19,7 @@ public class EmpresaExterna {
     @Column(name = "nombre", nullable = false)
     private String nombre;
     @Column(name = "tipo_servicio")
-    private String tipo_servicio;
+    private String tipoServicio;
     @Column(name = "telefono")
     private String telefono;
 

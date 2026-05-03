@@ -17,13 +17,13 @@ public class DetalleAgenda {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @Column(name = "datos_especifica")
-    private String datos_especifica;
+    private String datosEspecifica;
     @Column(name = "requiere_participantes")
-    private Boolean requiere_participantes;
+    private Boolean requiereParticipantes;
     @Column(name = "activo")
     private Boolean activo;
     @Column(name = "fecha_baja")
-    private LocalDateTime fecha_baja;
+    private LocalDateTime fechaBaja;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "agenda_id")

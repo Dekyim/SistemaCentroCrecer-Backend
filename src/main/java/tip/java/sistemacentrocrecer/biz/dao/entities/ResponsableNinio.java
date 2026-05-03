@@ -15,9 +15,9 @@ public class ResponsableNinio {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @Column(name = "tipo_relacion")
-    private String tipo_relacion;
+    private String tipoRelacion;
     @Column(name = "autorizado_retiro")
-    private Boolean autorizado_retiro;
+    private Boolean autorizadoRetiro;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ninio_id")

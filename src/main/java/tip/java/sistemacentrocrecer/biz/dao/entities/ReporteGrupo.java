@@ -15,9 +15,9 @@ public class ReporteGrupo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @Column(name = "grupo_nombre")
-    private String grupo_nombre;
+    private String grupoNombre;
     @Column(name = "reporte_titulo")
-    private String reporte_titulo;
+    private String reporteTitulo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "grupo_id")

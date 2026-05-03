@@ -13,7 +13,7 @@ import lombok.*;
 public class SubtipoAgenda {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer subtipo_id;
+    private Integer subtipoId;
     @Column(name = "subtipo", nullable = false)
     private String subtipo;
 

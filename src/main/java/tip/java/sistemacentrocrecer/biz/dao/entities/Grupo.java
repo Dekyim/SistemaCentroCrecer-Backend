@@ -23,13 +23,13 @@ public class Grupo {
     @Column(name = "activo")
     private boolean activo;
     @Column(name = "fecha_baja")
-    private LocalDateTime fecha_baja;
+    private LocalDateTime fechaBaja;
     @Column(name = "rango_edad")
-    private String rango_edad;
+    private String rangoEdad;
     @Column(name = "hora_inicio")
-    private LocalTime hora_inicio;
+    private LocalTime horaInicio;
     @Column(name = "hora_fin")
-    private LocalTime hora_fin;
+    private LocalTime horaFin;
 
     @OneToMany(mappedBy = "grupo")
     private List<Ninio> ninios;

@@ -17,13 +17,13 @@ public class DocumentoAdjunto {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @Column(name = "nombre_archivo")
-    private String nombre_archivo;
+    private String nombreArchivo;
     @Column(name = "tipo_archivo")
-    private String tipo_archivo;
+    private String tipoArchivo;
     @Column(name = "url")
     private String url;
     @Column(name = "fecha_subida")
-    private Date fecha_subida;
+    private Date fechaSubida;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reporte_id")

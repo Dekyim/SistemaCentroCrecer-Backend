@@ -30,11 +30,11 @@ public class Funcionario {
     @Column(name = "contrasenia")
     private String contrasenia;
     @Column(name = "fecha_nacimiento")
-    private LocalDate fecha_nacimiento;
+    private LocalDate fechaNacimiento;
     @Column(name = "activo")
     private boolean activo;
     @Column(name = "fecha_baja")
-    private LocalDate fecha_baja;
+    private LocalDate fechaBaja;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rol_id")

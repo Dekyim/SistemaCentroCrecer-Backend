@@ -26,13 +26,13 @@ public class Responsable {
     @Column(name = "apellido", nullable = false)
     private String apellido;
     @Column(name = "fecha_nacimiento")
-    private Date fecha_nacimiento;
+    private Date fechaNacimiento;
     @Column(name = "telefono")
     private String telefono;
     @Column(name = "activo")
     private Boolean activo;
     @Column(name = "fecha_baja")
-    private LocalDateTime fecha_baja;
+    private LocalDateTime fechaBaja;
     @Column(name = "email")
     private String email;
 

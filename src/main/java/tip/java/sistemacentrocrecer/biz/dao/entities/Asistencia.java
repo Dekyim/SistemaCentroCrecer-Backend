@@ -29,18 +29,18 @@ public class Asistencia {
     private Boolean activo;
 
     @Column(name = "ninio_cedula")
-    private String ninio_cedula;
+    private String ninioCedula;
     @Column(name = "ninio_nombre")
-    private String ninio_nombre;
+    private String ninioNombre;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ninio_id")
     private Ninio ninio;
 
     @Column(name = "funcionario_nombre")
-    private String funcionario_nombre;
+    private String funcionarioNombre;
     @Column(name = "funcionario_cedula")
-    private String funcionario_cedula;
+    private String funcionarioCedula;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "funcionario_id")
