@@ -14,16 +14,16 @@ import java.util.Optional;
 public interface AgendaRepository extends JpaRepository<Agenda, Integer>, JpaSpecificationExecutor<Agenda> {
 
     // buscar activos
-    List<Agenda> findByactivoTrue();
-    List<Agenda> findByactivoFalse();
+    List<Agenda> findByActivoTrue();
+    List<Agenda> findByActivoFalse();
 
     // buscar por fecha
-    List<Agenda> findByfecha(LocalDate fecha);
-    List<Agenda> findByfechaBetween(LocalDate desde, LocalDate hasta);
+    List<Agenda> findByFecha(LocalDate fecha);
+    List<Agenda> findByFechaBetween(LocalDate desde, LocalDate hasta);
 
     // buscar por id de funcionario
-    List<Agenda> findByFuncionario_id(Integer funcionarioId);
-    List<Agenda> findByfuncionario_idAndActivoTrue(Integer funcionarioId);
+    List<Agenda> findByFuncionarioId(Integer funcionarioId);
+    List<Agenda> findByFuncionarioIdAndActivoTrue(Integer funcionarioId);
 
     // buscar por tipo de agenda
     List<Agenda> findByTipoId(Integer tipoId);
