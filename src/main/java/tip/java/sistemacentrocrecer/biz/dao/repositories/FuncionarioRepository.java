@@ -30,4 +30,8 @@ public interface FuncionarioRepository
     List<Funcionario> findByActivoTrue();
     Page<Funcionario> findByActivoTrue(Pageable pageable);
     List<Funcionario> findByRolIdAndActivoTrue(Integer rolId);
+
+    boolean existsByEmail(String email);
+
+    boolean existsByEmailAndIdNot(String email, Integer id);
 }

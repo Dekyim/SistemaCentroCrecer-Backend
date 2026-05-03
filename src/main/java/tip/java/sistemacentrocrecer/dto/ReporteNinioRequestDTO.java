@@ -1,13 +1,14 @@
 package tip.java.sistemacentrocrecer.dto;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
 public class ReporteNinioRequestDTO {
-    private Integer id;
+    @NotNull(message = "El id del reporte no puede ser nulo")
     private Integer reporteId;
-    private String reporteTitulo;
+
+    @NotNull(message = "El id del niño no puede ser nulo")
     private Integer ninioId;
-    private String ninioNombre;
 
 }
