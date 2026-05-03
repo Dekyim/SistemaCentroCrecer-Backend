@@ -5,8 +5,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import tip.java.sistemacentrocrecer.biz.dao.entities.Rol;
 import tip.java.sistemacentrocrecer.biz.dao.repositories.RolRepository;
-import tip.java.sistemacentrocrecer.dto.RolRequestDTO;
 import tip.java.sistemacentrocrecer.dto.RolResponseDTO;
+import tip.java.sistemacentrocrecer.dto.RolRequestDTO;
 import tip.java.sistemacentrocrecer.exceptions.BusinessException;
 import tip.java.sistemacentrocrecer.exceptions.ResourceNotFoundException;
 
@@ -19,20 +19,20 @@ import java.util.stream.Collectors;
 public class RolService {
     private final RolRepository rolRepository;
 
-    public List<RolResponseDTO> listarTodos() {
+    public List<RolRequestDTO> listarTodos() {
         return rolRepository.findAll().stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
 
-    public List<RolResponseDTO> listarActivos() {
+    public List<RolRequestDTO> listarActivos() {
         return rolRepository.findByActivoTrue().stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public RolResponseDTO actualizar(Integer id, RolRequestDTO dto) {
+    public RolRequestDTO actualizar(Integer id, RolResponseDTO dto) {
         Rol rol = rolRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Rol", id));
 
@@ -75,7 +75,7 @@ public class RolService {
     }
 
     @Transactional
-    public RolResponseDTO crear(RolRequestDTO dto) {
+    public RolRequestDTO crear(RolResponseDTO dto) {
         if (rolRepository.existsByNombreIgnoreCase(dto.getNombre())) {
             throw new BusinessException("Ya existe un rol con el nombre: " + dto.getNombre());
         }
@@ -97,15 +97,15 @@ public class RolService {
 
     //Posbiblemente agregar un directorio nuevo "mapper"
     //Convertir un objeto de tipo Rol (entity) a un dto (lo que se muestra en el front)
-    private RolResponseDTO toDTO(Rol rol) {
-        RolResponseDTO dto = new RolResponseDTO();
+    private RolRequestDTO toDTO(Rol rol) {
+        RolRequestDTO dto = new RolRequestDTO();
         dto.setId(rol.getId());
         dto.setNombre(rol.getNombre());
         dto.setActivo(rol.isActivo());
-        dto.setFecha_baja(rol.getFechaBaja());
+        dto.setFechaBaja(rol.getFechaBaja());
         if (rol.getPadre() != null) {
-            dto.setPadre_id(rol.getPadre().getId());
-            dto.setPadre_nombre(rol.getPadre().getNombre());
+            dto.setPadreId(rol.getPadre().getId());
+            dto.setPadreNombre(rol.getPadre().getNombre());
         }
         return dto;
     }
