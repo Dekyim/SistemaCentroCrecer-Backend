@@ -17,4 +17,7 @@ public interface RolRepository extends JpaRepository<Rol, Integer>, JpaSpecifica
     boolean existsByNombreIgnoreCaseAndIdNot(String nombre, Integer id);
     List<Rol> findByPadreIsNull();
     List<Rol> findByPadreId(Integer padreId);
+    List<Rol> findByActivoTrue();
+    List<Rol> findByActivoFalse();
+
 }
