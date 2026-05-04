@@ -16,24 +16,24 @@ public class RolController {
     private final RolService rolService;
 
     @GetMapping
-    public List<RolRequestDTO> listarTodos() {
+    public List<RolResponseDTO> listarTodos() {
         return rolService.listarTodos();
     }
 
     @GetMapping("/activos")
-    public List<RolRequestDTO> listarActivos() {
+    public List<RolResponseDTO> listarActivos() {
         return rolService.listarActivos();
     }
 
     @PostMapping
-    public RolRequestDTO crear(@Valid @RequestBody RolResponseDTO dto) {
+    public RolResponseDTO crear(@Valid @RequestBody RolRequestDTO dto) {
         return rolService.crear(dto);
     }
 
     @PutMapping("/{id}")
-    public RolRequestDTO actualizar(
+    public RolResponseDTO actualizar(
             @PathVariable Integer id,
-            @Valid @RequestBody RolResponseDTO dto
+            @Valid @RequestBody RolRequestDTO dto
     ) {
         return rolService.actualizar(id, dto);
     }

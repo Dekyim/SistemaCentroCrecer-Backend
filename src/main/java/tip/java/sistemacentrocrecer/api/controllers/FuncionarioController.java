@@ -16,24 +16,24 @@ public class FuncionarioController {
     private final FuncionarioService funcionarioService;
 
     @GetMapping
-    public List<FuncionarioRequestDTO> listarTodos() {
+    public List<FuncionarioResponseDTO> listarTodos() {
         return funcionarioService.listarTodos();
     }
 
     @GetMapping("/activos")
-    public List<FuncionarioRequestDTO> listarActivos() {
+    public List<FuncionarioResponseDTO> listarActivos() {
         return funcionarioService.listarActivos();
     }
 
     @PostMapping
-    public FuncionarioRequestDTO crear(@Valid @RequestBody FuncionarioResponseDTO dto) {
+    public FuncionarioResponseDTO crear(@Valid @RequestBody FuncionarioRequestDTO dto) {
         return funcionarioService.crear(dto);
     }
 
     @PutMapping("/{id}")
-    public FuncionarioRequestDTO actualizar(
+    public FuncionarioResponseDTO actualizar(
             @PathVariable Integer id,
-            @Valid @RequestBody FuncionarioResponseDTO dto
+            @Valid @RequestBody FuncionarioRequestDTO dto
     ) {
         return funcionarioService.actualizar(id, dto);
     }

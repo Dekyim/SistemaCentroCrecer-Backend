@@ -60,6 +60,43 @@ public class GrupoService {
     }
 
     @Transactional
+    public GrupoResponseDTO actualizar(Integer id, GrupoRequestDTO dto) {
+
+        Grupo grupo = grupoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Grupo", id));
+
+        if (dto.getHoraFin().isBefore(dto.getHoraInicio())) {
+            throw new BusinessException("La hora de fin no puede ser menor que la de inicio");
+        }
+
+        grupo.setNombre(dto.getNombre());
+        grupo.setHoraInicio(dto.getHoraInicio());
+        grupo.setHoraFin(dto.getHoraFin());
+        grupo.setRangoEdad(dto.getRangoEdad());
+
+
+        if (dto.getFuncionariosIds() != null) {
+            List<Funcionario> funcionarios = funcionarioRepository.findAllById(dto.getFuncionariosIds());
+            grupo.setFuncionarios(funcionarios);
+        }
+
+
+        if (dto.getNiniosIds() != null) {
+
+            if (grupo.getNinios() != null) {
+                grupo.getNinios().forEach(n -> n.setGrupo(null));
+            }
+
+            List<Ninio> ninios = ninioRepository.findAllById(dto.getNiniosIds());
+
+            grupo.setNinios(ninios);
+            ninios.forEach(n -> n.setGrupo(grupo));
+        }
+
+        return grupoMapper.toResponseDTO(grupoRepository.save(grupo));
+    }
+
+    @Transactional
     public void darDeBaja(Integer id) {
         Grupo g = grupoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Grupo", id));

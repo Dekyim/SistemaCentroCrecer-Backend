@@ -32,12 +32,9 @@ public interface AgendaRepository extends JpaRepository<Agenda, Integer>, JpaSpe
     List<Agenda> findByFechaAndFuncionarioId(LocalDate fecha, Integer funcionarioId);
 
     // para validaciones
-    boolean existsByFuncionarioIdAndFechaAndHoraInicioAndHoraFin(
-            Integer funcionarioId, LocalDate fecha, LocalTime horaInicio, LocalTime horaFin);
+    List<Agenda> findByFuncionarioIdAndFechaAndHoraInicioLessThanAndHoraFinGreaterThanAndActivoTrue(Integer funcionarioId, LocalDate fecha, LocalTime horaFin, LocalTime horaInicio);
 
-    // para validaciones
-    boolean existsByFuncionarioIdAndFechaAndHoraInicioAndHoraFinAndIdNot(
-            Integer funcionarioId, LocalDate fecha, LocalTime horaInicio, LocalTime horaFin, Integer id);
+    boolean existsByFuncionarioIdAndFechaAndHoraInicioAndHoraFinAndIdNot(Integer funcionarioId, LocalDate fecha, LocalTime horaInicio, LocalTime horaFin, Integer id);
 
     // buscar agendas que no estan dadas de baja, o sea actuales
     List<Agenda> findByFechaBajaIsNull();

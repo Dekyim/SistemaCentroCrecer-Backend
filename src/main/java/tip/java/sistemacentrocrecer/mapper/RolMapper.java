@@ -10,11 +10,11 @@ import tip.java.sistemacentrocrecer.dto.RolRequestDTO;
 public interface RolMapper {
     @Mapping(source = "padre.id", target = "padreId")
     @Mapping(source = "padre.nombre", target = "padreNombre")
-    RolRequestDTO toResponseDTO(Rol rol);
+    RolResponseDTO toResponseDTO(Rol rol);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "activo", constant = "true")
     @Mapping(target = "fechaBaja", ignore = true)
     @Mapping(target = "padre", ignore = true)
-    Rol toEntity(RolResponseDTO dto);
+    Rol toEntity(RolRequestDTO dto);
 }

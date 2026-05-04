@@ -20,20 +20,20 @@ public class RolService {
     private final RolRepository rolRepository;
     private final RolMapper rolMapper;
 
-    public List<RolRequestDTO> listarTodos() {
+    public List<RolResponseDTO> listarTodos() {
         return rolRepository.findAll()
                 .stream()
                 .map(rolMapper::toResponseDTO)
                 .toList();
     }
-    public List<RolRequestDTO> listarActivos() {
+    public List<RolResponseDTO> listarActivos() {
         return rolRepository.findByActivoTrue()
                 .stream()
                 .map(rolMapper::toResponseDTO)
                 .toList();
     }
     @Transactional
-    public RolRequestDTO crear(RolResponseDTO dto) {
+    public RolResponseDTO crear(RolRequestDTO dto) {
 
         if (rolRepository.existsByNombreIgnoreCase(dto.getNombre())) {
             throw new BusinessException("Ya existe un rol con ese nombre");
@@ -51,7 +51,7 @@ public class RolService {
     }
 
     @Transactional
-    public RolRequestDTO actualizar(Integer id, RolResponseDTO dto) {
+    public RolResponseDTO actualizar(Integer id, RolRequestDTO dto) {
 
         Rol rol = rolRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Rol", id));

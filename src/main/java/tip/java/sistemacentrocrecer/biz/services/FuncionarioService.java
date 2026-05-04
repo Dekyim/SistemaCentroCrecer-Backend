@@ -25,7 +25,7 @@ public class FuncionarioService {
     private final FuncionarioMapper funcionarioMapper;
 
     @Transactional
-    public FuncionarioRequestDTO crear(FuncionarioResponseDTO dto) {
+    public FuncionarioResponseDTO crear(FuncionarioRequestDTO dto) {
 
         if (funcionarioRepository.existsByCedula(dto.getCedula())) {
             throw new BusinessException("Ya existe un funcionario con la cédula");
@@ -35,8 +35,8 @@ public class FuncionarioService {
             throw new BusinessException("Ya existe un funcionario con el email");
         }
 
-        Rol rol = rolRepository.findById(dto.getRol().getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Rol", dto.getRol().getId()));
+        Rol rol = rolRepository.findById(dto.getRolId())
+                .orElseThrow(() -> new ResourceNotFoundException("Rol", dto.getRolId()));
 
         if (!rol.isActivo()) {
             throw new BusinessException("No se puede asignar un rol inactivo");
@@ -48,19 +48,19 @@ public class FuncionarioService {
         return funcionarioMapper.toResponseDTO(funcionarioRepository.save(funcionario));
     }
 
-    public List<FuncionarioRequestDTO> listarTodos() {
+    public List<FuncionarioResponseDTO> listarTodos() {
         return funcionarioRepository.findAll().stream()
                 .map(funcionarioMapper::toResponseDTO)
                 .toList();
     }
-    public List<FuncionarioRequestDTO> listarActivos() {
+    public List<FuncionarioResponseDTO> listarActivos() {
         return funcionarioRepository.findByActivoTrue().stream()
                 .map(funcionarioMapper::toResponseDTO)
                 .toList();
     }
 
     @Transactional
-    public FuncionarioRequestDTO actualizar(Integer id, FuncionarioResponseDTO dto) {
+    public FuncionarioResponseDTO actualizar(Integer id, FuncionarioRequestDTO dto) {
 
         Funcionario funcionario = funcionarioRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Funcionario", id));
@@ -73,8 +73,8 @@ public class FuncionarioService {
             throw new BusinessException("Email duplicado");
         }
 
-        Rol rol = rolRepository.findById(dto.getRol().getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Rol", dto.getRol().getId()));
+        Rol rol = rolRepository.findById(dto.getRolId())
+                .orElseThrow(() -> new ResourceNotFoundException("Rol", dto.getRolId()));
 
         funcionario.setCedula(dto.getCedula());
         funcionario.setNombre(dto.getNombre());

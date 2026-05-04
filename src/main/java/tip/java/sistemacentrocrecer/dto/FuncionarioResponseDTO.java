@@ -13,7 +13,6 @@ public class FuncionarioResponseDTO {
     private String apellido;
     private String email;
     private String telefono;
-    private String contrasenia;
     private LocalDate fechaNacimiento;
     private boolean activo;
     private LocalDate fechaBaja;

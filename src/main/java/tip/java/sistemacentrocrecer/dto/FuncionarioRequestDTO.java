@@ -37,6 +37,5 @@ public class FuncionarioRequestDTO {
     @NotNull(message = "El id del rol no puede ser nulo")
     private Integer rolId;
 
-    private String rolNombre;
 
 }
