@@ -19,6 +19,7 @@ public interface AsistenciaRepository
     Page<Asistencia> findByNinio_IdAndActivoTrue(Integer ninioId, Pageable pageable); //para implementar paginacion y ordenamiento de registros
     List<Asistencia> findByFuncionario_Id(Integer funcionarioId);
     List<Asistencia> findByFecha(LocalDate fecha);
+    Optional<Asistencia> findByNinio_Cedula(String cedula);
     List<Asistencia> findByFechaBetweenAndActivoTrue(LocalDate desde, LocalDate hasta);
     Optional<Asistencia> findByNinio_IdAndFecha(Integer ninioId, LocalDate fecha);
     boolean existsByNinio_IdAndFechaAndActivoTrue(Integer ninioId, LocalDate fecha);
