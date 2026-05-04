@@ -19,6 +19,6 @@ public interface GrupoMapper {
     @Mapping(target = "fechaBaja", ignore = true)
     @Mapping(target = "ninios", ignore = true)
     @Mapping(target = "funcionarios", ignore = true)
-    @Mapping(target = "reportes", ignore = true) // ← ESTE SÍ se queda (porque es ENTITY)
+    @Mapping(target = "reportes", ignore = true) 
     Grupo toEntity(GrupoRequestDTO dto);
 }
