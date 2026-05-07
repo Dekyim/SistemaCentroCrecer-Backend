@@ -35,6 +35,8 @@ public class Responsable {
     private LocalDateTime fechaBaja;
     @Column(name = "email")
     private String email;
+    @Column(name = "contrasenia")
+    private String contrasenia;
 
     @OneToMany(mappedBy = "responsable", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ResponsableNinio> ninios;

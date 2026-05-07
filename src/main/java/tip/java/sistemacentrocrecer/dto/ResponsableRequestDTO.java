@@ -27,4 +27,8 @@ public class ResponsableRequestDTO {
 
     @Email
     private String email;
+
+    @NotBlank(message = "La contraseña no puede estar vacía")
+    @Size(min = 10, message = "La contraseña debe tener al menos 10 caracteres")
+    private String contrasenia;
 }
