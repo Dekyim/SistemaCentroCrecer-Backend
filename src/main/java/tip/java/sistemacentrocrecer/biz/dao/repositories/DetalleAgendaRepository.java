@@ -22,12 +22,11 @@ public interface DetalleAgendaRepository extends JpaRepository<DetalleAgenda, In
     List<DetalleAgenda> findByAgendaId(Integer agendaId);
 
     // por subtipo
-    Optional<DetalleAgenda> findBySubtipoSubtipoId(Integer subtipoId);
-
+    Optional<DetalleAgenda> findBySubtipoAgendaSubtipoId(Integer subtipoId);
     // combinados
     List<DetalleAgenda> findByAgendaIdAndActivoTrue(Integer agendaId);
 
     // validación
-    boolean existsByAgendaIdAndSubtipoSubtipoId(Integer agendaId, Integer subtipoId);
-    boolean existsByAgendaIdAndSubtipoSubtipoIdAndIdNot(Integer agendaId, Integer subtipoId, Integer id);
+    boolean existsByAgendaIdAndSubtipoAgendaSubtipoId(Integer agendaId, Integer subtipoId);
+    boolean existsByAgendaIdAndSubtipoAgendaSubtipoIdAndIdNot(Integer agendaId, Integer subtipoId, Integer id);
 }

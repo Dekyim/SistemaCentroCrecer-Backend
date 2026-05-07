@@ -13,14 +13,15 @@ import lombok.*;
 public class SubtipoAgenda {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "subtipo_id")
     private Integer subtipoId;
+
     @Column(name = "subtipo", nullable = false)
     private String subtipo;
 
-    @OneToOne(mappedBy = "subtipo", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "subtipoAgenda", fetch = FetchType.LAZY)
     private DetalleAgenda detalleAgenda;
 
     @OneToOne(mappedBy = "subtipoAgenda", fetch = FetchType.LAZY)
     private AgendaLimpieza agendaLimpieza;
-
 }

@@ -27,4 +27,5 @@ public interface AgendaLimpiezaRepository extends JpaRepository<AgendaLimpieza, 
 
     // validación
     boolean existsByAgendaIdAndSubtipoAgendaSubtipoId(Integer agendaId, Integer subtipoId);
+    boolean existsByAgendaIdAndSubtipoAgendaSubtipoIdAndIdNot(Integer agendaId, Integer subtipoId, Integer id);
 }

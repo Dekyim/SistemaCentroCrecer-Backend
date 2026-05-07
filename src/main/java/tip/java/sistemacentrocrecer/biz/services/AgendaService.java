@@ -40,7 +40,7 @@ public class AgendaService {
     }
 
     public AgendaResponseDTO obtenerPorId(Integer id) {
-        Agenda agenda = agendaRepository.findById(id).orElse(null);
+        Agenda agenda = agendaRepository.findById(id).orElseThrow(() -> new RuntimeException("Agenda no encontrada con id: " + id));
         return agendaMapper.toResponseDTO(agenda);
     }
 
@@ -49,8 +49,8 @@ public class AgendaService {
 
         Agenda agenda = agendaMapper.toEntity(dto);
 
-        Funcionario funcionario = funcionarioRepository.findById(dto.getFuncionarioId()).orElse(null);
-        TipoAgenda tipo = tipoAgendaRepository.findById(dto.getTipoId()).orElse(null);
+        Funcionario funcionario = funcionarioRepository.findById(dto.getFuncionarioId()).orElseThrow(() -> new RuntimeException("Funcionario no encontrado con id: " + dto.getFuncionarioId()));
+        TipoAgenda tipo = tipoAgendaRepository.findById(dto.getTipoId()).orElseThrow(() -> new RuntimeException("TipoAgenda no encontrado con id: " + dto.getTipoId()));
 
         agenda.setFuncionario(funcionario);
         agenda.setTipo(tipo);
@@ -68,9 +68,8 @@ public class AgendaService {
         agenda.setHoraFin(dto.getHoraFin());
         agenda.setDescripcion(dto.getDescripcion());
 
-        Funcionario funcionario = funcionarioRepository.findById(dto.getFuncionarioId()).orElse(null);
-        TipoAgenda tipo = tipoAgendaRepository.findById(dto.getTipoId()).orElse(null);
-
+        Funcionario funcionario = funcionarioRepository.findById(dto.getFuncionarioId()).orElseThrow(() -> new RuntimeException("Funcionario no encontrado con id: " + dto.getFuncionarioId()));
+        TipoAgenda tipo = tipoAgendaRepository.findById(dto.getTipoId()).orElseThrow(() -> new RuntimeException("TipoAgenda no encontrado con id: " + dto.getTipoId()));
         agenda.setFuncionario(funcionario);
         agenda.setTipo(tipo);
 
@@ -80,7 +79,11 @@ public class AgendaService {
     @Transactional
     public void darDeBaja(Integer id) {
 
-        Agenda agenda = agendaRepository.findById(id).orElse(null);
+        Agenda agenda = agendaRepository.findById(id).orElseThrow(() -> new RuntimeException("Agenda no encontrada con id: " + id));
+
+        if (!agenda.getActivo()) {
+            throw new IllegalStateException("La agenda ya esta dada de baja");
+        }
 
         agenda.setActivo(false);
         agenda.setFechaBaja(LocalDateTime.now());

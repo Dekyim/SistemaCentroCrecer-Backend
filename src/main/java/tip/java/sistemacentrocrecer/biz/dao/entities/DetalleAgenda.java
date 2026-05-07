@@ -16,8 +16,8 @@ public class DetalleAgenda {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @Column(name = "datos_especifica")
-    private String datosEspecifica;
+    @Column(name = "descripcion_especifica")
+    private String descripcionEspecifica;
     @Column(name = "requiere_participantes")
     private Boolean requiereParticipantes;
     @Column(name = "activo")
@@ -29,7 +29,8 @@ public class DetalleAgenda {
     @JoinColumn(name = "agenda_id")
     private Agenda agenda;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "subtipo_id")
-    private SubtipoAgenda subtipo;
+    private SubtipoAgenda subtipoAgenda;
+
 }
