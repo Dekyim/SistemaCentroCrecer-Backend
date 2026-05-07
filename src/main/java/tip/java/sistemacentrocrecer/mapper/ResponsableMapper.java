@@ -13,12 +13,12 @@ public interface ResponsableMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "activo", constant = "true")
-    @Mapping(target = "fecha_baja", ignore = true)
+    @Mapping(target = "fechaBaja", ignore = true)
     Responsable toEntity(ResponsableRequestDTO dto);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "activo", ignore = true)
-    @Mapping(target = "fecha_baja", ignore = true)
+    @Mapping(target = "fechaBaja", ignore = true)
     void updateEntityFromDTO(ResponsableRequestDTO dto, @MappingTarget Responsable responsable);
 
 

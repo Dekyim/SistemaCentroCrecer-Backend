@@ -10,7 +10,7 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
-    private static final String SECRET = "centrocrecer-clave-super-secreta-2024";
+    private static final String SECRET = "centrocrecer-clave-super-secreta-2026";
     private static final long EXPIRATION_MS = 86400000; // 24 horas
 
     private final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
@@ -25,7 +25,7 @@ public class JwtUtil {
                 .compact();
     }
 
-    public String extraerCorreo(String token) {
+    public String extraerEmail(String token) {
         return parsear(token).getBody().getSubject();
     }
 

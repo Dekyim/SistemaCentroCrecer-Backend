@@ -10,7 +10,7 @@ import tip.java.sistemacentrocrecer.dto.SubtipoAgendaResponseDTO;
 public interface SubtipoAgendaMapper {
 
     @Mapping(source = "detalleAgenda.id", target = "detalleAgendaId")
-    @Mapping(source = "agendaLimpieza.nombre", target = "agendaLimpiezaId")
+    @Mapping(source = "agendaLimpieza.zona", target = "agendaLimpiezaId")
     SubtipoAgendaResponseDTO toResponseDTO(SubtipoAgenda subtipoAgenda);
 
     @Mapping(target = "subtipoId", ignore = true)
