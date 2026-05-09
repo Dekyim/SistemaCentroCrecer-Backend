@@ -45,4 +45,11 @@ public class JwtUtil {
     private Jws<Claims> parsear(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
     }
+    public Long getExpiracion(String token) {
+        return parsear(token)
+                .getBody()
+                .getExpiration()
+                .getTime();
+    }
+
 }

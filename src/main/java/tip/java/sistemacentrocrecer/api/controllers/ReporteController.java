@@ -26,6 +26,11 @@ public class ReporteController {
         return ResponseEntity.ok(reporteService.listarTodos());
     }
 
+    @GetMapping("/activos")
+    public List<ReporteResponseDTO> listarActivos() {
+        return reporteService.listarActivos();
+    }
+
     @PutMapping("/{id}/actualizar")
     public ResponseEntity<ReporteResponseDTO> actualizar(@PathVariable Integer id, @Valid @RequestBody ReporteRequestDTO dto) {
         return ResponseEntity.ok(reporteService.actualizarReporte(id, dto));

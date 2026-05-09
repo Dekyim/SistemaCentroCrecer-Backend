@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import tip.java.sistemacentrocrecer.biz.dao.repositories.FuncionarioRepository;
 import tip.java.sistemacentrocrecer.biz.dao.repositories.ResponsableRepository;
 import tip.java.sistemacentrocrecer.dto.LoginRequestDTO;
+import tip.java.sistemacentrocrecer.dto.LoginResponseDTO;
 import tip.java.sistemacentrocrecer.security.JwtUtil;
 
 import java.util.Map;
@@ -18,7 +19,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
-    public Map<String, String> loginFuncionario(LoginRequestDTO req) {
+    public LoginResponseDTO loginFuncionario(LoginRequestDTO req) {
         var funcionario = funcionarioRepo.findByEmail(req.getCorreo())
                 .orElseThrow(() -> new RuntimeException("Credenciales inválidas"));
 
@@ -27,10 +28,19 @@ public class AuthService {
         }
 
         String token = jwtUtil.generarToken(funcionario.getEmail(), "FUNCIONARIO");
-        return Map.of("token", token, "rol", "FUNCIONARIO", "nombre", funcionario.getNombre());
+
+        return LoginResponseDTO.builder()
+                .token(token)
+                .tipoToken("Bearer")
+                .rol("FUNCIONARIO")
+                .id(Long.valueOf(funcionario.getId()))
+                .nombreCompleto(funcionario.getNombre())
+                .correo(funcionario.getEmail())
+                .expiracion(jwtUtil.getExpiracion(token))
+                .build();
     }
 
-    public Map<String, String> loginResponsable(LoginRequestDTO req) {
+    public LoginResponseDTO loginResponsable(LoginRequestDTO req) {
         var responsable = responsableRepo.findByEmail(req.getCorreo())
                 .orElseThrow(() -> new RuntimeException("Credenciales inválidas"));
 
@@ -39,6 +49,16 @@ public class AuthService {
         }
 
         String token = jwtUtil.generarToken(responsable.getEmail(), "RESPONSABLE");
-        return Map.of("token", token, "rol", "RESPONSABLE", "nombre", responsable.getNombre());
+
+        return LoginResponseDTO.builder()
+                .token(token)
+                .tipoToken("Bearer")
+                .rol("RESPONSABLE")
+                .id(Long.valueOf(responsable.getId()))
+                .nombreCompleto(responsable.getNombre())
+                .correo(responsable.getEmail())
+                .expiracion(jwtUtil.getExpiracion(token))
+                .build();
     }
+
 }
