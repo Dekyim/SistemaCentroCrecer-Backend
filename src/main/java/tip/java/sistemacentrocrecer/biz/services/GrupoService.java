@@ -32,6 +32,17 @@ public class GrupoService {
                 .toList();
     }
 
+    public GrupoResponseDTO buscarPorId(Integer id) {
+        Grupo grupo = grupoRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Grupo no encontrado"));
+        return grupoMapper.toResponseDTO(grupo);
+    }
+
+    public List<GrupoResponseDTO> listarGruposActivos(){
+        return grupoRepository.findByActivoTrue().stream()
+                .map(grupoMapper::toResponseDTO)
+                .toList();
+    }
+
     @Transactional
     public GrupoResponseDTO crear(GrupoRequestDTO dto) {
 

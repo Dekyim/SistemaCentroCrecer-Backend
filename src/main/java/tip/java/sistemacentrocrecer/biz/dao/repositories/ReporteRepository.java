@@ -14,7 +14,7 @@ import java.util.List;
 public interface ReporteRepository
         extends JpaRepository<Reporte, Integer>, JpaSpecificationExecutor<Reporte> {
     //Listados
-    Page<Reporte> findByActivoTrue(Pageable pageable);
+    Page<Reporte> findByActivoTrue();
     List<Reporte> findByFuncionario_Id(Integer funcionarioId);
     Page<Reporte> findByFuncionario_IdAndActivoTrue(Integer funcionarioId, Pageable pageable);
     List<Reporte> findByVistoFalseAndActivoTrue();

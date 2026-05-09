@@ -1,5 +1,6 @@
 package tip.java.sistemacentrocrecer.api.controllers;
 
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,7 +11,7 @@ import tip.java.sistemacentrocrecer.dto.GrupoResponseDTO;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/grupos")
+@RequestMapping("/api/v1/grupos")
 @AllArgsConstructor
 public class GrupoController {
     private final GrupoService grupoService;
@@ -18,6 +19,11 @@ public class GrupoController {
     @GetMapping
     public ResponseEntity<List<GrupoResponseDTO>> listarTodos() {
         return ResponseEntity.ok(grupoService.listarTodos());
+    }
+
+    @GetMapping("/activos")
+    public List<GrupoResponseDTO> listarActivos() {
+        return grupoService.listarGruposActivos();
     }
 
     @PostMapping
@@ -29,5 +35,15 @@ public class GrupoController {
     public ResponseEntity<Void> darDeBaja(@PathVariable Integer id) {
         grupoService.darDeBaja(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}/actualizar")
+    public ResponseEntity<GrupoResponseDTO> actualizar(@PathVariable Integer id, @Valid @RequestBody GrupoRequestDTO dto) {
+        return ResponseEntity.ok(grupoService.actualizar(id, dto));
+    }
+
+    @PutMapping("/{id}")
+    public GrupoResponseDTO obtenerPorId(@PathVariable Integer id) {
+        return grupoService.buscarPorId(id);
     }
 }

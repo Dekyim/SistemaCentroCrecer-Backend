@@ -24,6 +24,8 @@ public class DetalleAgendaService {
     private final FuncionarioRepository funcionarioRepository;
     private final SubtipoAgendaRepository subtipoAgendaRepository;
     private final DetalleAgendaMapper detalleAgendaMapper;
+    private final AgendaMapper agendaMapper;
+    private final TipoAgendaRepository tipoAgendaRepository;
 
     public List<DetalleAgendaResponseDTO> listarTodos() {
         return detalleAgendaRepository.findAll()
@@ -69,8 +71,9 @@ public class DetalleAgendaService {
         agenda.setDescripcion(dto.getDescripcion());
 
         Funcionario funcionario = funcionarioRepository.findById(dto.getFuncionarioId()).orElseThrow(() -> new RuntimeException("Funcionario no encontrado con id: " + dto.getFuncionarioId()));
-        TipoAgenda tipo = tipoAgendaRepository.findById(dto.getTipoId()).orElseThrow(() -> new RuntimeException("TipoAgenda no encontrado con id: " + dto.getTipoId()));
-        agenda.setFuncionario(funcionario);
+        TipoAgenda tipo = tipoAgendaRepository.findById(dto.getTipoId())
+                .orElseThrow(() ->
+                        new RuntimeException("TipoAgenda no encontrado con id: " + dto.getTipoId()));        agenda.setFuncionario(funcionario);
         agenda.setTipo(tipo);
 
         return agendaMapper.toResponseDTO(agendaRepository.save(agenda));
