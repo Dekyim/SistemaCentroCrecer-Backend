@@ -5,11 +5,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import tip.java.sistemacentrocrecer.biz.dao.entities.*;
 import tip.java.sistemacentrocrecer.biz.dao.repositories.*;
-import tip.java.sistemacentrocrecer.dto.AgendaRequestDTO;
-import tip.java.sistemacentrocrecer.dto.AgendaResponseDTO;
 import tip.java.sistemacentrocrecer.dto.DetalleAgendaRequestDTO;
 import tip.java.sistemacentrocrecer.dto.DetalleAgendaResponseDTO;
-import tip.java.sistemacentrocrecer.mapper.AgendaMapper;
 import tip.java.sistemacentrocrecer.mapper.DetalleAgendaMapper;
 
 import java.time.LocalDateTime;
@@ -21,11 +18,8 @@ public class DetalleAgendaService {
 
     private final DetalleAgendaRepository detalleAgendaRepository;
     private final AgendaRepository agendaRepository;
-    private final FuncionarioRepository funcionarioRepository;
     private final SubtipoAgendaRepository subtipoAgendaRepository;
     private final DetalleAgendaMapper detalleAgendaMapper;
-    private final AgendaMapper agendaMapper;
-    private final TipoAgendaRepository tipoAgendaRepository;
 
     public List<DetalleAgendaResponseDTO> listarTodos() {
         return detalleAgendaRepository.findAll()
@@ -61,36 +55,34 @@ public class DetalleAgendaService {
     }
 
     @Transactional
-    public AgendaResponseDTO actualizar(Integer id, AgendaRequestDTO dto) {
+    public DetalleAgendaResponseDTO actualizar(Integer id, DetalleAgendaRequestDTO dto) {
 
-        Agenda agenda = agendaRepository.findById(id).orElse(null);
+        DetalleAgenda detalleAgenda = detalleAgendaRepository.findById(id).orElseThrow(() -> new RuntimeException("Detalle Agenda no encontrado con id: " + id));
 
-        agenda.setFecha(dto.getFecha());
-        agenda.setHoraInicio(dto.getHoraInicio());
-        agenda.setHoraFin(dto.getHoraFin());
-        agenda.setDescripcion(dto.getDescripcion());
+        detalleAgenda.setDescripcionEspecifica(dto.getDescripcionEspecifica());
+        detalleAgenda.setRequiereParticipantes(dto.getRequiereParticipantes());
 
-        Funcionario funcionario = funcionarioRepository.findById(dto.getFuncionarioId()).orElseThrow(() -> new RuntimeException("Funcionario no encontrado con id: " + dto.getFuncionarioId()));
-        TipoAgenda tipo = tipoAgendaRepository.findById(dto.getTipoId())
-                .orElseThrow(() ->
-                        new RuntimeException("TipoAgenda no encontrado con id: " + dto.getTipoId()));        agenda.setFuncionario(funcionario);
-        agenda.setTipo(tipo);
 
-        return agendaMapper.toResponseDTO(agendaRepository.save(agenda));
+        Agenda agenda = agendaRepository.findById(dto.getAgendaId()).orElseThrow(() -> new RuntimeException("Agenda no encontrada con id: " + dto.getAgendaId()));
+        SubtipoAgenda subtipo = subtipoAgendaRepository.findById(dto.getSubtipoAgendaId()).orElseThrow(() -> new RuntimeException("SubtipoAgenda no encontrado con id: " + dto.getSubtipoAgendaId()));
+        detalleAgenda.setAgenda(agenda);
+        detalleAgenda.setSubtipoAgenda(subtipo);
+
+        return detalleAgendaMapper.toResponseDTO(detalleAgendaRepository.save(detalleAgenda));
     }
 
     @Transactional
     public void darDeBaja(Integer id) {
 
-        Agenda agenda = agendaRepository.findById(id).orElseThrow(() -> new RuntimeException("Agenda no encontrada con id: " + id));
+        DetalleAgenda detalleAgenda = detalleAgendaRepository.findById(id).orElseThrow(() -> new RuntimeException("Detalle Agenda no encontrado con id: " + id));
 
-        if (!agenda.getActivo()) {
-            throw new IllegalStateException("La agenda ya esta dada de baja");
+        if (!detalleAgenda.getActivo()) {
+            throw new IllegalStateException("El detalle agenda ya esta dado de baja");
         }
 
-        agenda.setActivo(false);
-        agenda.setFechaBaja(LocalDateTime.now());
+        detalleAgenda.setActivo(false);
+        detalleAgenda.setFechaBaja(LocalDateTime.now());
 
-        agendaRepository.save(agenda);
+        detalleAgendaRepository.save(detalleAgenda);
     }
 }

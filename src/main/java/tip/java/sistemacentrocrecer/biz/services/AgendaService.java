@@ -54,6 +54,7 @@ public class AgendaService {
 
         agenda.setFuncionario(funcionario);
         agenda.setTipo(tipo);
+        agenda.setActivo(true);
 
         return agendaMapper.toResponseDTO(agendaRepository.save(agenda));
     }

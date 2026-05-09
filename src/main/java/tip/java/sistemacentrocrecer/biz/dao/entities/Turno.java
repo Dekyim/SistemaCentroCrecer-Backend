@@ -25,7 +25,7 @@ public class Turno {
     @Column(name = "activo")
     private Boolean activo;
     @Column(name = "fecha_baja")
-    private LocalDate fechaBaja;
+    private LocalDateTime fechaBaja;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "funcionario_id")

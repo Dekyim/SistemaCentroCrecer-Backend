@@ -16,7 +16,7 @@ public interface AgendaMapper {
     AgendaResponseDTO toResponseDTO(Agenda agenda);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "activo", constant = "true")
+    @Mapping(target = "activo", ignore = true)
     @Mapping(target = "fechaBaja", ignore = true)
     @Mapping(target = "funcionario", ignore = true)
     @Mapping(target = "tipo", ignore = true)
