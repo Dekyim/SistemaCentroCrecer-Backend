@@ -1,14 +1,13 @@
 package tip.java.sistemacentrocrecer.biz.dao.repositories;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import tip.java.sistemacentrocrecer.biz.dao.entities.Ninio;
+import tip.java.sistemacentrocrecer.biz.dao.entities.ResponsableNinio;
 
 import java.util.Optional;
 
-public interface NinioRepository extends JpaRepository <Ninio, Integer>, JpaSpecificationExecutor<Ninio> {
+public interface ResponsableNinioRepository extends JpaRepository<ResponsableNinio, Integer>, JpaSpecificationExecutor<Ninio> {
     Optional<Ninio> findByCedula(String cedula);
+
 }

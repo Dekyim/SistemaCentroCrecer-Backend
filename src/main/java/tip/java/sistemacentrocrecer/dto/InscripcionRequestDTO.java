@@ -10,19 +10,19 @@ import java.time.LocalDate;
 public class InscripcionRequestDTO {
 
     @NotNull(message = "El ninioId es obligatorio")
-    private NinioResponseDTO ninio_id;
+    private Integer ninioId;
 
     @NotNull(message = "El responsableId es obligatorio")
-    private ResponsableNinioResponseDTO responsable_id;
+    private Integer responsableId;
 
     @NotNull(message = "La fechaInscripcion es obligatoria")
-    private LocalDate fecha_inscripcion;
+    private LocalDate fechaInscripcion;
 
-    private LocalDate fecha_inicio;
-    private LocalDate fecha_fin;
+    private LocalDate fechaInicio;
+    private LocalDate fechaFin;
 
     @NotNull(message = "El estadoInscripcion es obligatorio")
-    private EstadoInscripcionEnum estado_inscripcion;
+    private EstadoInscripcionEnum estadoInscripcion;
 
     private String observaciones;
 }

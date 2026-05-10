@@ -13,8 +13,8 @@ public class ResponsableNinioRequestDTO {
     private Integer responsableId;
 
     @NotBlank(message = "El tipo de relación es obligatorio")
-    private String tipo_relacion;
+    private String tipoRelacion;
 
     @NotNull(message = "Debe indicar si está autorizado")
-    private Boolean autorizado_retiro;
+    private Boolean autorizadoRetiro;
 }

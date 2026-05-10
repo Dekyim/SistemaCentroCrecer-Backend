@@ -5,17 +5,21 @@ import lombok.Data;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 @Data
 public class ActividadResponseDTO {
     private Integer id;
     private String nombre;
-    private LocalDate fecha_desde;
-    private LocalDate fecha_hasta;
-    private LocalTime hora_inicio;
-    private LocalTime hora_salida;
+    private LocalDate fechaDesde;
+    private LocalDate fechaHasta;
+    private LocalTime horaInicio;
+    private LocalTime horaSalida;
     private String descripcion;
     private Boolean activo;
-    private LocalDateTime fecha_baja;
+    private LocalDateTime fechaBaja;
     private String lugar;
+    private List<NinioResponseDTO> ninios;
+    private List<PermisoResponseDTO> permisos;
+    private List<EmpresaExternaResponseDTO> empresasExternas;
 }

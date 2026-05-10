@@ -31,9 +31,9 @@ public class NinioRequestDTO {
     private String observaciones;
 
     @NotNull
-    private GrupoResponseDTO grupo_id;
+    private GrupoResponseDTO grupo;
 
     @NotNull(message = "La fechaNacimiento no puede ser nula")
-    private LocalDate fecha_nacimiento;
+    private LocalDate fechaNacimiento;
 
 }

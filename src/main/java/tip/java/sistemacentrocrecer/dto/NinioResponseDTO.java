@@ -14,8 +14,8 @@ public class NinioResponseDTO {
     private SexoNinioEnum sexo;
     private String direccion;
     private String observaciones;
-    private LocalDate fecha_nacimiento;
+    private LocalDate fechaNacimiento;
     private boolean activo;
-    private LocalDate fecha_baja;
-    private GrupoResponseDTO grupo_id;
+    private LocalDate fechaBaja;
+    private GrupoResponseDTO grupo;
 }

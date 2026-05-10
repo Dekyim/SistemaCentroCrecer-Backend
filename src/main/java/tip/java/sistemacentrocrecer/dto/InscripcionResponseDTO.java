@@ -3,16 +3,18 @@ import tip.java.sistemacentrocrecer.biz.dao.enums.EstadoInscripcionEnum;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 public class InscripcionResponseDTO {
     private Integer id;
-    private NinioResponseDTO ninio_id;
-    private LocalDate fecha_inscripcion;
-    private LocalDate fecha_inicio;
-    private LocalDate fecha_fin;
-    private EstadoInscripcionEnum estado_inscripcion;
-    private String motivo_baja;
+    private NinioResponseDTO ninio;
+    private LocalDate fechaInscripcion;
+    private LocalDate fechaInicio;
+    private LocalDate fechaFin;
+    private EstadoInscripcionEnum estadoInscripcion;
+    private String motivoBaja;
     private String observaciones;
-    private ResponsableNinioResponseDTO responsable_id;
+
+    private List<ResponsableResponseDTO> responsables;
 }
