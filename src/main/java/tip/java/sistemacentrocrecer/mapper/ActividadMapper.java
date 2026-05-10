@@ -9,9 +9,7 @@ import tip.java.sistemacentrocrecer.dto.ActividadResponseDTO;
 @Mapper(componentModel = "spring", uses = {NinioMapper.class, PermisoMapper.class, EmpresaExternaMapper.class})
 public interface ActividadMapper {
 
-    ActividadResponseDTO toResponseDTO(
-            Actividad actividad
-    );
+    ActividadResponseDTO toResponseDTO(Actividad actividad);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "activo", ignore = true)

@@ -1,6 +1,7 @@
 package tip.java.sistemacentrocrecer.dto;
 
 import lombok.Data;
+import tip.java.sistemacentrocrecer.biz.dao.entities.Grupo;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -17,6 +18,6 @@ public class FuncionarioResponseDTO {
     private boolean activo;
     private LocalDate fechaBaja;
     private RolResponseDTO rol;
-    private List<String> grupos;
+    private List<GrupoResponseDTO> grupos;
 
 }

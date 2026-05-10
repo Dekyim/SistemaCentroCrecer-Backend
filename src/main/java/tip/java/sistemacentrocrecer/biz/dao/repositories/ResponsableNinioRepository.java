@@ -7,7 +7,8 @@ import tip.java.sistemacentrocrecer.biz.dao.entities.ResponsableNinio;
 
 import java.util.Optional;
 
-public interface ResponsableNinioRepository extends JpaRepository<ResponsableNinio, Integer>, JpaSpecificationExecutor<Ninio> {
-    Optional<Ninio> findByCedula(String cedula);
+public interface ResponsableNinioRepository extends JpaRepository<ResponsableNinio, Integer>, JpaSpecificationExecutor<ResponsableNinio> {
+    Optional<ResponsableNinio> findByResponsableCedula(String cedula);
+    Optional<ResponsableNinio> findByNinioCedula(String cedula);
 
 }

@@ -6,10 +6,9 @@ import tip.java.sistemacentrocrecer.biz.dao.entities.Permiso;
 import tip.java.sistemacentrocrecer.dto.PermisoRequestDTO;
 import tip.java.sistemacentrocrecer.dto.PermisoResponseDTO;
 
-@Mapper(componentModel = "spring", uses = {ActividadMapper.class})
+@Mapper(componentModel = "spring")
 public interface PermisoMapper {
 
-    @Mapping(source = "actividad", target = "actividad")
     PermisoResponseDTO toResponseDTO(Permiso permiso);
 
     @Mapping(target = "id", ignore = true)
