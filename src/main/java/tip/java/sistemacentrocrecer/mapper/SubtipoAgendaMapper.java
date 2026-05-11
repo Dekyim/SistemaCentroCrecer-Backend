@@ -9,12 +9,8 @@ import tip.java.sistemacentrocrecer.dto.SubtipoAgendaResponseDTO;
 @Mapper(componentModel = "spring")
 public interface SubtipoAgendaMapper {
 
-    @Mapping(source = "detalleAgenda.id", target = "detalleAgendaId")
-    @Mapping(source = "agendaLimpieza.zona", target = "agendaLimpiezaId")
     SubtipoAgendaResponseDTO toResponseDTO(SubtipoAgenda subtipoAgenda);
 
     @Mapping(target = "subtipoId", ignore = true)
-    @Mapping(target = "detalleAgenda", ignore = true)
-    @Mapping(target = "agendaLimpieza", ignore = true)
     SubtipoAgenda toEntity(SubtipoAgendaRequestDTO dto);
 }

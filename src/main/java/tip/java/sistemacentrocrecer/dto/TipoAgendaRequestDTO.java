@@ -14,6 +14,4 @@ public class TipoAgendaRequestDTO {
     @Size(min = 2, max = 50, message = "El tipo debe tener entre 2 y 50 caracteres")
     private String tipo;
 
-    @NotNull(message = "La agenda es obligatoria")
-    private Integer agendaId;
 }

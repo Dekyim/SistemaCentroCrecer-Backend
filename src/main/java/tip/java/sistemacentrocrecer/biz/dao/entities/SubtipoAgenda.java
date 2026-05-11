@@ -3,6 +3,8 @@ package tip.java.sistemacentrocrecer.biz.dao.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -19,9 +21,4 @@ public class SubtipoAgenda {
     @Column(name = "subtipo", nullable = false)
     private String subtipo;
 
-    @OneToOne(mappedBy = "subtipoAgenda", fetch = FetchType.LAZY)
-    private DetalleAgenda detalleAgenda;
-
-    @OneToOne(mappedBy = "subtipoAgenda", fetch = FetchType.LAZY)
-    private AgendaLimpieza agendaLimpieza;
 }

@@ -29,7 +29,7 @@ public class DetalleAgenda {
     @JoinColumn(name = "agenda_id")
     private Agenda agenda;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "subtipo_id")
     private SubtipoAgenda subtipoAgenda;
 

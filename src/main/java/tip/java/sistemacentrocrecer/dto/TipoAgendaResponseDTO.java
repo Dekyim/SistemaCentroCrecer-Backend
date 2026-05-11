@@ -7,5 +7,4 @@ import lombok.Data;
 public class TipoAgendaResponseDTO {
     private Integer id;
     private String tipo;
-    private Integer agendaId;
 }

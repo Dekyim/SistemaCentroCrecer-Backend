@@ -9,11 +9,10 @@ import tip.java.sistemacentrocrecer.dto.TipoAgendaResponseDTO;
 @Mapper(componentModel = "spring")
 public interface TipoAgendaMapper {
 
-    @Mapping(source = "agenda.id", target = "agendaId")
     TipoAgendaResponseDTO toResponseDTO(TipoAgenda tipoAgenda);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "agenda", ignore = true)
+    @Mapping(target = "agendas", ignore = true)
     TipoAgenda toEntity(TipoAgendaRequestDTO dto);
 
 }

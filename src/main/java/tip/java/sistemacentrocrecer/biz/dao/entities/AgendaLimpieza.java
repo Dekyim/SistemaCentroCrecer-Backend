@@ -29,7 +29,7 @@ public class AgendaLimpieza {
     @JoinColumn(name = "agenda_id")
     private Agenda agenda;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "subtipo_agenda_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "subtipo_agenda_id", nullable = false)
     private SubtipoAgenda subtipoAgenda;
 }

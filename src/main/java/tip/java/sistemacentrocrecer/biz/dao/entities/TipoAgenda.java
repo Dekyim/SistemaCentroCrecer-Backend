@@ -19,6 +19,6 @@ public class TipoAgenda {
     @Column(name = "tipo", nullable = false)
     private String tipo;
 
-    @OneToOne(mappedBy = "tipo", fetch = FetchType.LAZY)
-    private Agenda agenda;
+    @OneToMany(mappedBy = "tipo")
+    private List<Agenda> agendas;
 }

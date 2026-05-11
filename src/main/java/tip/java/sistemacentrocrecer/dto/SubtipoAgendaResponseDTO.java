@@ -8,6 +8,4 @@ import lombok.Data;
 public class SubtipoAgendaResponseDTO {
     private Integer subtipoId;
     private String subtipo;
-    private Integer detalleAgendaId;
-    private Integer agendaLimpiezaId;
 }

@@ -15,8 +15,6 @@ import java.util.List;
 @AllArgsConstructor
 public class SubtipoAgendaService {
     private final SubtipoAgendaRepository subtipoAgendaRepository;
-    private final DetalleAgendaRepository detalleAgendaRepository;
-    private final AgendaLimpiezaRepository agendaLimpiezaRepository;
     private final SubtipoAgendaMapper subtipoAgendaMapper;
 
 
@@ -37,12 +35,6 @@ public class SubtipoAgendaService {
 
         SubtipoAgenda subtipoAgenda = subtipoAgendaMapper.toEntity(dto);
 
-        DetalleAgenda detalleAgenda = detalleAgendaRepository.findById(dto.getDetalleAgendaId()).orElseThrow(() -> new RuntimeException("Detalle Agenda no encontrado con id: " + dto.getDetalleAgendaId()));
-        AgendaLimpieza agendaLimpieza = agendaLimpiezaRepository.findById(dto.getAgendaLimpiezaId()).orElseThrow(() -> new RuntimeException("Agenda Limpieza no encontrada con id: " + dto.getAgendaLimpiezaId()));
-
-        subtipoAgenda.setDetalleAgenda(detalleAgenda);
-        subtipoAgenda.setAgendaLimpieza(agendaLimpieza);
-
         return subtipoAgendaMapper.toResponseDTO(subtipoAgendaRepository.save(subtipoAgenda));
     }
 
@@ -52,12 +44,6 @@ public class SubtipoAgendaService {
         SubtipoAgenda subtipoAgenda = subtipoAgendaRepository.findById(id).orElseThrow(() -> new RuntimeException("Subtipo Agenda no encontrado con id: " + id));
 
         subtipoAgenda.setSubtipo(dto.getSubtipo());
-
-        DetalleAgenda detalleAgenda = detalleAgendaRepository.findById(dto.getDetalleAgendaId()).orElseThrow(() -> new RuntimeException("Detalle Agenda no encontrado con id: " + dto.getDetalleAgendaId()));
-        AgendaLimpieza agendaLimpieza = agendaLimpiezaRepository.findById(dto.getAgendaLimpiezaId()).orElseThrow(() -> new RuntimeException("Agenda Limpieza no encontrada con id: " + dto.getAgendaLimpiezaId()));
-
-        subtipoAgenda.setDetalleAgenda(detalleAgenda);
-        subtipoAgenda.setAgendaLimpieza(agendaLimpieza);
 
         return subtipoAgendaMapper.toResponseDTO(subtipoAgendaRepository.save(subtipoAgenda));
     }

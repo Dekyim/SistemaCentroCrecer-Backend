@@ -15,7 +15,6 @@ import java.util.List;
 @AllArgsConstructor
 public class TipoAgendaService {
     private final TipoAgendaRepository tipoAgendaRepository;
-    private final AgendaRepository agendaRepository;
     private final TipoAgendaMapper tipoAgendaMapper;
 
 
@@ -36,10 +35,6 @@ public class TipoAgendaService {
 
         TipoAgenda tipoAgenda = tipoAgendaMapper.toEntity(dto);
 
-        Agenda agenda = agendaRepository.findById(dto.getAgendaId()).orElseThrow(() -> new RuntimeException("Agenda no encontrada con id: " + dto.getAgendaId()));
-
-        tipoAgenda.setAgenda(agenda);
-
         return tipoAgendaMapper.toResponseDTO(tipoAgendaRepository.save(tipoAgenda));
     }
 
@@ -49,10 +44,6 @@ public class TipoAgendaService {
         TipoAgenda tipoAgenda = tipoAgendaRepository.findById(id).orElseThrow(() -> new RuntimeException("Tipo Agenda no encontrado con id: " + id));
 
         tipoAgenda.setTipo(dto.getTipo());
-
-        Agenda agenda = agendaRepository.findById(dto.getAgendaId()).orElseThrow(() -> new RuntimeException("Agenda no encontrada con id: " + dto.getAgendaId()));
-
-        tipoAgenda.setAgenda(agenda);
 
         return tipoAgendaMapper.toResponseDTO(tipoAgendaRepository.save(tipoAgenda));
     }

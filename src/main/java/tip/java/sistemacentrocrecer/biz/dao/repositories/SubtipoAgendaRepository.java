@@ -17,7 +17,4 @@ public interface SubtipoAgendaRepository extends JpaRepository<SubtipoAgenda, In
     // validaciones
     boolean existsBySubtipo(String subtipo);
 
-    // relaciones
-    boolean existsByDetalleAgendaIsNotNull();
-    boolean existsByAgendaLimpiezaIsNotNull();
 }

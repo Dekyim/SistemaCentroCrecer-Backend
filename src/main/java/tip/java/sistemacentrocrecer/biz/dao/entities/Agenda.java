@@ -37,7 +37,7 @@ public class Agenda {
     @JoinColumn(name = "funcionario_id")
     private Funcionario funcionario;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "tipo")
     private TipoAgenda tipo;
 
