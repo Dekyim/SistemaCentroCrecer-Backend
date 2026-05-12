@@ -9,6 +9,7 @@ import tip.java.sistemacentrocrecer.dto.FuncionarioRequestDTO;
 
 import java.util.List;
 
+@CrossOrigin("*")
 @RestController
 @RequestMapping("/api/v1/funcionarios")
 @AllArgsConstructor

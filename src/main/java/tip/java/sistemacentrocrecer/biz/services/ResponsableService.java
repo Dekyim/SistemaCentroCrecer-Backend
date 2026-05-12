@@ -2,6 +2,7 @@ package tip.java.sistemacentrocrecer.biz.services;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import tip.java.sistemacentrocrecer.biz.dao.entities.Responsable;
 import tip.java.sistemacentrocrecer.biz.dao.repositories.ResponsableRepository;
 import tip.java.sistemacentrocrecer.dto.ResponsableRequestDTO;
@@ -16,6 +17,7 @@ import java.util.List;
 public class ResponsableService {
     private final ResponsableRepository responsableRepository;
     private final ResponsableMapper responsableMapper;
+    private final PasswordEncoder passwordEncoder;
 
     public List<ResponsableResponseDTO> listar() {
         return responsableRepository.findAll()
@@ -50,6 +52,7 @@ public class ResponsableService {
         }
 
         Responsable responsable = responsableMapper.toEntity(dto);
+        responsable.setContrasenia(passwordEncoder.encode(dto.getContrasenia()));
 
         responsable.setActivo(true);
         responsable.setFechaBaja(null);
@@ -63,6 +66,9 @@ public class ResponsableService {
 
         Responsable responsable = responsableRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Responsable no encontrado"));
+        if (dto.getContrasenia() != null && !dto.getContrasenia().isBlank()) {
+            responsable.setContrasenia(passwordEncoder.encode(dto.getContrasenia()));
+        }
 
         responsableMapper.updateEntityFromDTO(dto, responsable);
 

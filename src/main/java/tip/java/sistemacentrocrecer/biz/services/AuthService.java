@@ -20,10 +20,10 @@ public class AuthService {
     private final JwtUtil jwtUtil;
 
     public LoginResponseDTO loginFuncionario(LoginRequestDTO req) {
-        var funcionario = funcionarioRepo.findByEmail(req.getCorreo())
+        var funcionario = funcionarioRepo.findByEmail(req.getEmail())
                 .orElseThrow(() -> new RuntimeException("Credenciales inválidas"));
 
-        if (!passwordEncoder.matches(req.getPassword(), funcionario.getContrasenia())) {
+        if (!passwordEncoder.matches(req.getContrasenia(), funcionario.getContrasenia())) {
             throw new RuntimeException("Credenciales inválidas");
         }
 
@@ -35,16 +35,16 @@ public class AuthService {
                 .rol("FUNCIONARIO")
                 .id(Long.valueOf(funcionario.getId()))
                 .nombreCompleto(funcionario.getNombre())
-                .correo(funcionario.getEmail())
+                .email(funcionario.getEmail())
                 .expiracion(jwtUtil.getExpiracion(token))
                 .build();
     }
 
     public LoginResponseDTO loginResponsable(LoginRequestDTO req) {
-        var responsable = responsableRepo.findByEmail(req.getCorreo())
+        var responsable = responsableRepo.findByEmail(req.getEmail())
                 .orElseThrow(() -> new RuntimeException("Credenciales inválidas"));
 
-        if (!passwordEncoder.matches(req.getPassword(), responsable.getContrasenia())) {
+        if (!passwordEncoder.matches(req.getContrasenia(), responsable.getContrasenia())) {
             throw new RuntimeException("Credenciales inválidas");
         }
 
@@ -56,7 +56,7 @@ public class AuthService {
                 .rol("RESPONSABLE")
                 .id(Long.valueOf(responsable.getId()))
                 .nombreCompleto(responsable.getNombre())
-                .correo(responsable.getEmail())
+                .email(responsable.getEmail())
                 .expiracion(jwtUtil.getExpiracion(token))
                 .build();
     }
