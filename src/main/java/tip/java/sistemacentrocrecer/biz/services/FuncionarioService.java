@@ -126,5 +126,27 @@ public class FuncionarioService {
         return new CambiarContraseniaResponseDTO("Contraseña actualizada exitosamente");
     }
 
+    @Transactional
+    public void darDeAlta(Integer id) {
+        Funcionario f = funcionarioRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Funcionario", id));
+
+        if (f.isActivo()) {
+            throw new BusinessException("Ya está activo");
+        }
+
+        f.setActivo(true);
+        f.setFechaBaja(null);
+        funcionarioRepository.save(f);
+    }
+
+    public FuncionarioResponseDTO obtenerPorId(Integer id) {
+        return funcionarioMapper.toResponseDTO(
+                funcionarioRepository.findById(id)
+                        .orElseThrow(() -> new ResourceNotFoundException("Funcionario", id))
+        );
+    }
+
+
+
 
 }

@@ -51,4 +51,16 @@ public class FuncionarioController {
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping("/{id}/alta")
+    public ResponseEntity<Void> darDeAlta(@PathVariable Integer id) {
+        funcionarioService.darDeAlta(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{id}")
+    public FuncionarioResponseDTO obtenerPorId(@PathVariable Integer id) {
+        return funcionarioService.obtenerPorId(id);
+    }
+
+
 }
