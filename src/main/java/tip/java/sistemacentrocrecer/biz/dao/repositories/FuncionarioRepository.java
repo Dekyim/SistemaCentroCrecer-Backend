@@ -38,4 +38,5 @@ public interface FuncionarioRepository
 
     boolean existsByEmailAndIdNot(String email, Integer id);
 
+    long countByActivoTrue();
 }

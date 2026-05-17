@@ -30,4 +30,6 @@ public interface TurnoRepository extends JpaRepository<Turno, Integer>, JpaSpeci
     // validaciones
     boolean existsByFuncionarioIdAndHoraInicioAndHoraFin(Integer funcionarioId, LocalTime horaInicio, LocalTime horaFin);
     boolean existsByFuncionarioIdAndHoraInicioAndHoraFinAndIdNot(Integer funcionarioId, LocalTime horaInicio, LocalTime horaFin, Integer id);
+
+    long countByActivoTrue();
 }

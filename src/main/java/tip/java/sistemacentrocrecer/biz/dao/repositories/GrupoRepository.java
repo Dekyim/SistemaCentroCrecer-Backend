@@ -31,4 +31,5 @@ public interface GrupoRepository
             LocalTime hasta
     );
 
+    long countByActivoTrue();
 }
