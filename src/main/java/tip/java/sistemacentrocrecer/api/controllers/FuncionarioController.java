@@ -2,8 +2,11 @@ package tip.java.sistemacentrocrecer.api.controllers;
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tip.java.sistemacentrocrecer.biz.services.FuncionarioService;
+import tip.java.sistemacentrocrecer.dto.CambiarContraseniaRequestDTO;
+import tip.java.sistemacentrocrecer.dto.CambiarContraseniaResponseDTO;
 import tip.java.sistemacentrocrecer.dto.FuncionarioResponseDTO;
 import tip.java.sistemacentrocrecer.dto.FuncionarioRequestDTO;
 
@@ -32,10 +35,7 @@ public class FuncionarioController {
     }
 
     @PutMapping("/{id}")
-    public FuncionarioResponseDTO actualizar(
-            @PathVariable Integer id,
-            @Valid @RequestBody FuncionarioRequestDTO dto
-    ) {
+    public FuncionarioResponseDTO actualizar(@PathVariable Integer id, @Valid @RequestBody FuncionarioRequestDTO dto) {
         return funcionarioService.actualizar(id, dto);
     }
 
@@ -43,4 +43,12 @@ public class FuncionarioController {
     public void darDeBaja(@PathVariable Integer id) {
         funcionarioService.darDeBaja(id);
     }
+
+    @PutMapping("/{id}/cambiar-contrasenia")
+    public ResponseEntity<CambiarContraseniaResponseDTO> cambiarPassword(@PathVariable Integer id, @RequestBody CambiarContraseniaRequestDTO requestDTO) {
+        CambiarContraseniaResponseDTO response = funcionarioService.cambiarPassword(id, requestDTO);
+
+        return ResponseEntity.ok(response);
+    }
+
 }

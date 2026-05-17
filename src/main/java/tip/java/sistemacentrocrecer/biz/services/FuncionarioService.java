@@ -1,12 +1,15 @@
 package tip.java.sistemacentrocrecer.biz.services;
 
 import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tip.java.sistemacentrocrecer.biz.dao.entities.Funcionario;
 import tip.java.sistemacentrocrecer.biz.dao.entities.Rol;
 import tip.java.sistemacentrocrecer.biz.dao.repositories.FuncionarioRepository;
 import tip.java.sistemacentrocrecer.biz.dao.repositories.RolRepository;
+import tip.java.sistemacentrocrecer.dto.CambiarContraseniaRequestDTO;
+import tip.java.sistemacentrocrecer.dto.CambiarContraseniaResponseDTO;
 import tip.java.sistemacentrocrecer.dto.FuncionarioResponseDTO;
 import tip.java.sistemacentrocrecer.dto.FuncionarioRequestDTO;
 import tip.java.sistemacentrocrecer.exceptions.BusinessException;
@@ -23,6 +26,7 @@ public class FuncionarioService {
     private final FuncionarioRepository funcionarioRepository;
     private final RolRepository rolRepository;
     private final FuncionarioMapper funcionarioMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public FuncionarioResponseDTO crear(FuncionarioRequestDTO dto) {
@@ -104,5 +108,23 @@ public class FuncionarioService {
         f.setFechaBaja(LocalDate.now());
         funcionarioRepository.save(f);
     }
+
+    @Transactional
+    public CambiarContraseniaResponseDTO cambiarPassword(Integer id, CambiarContraseniaRequestDTO requestDTO) {
+        String nuevaContrasenia = requestDTO.getNuevaContrasenia();
+
+        if (nuevaContrasenia == null || nuevaContrasenia.length() < 8) {
+            throw new BusinessException("La contraseña debe tener al menos 8 caracteres");
+        }
+
+        Funcionario funcionario = funcionarioRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Funcionario", id));
+
+        funcionario.setContrasenia(passwordEncoder.encode(nuevaContrasenia));
+
+        funcionarioRepository.save(funcionario);
+
+        return new CambiarContraseniaResponseDTO("Contraseña actualizada exitosamente");
+    }
+
 
 }

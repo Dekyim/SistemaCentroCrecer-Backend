@@ -31,10 +31,7 @@ public class RolController {
     }
 
     @PutMapping("/{id}")
-    public RolResponseDTO actualizar(
-            @PathVariable Integer id,
-            @Valid @RequestBody RolRequestDTO dto
-    ) {
+    public RolResponseDTO actualizar(@PathVariable Integer id, @Valid @RequestBody RolRequestDTO dto) {
         return rolService.actualizar(id, dto);
     }
 

@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tip.java.sistemacentrocrecer.biz.services.ResponsableService;
+import tip.java.sistemacentrocrecer.dto.CambiarContraseniaRequestDTO;
+import tip.java.sistemacentrocrecer.dto.CambiarContraseniaResponseDTO;
 import tip.java.sistemacentrocrecer.dto.ResponsableRequestDTO;
 import tip.java.sistemacentrocrecer.dto.ResponsableResponseDTO;
 
@@ -55,5 +57,13 @@ public class ResponsableController {
         responsableService.bajaLogica(id);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}/cambiar-contrasenia")
+    public ResponseEntity<CambiarContraseniaResponseDTO> cambiarPassword(@PathVariable Integer id, @RequestBody CambiarContraseniaRequestDTO requestDTO) {
+
+        CambiarContraseniaResponseDTO response = responsableService.cambiarPassword(id, requestDTO);
+
+        return ResponseEntity.ok(response);
     }
 }
