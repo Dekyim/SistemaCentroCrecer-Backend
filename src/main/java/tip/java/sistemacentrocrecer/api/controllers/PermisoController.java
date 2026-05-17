@@ -58,4 +58,20 @@ public class PermisoController {
         permisoService.eliminar(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/actividad/{actividadId}")
+    public ResponseEntity<List<PermisoResponseDTO>> listarPorActividad(
+            @PathVariable Integer actividadId) {
+        return ResponseEntity.ok(permisoService.listarPorActividad(actividadId));
+    }
+
+    @PatchMapping("/{id}/autorizar")
+    public ResponseEntity<PermisoResponseDTO> autorizar(@PathVariable Integer id) {
+        return ResponseEntity.ok(permisoService.autorizar(id));
+    }
+
+    @PatchMapping("/{id}/rechazar")
+    public ResponseEntity<PermisoResponseDTO> rechazar(@PathVariable Integer id) {
+        return ResponseEntity.ok(permisoService.rechazar(id));
+    }
 }

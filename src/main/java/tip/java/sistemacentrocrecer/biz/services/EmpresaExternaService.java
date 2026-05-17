@@ -9,6 +9,8 @@ import tip.java.sistemacentrocrecer.biz.dao.repositories.ActividadRepository;
 import tip.java.sistemacentrocrecer.biz.dao.repositories.EmpresaExternaRepository;
 import tip.java.sistemacentrocrecer.dto.EmpresaExternaRequestDTO;
 import tip.java.sistemacentrocrecer.dto.EmpresaExternaResponseDTO;
+import tip.java.sistemacentrocrecer.exceptions.BusinessException;
+import tip.java.sistemacentrocrecer.exceptions.ResourceNotFoundException;
 import tip.java.sistemacentrocrecer.mapper.EmpresaExternaMapper;
 
 import java.util.List;
@@ -38,16 +40,18 @@ public class EmpresaExternaService {
 
     @Transactional
     public EmpresaExternaResponseDTO crear(EmpresaExternaRequestDTO dto) {
-        EmpresaExterna empresaExterna = empresaExternaMapper.toEntity(dto);
+        if (empresaExternaRepository.existsByNombreAndActividadId(
+                dto.getNombre(), dto.getActividadId())) {
+            throw new BusinessException(
+                    "Ya existe una empresa con ese nombre en esta actividad"
+            );
+        }
 
+        EmpresaExterna empresa = empresaExternaMapper.toEntity(dto);
         Actividad actividad = actividadRepository.findById(dto.getActividadId())
-                .orElseThrow(() -> new RuntimeException("Actividad no encontrada"));
-
-        empresaExterna.setActividad(actividad);
-
-        empresaExterna = empresaExternaRepository.save(empresaExterna);
-
-        return empresaExternaMapper.toResponseDTO(empresaExterna);
+                .orElseThrow(() -> new ResourceNotFoundException("Actividad no encontrada"));
+        empresa.setActividad(actividad);
+        return empresaExternaMapper.toResponseDTO(empresaExternaRepository.save(empresa));
     }
 
     @Transactional
@@ -65,6 +69,29 @@ public class EmpresaExternaService {
         empresaExterna = empresaExternaRepository.save(empresaExterna);
 
         return empresaExternaMapper.toResponseDTO(empresaExterna);
+    }
+
+    @Transactional(readOnly = true)
+    public List<EmpresaExternaResponseDTO> listarPorActividad(Integer actividadId) {
+        if (!actividadRepository.existsById(actividadId)) {
+            throw new ResourceNotFoundException("Actividad no encontrada");
+        }
+        return empresaExternaRepository.findByActividadId(actividadId)
+                .stream().map(empresaExternaMapper::toResponseDTO).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<EmpresaExternaResponseDTO> listarPorTipoServicio(String tipoServicio) {
+        return empresaExternaRepository.findByTipoServicioIgnoreCase(tipoServicio)
+                .stream().map(empresaExternaMapper::toResponseDTO).toList();
+    }
+
+    @Transactional
+    public EmpresaExternaResponseDTO desasignarActividad(Integer id) {
+        EmpresaExterna empresa = empresaExternaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Empresa externa no encontrada"));
+        empresa.setActividad(null);
+        return empresaExternaMapper.toResponseDTO(empresaExternaRepository.save(empresa));
     }
 
     @Transactional

@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import tip.java.sistemacentrocrecer.biz.services.AgendaService;
+import tip.java.sistemacentrocrecer.dto.AgendaFilterRequestDTO;
 import tip.java.sistemacentrocrecer.dto.AgendaRequestDTO;
 import tip.java.sistemacentrocrecer.dto.AgendaResponseDTO;
 
@@ -37,19 +38,16 @@ public class AgendaController {
     }
 
     @PutMapping("/{id}")
-    public AgendaResponseDTO actualizar(
-            @PathVariable Integer id,
-            @Valid @RequestBody AgendaRequestDTO dto
-    ) {
-        return agendaService.actualizar(id, dto);
-    }
+    public AgendaResponseDTO actualizar(@PathVariable Integer id, @Valid @RequestBody AgendaRequestDTO dto) {return agendaService.actualizar(id, dto);}
 
     @DeleteMapping("/{id}")
     public void darDeBaja(@PathVariable Integer id) {
         agendaService.darDeBaja(id);
     }
-    @GetMapping("/test")
-    public String test() {
-        return "OK";
-    }
+
+    @PatchMapping("/{id}/alta")
+    public AgendaResponseDTO darDeAlta(@PathVariable Integer id) {return agendaService.darDeAlta(id);}
+
+    @GetMapping("/filtrar")
+    public List<AgendaResponseDTO> filtrar(@Valid AgendaFilterRequestDTO filtro) {return agendaService.filtrar(filtro);}
 }

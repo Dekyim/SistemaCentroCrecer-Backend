@@ -2,9 +2,18 @@ package tip.java.sistemacentrocrecer.biz.services;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import tip.java.sistemacentrocrecer.biz.dao.entities.Agenda;
+import tip.java.sistemacentrocrecer.biz.dao.enums.EstadoLimpiezaEnum;
 import tip.java.sistemacentrocrecer.biz.dao.repositories.*;
-import tip.java.sistemacentrocrecer.dto.AdminStatsResponseDTO;
-import tip.java.sistemacentrocrecer.dto.FuncionarioStatsResponseDTO;
+import tip.java.sistemacentrocrecer.dto.*;
+import tip.java.sistemacentrocrecer.mapper.ActividadMapper;
+import tip.java.sistemacentrocrecer.mapper.AgendaLimpiezaMapper;
+import tip.java.sistemacentrocrecer.mapper.AgendaMapper;
+
+import java.time.LocalDate;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -15,6 +24,11 @@ public class DashboardService {
     private final ActividadRepository actividadRepository;
     private final TurnoRepository turnoRepository;
     private final GrupoRepository grupoRepository;
+    private final AgendaRepository         agendaRepository;
+    private final AgendaLimpiezaRepository  agendaLimpiezaRepository;
+    private final AgendaMapper agendaMapper;
+    private final ActividadMapper actividadMapper;
+    private final AgendaLimpiezaMapper agendaLimpiezaMapper;
 
     public AdminStatsResponseDTO getAdminStats() {
 
@@ -56,6 +70,77 @@ public class DashboardService {
                 actividadesTotales,
                 gruposActivos
         );
+    }
+
+    public CoordinacionDashboardResponseDTO getCoordinacionDashboard() {
+        LocalDate hoy = LocalDate.now();
+
+        List<AgendaResponseDTO> eventosHoy = getEventosDelDia(hoy);
+        List<ActividadResponseDTO> actActivas = getActividadesActivas(hoy);
+        List<AgendaResponseDTO> conflictos = getConflictosAgenda(hoy);
+        List<AgendaLimpiezaResponseDTO> limpPendientes = getLimpiezasPendientes();
+        List<ActividadResponseDTO> actProximas = getActividadesProximas(hoy);
+
+        return CoordinacionDashboardResponseDTO.builder()
+                .eventosDelDia(eventosHoy)
+                .totalEventosDelDia(eventosHoy.size())
+                .actividadesActivas(actActivas)
+                .totalActividadesActivas(actActivas.size())
+                .conflictosAgenda(conflictos)
+                .totalConflictos(conflictos.size())
+                .limpiezasPendientes(limpPendientes)
+                .totalLimpiezasPendientes(limpPendientes.size())
+                .actividadesProximas(actProximas)
+                .totalActividadesProximas(actProximas.size())
+                .build();
+    }
+
+    public List<AgendaResponseDTO> getEventosDelDia(LocalDate fecha) {
+        return agendaRepository.findByFecha(fecha)
+                .stream()
+                .filter(Agenda::getActivo)
+                .map(agendaMapper::toResponseDTO)
+                .toList();
+    }
+
+    public List<ActividadResponseDTO> getActividadesActivas(LocalDate hoy) {
+        return actividadRepository
+                .findByActivoTrueAndFechaDesdeLessThanEqualAndFechaHastaGreaterThanEqual(hoy, hoy)
+                .stream()
+                .map(actividadMapper::toResponseDTO)
+                .toList();
+    }
+
+    public List<AgendaResponseDTO> getConflictosAgenda(LocalDate fecha) {
+        return agendaRepository.findByFecha(fecha)
+                .stream()
+                .filter(Agenda::getActivo)
+                .collect(Collectors.groupingBy(
+                        a -> a.getFuncionario().getId() + "-"
+                                + a.getHoraInicio() + "-"
+                                + a.getHoraFin()
+                ))
+                .values().stream()
+                .filter(lista -> lista.size() > 1)
+                .flatMap(Collection::stream)
+                .map(agendaMapper::toResponseDTO)
+                .toList();
+    }
+
+    public List<AgendaLimpiezaResponseDTO> getLimpiezasPendientes() {
+        return agendaLimpiezaRepository
+                .findByEstado(EstadoLimpiezaEnum.PENDIENTE)
+                .stream()
+                .map(agendaLimpiezaMapper::toResponseDTO)
+                .toList();
+    }
+
+    public List<ActividadResponseDTO> getActividadesProximas(LocalDate hoy) {
+        return actividadRepository
+                .findByActivoTrueAndFechaDesdeGreaterThan(hoy)
+                .stream()
+                .map(actividadMapper::toResponseDTO)
+                .toList();
     }
 
     private int calcularCobertura(long funcionariosActivos) {

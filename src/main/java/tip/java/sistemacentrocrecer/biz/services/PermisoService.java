@@ -11,6 +11,8 @@ import tip.java.sistemacentrocrecer.biz.dao.repositories.NinioRepository;
 import tip.java.sistemacentrocrecer.biz.dao.repositories.PermisoRepository;
 import tip.java.sistemacentrocrecer.dto.PermisoRequestDTO;
 import tip.java.sistemacentrocrecer.dto.PermisoResponseDTO;
+import tip.java.sistemacentrocrecer.exceptions.BusinessException;
+import tip.java.sistemacentrocrecer.exceptions.ResourceNotFoundException;
 import tip.java.sistemacentrocrecer.mapper.PermisoMapper;
 
 import java.time.LocalDateTime;
@@ -50,22 +52,26 @@ public class PermisoService {
 
     @Transactional
     public PermisoResponseDTO crear(PermisoRequestDTO dto) {
-        Permiso permiso = permisoMapper.toEntity(dto);
+        if (permisoRepository.existsByActividadIdAndNinioId(dto.getActividadId(), ninioRepository.findByCedula(dto.getNinioCedula())
+                        .orElseThrow(() -> new ResourceNotFoundException("Niño no encontrado")).getId())) {
+            throw new BusinessException("Ya existe un permiso para ese niño en esta actividad");
+        }
 
+        Permiso permiso = permisoMapper.toEntity(dto);
         permiso.setActivo(true);
 
-        Actividad actividad = actividadRepository.findById(dto.getActividadId()).orElseThrow(() -> new RuntimeException("Actividad no encontrada"));
-
-        Ninio ninio = ninioRepository.findByCedula(dto.getNinioCedula()).orElseThrow(() -> new RuntimeException("Niño no encontrado"));
+        Actividad actividad = actividadRepository.findById(dto.getActividadId())
+                .orElseThrow(() -> new ResourceNotFoundException("Actividad no encontrada"));
+        Ninio ninio = ninioRepository.findByCedula(dto.getNinioCedula())
+                .orElseThrow(() -> new ResourceNotFoundException("Niño no encontrado"));
 
         permiso.setActividad(actividad);
         permiso.setNinio(ninio);
         permiso.setNinioCedula(ninio.getCedula());
 
-        permiso = permisoRepository.save(permiso);
-
-        return permisoMapper.toResponseDTO(permiso);
+        return permisoMapper.toResponseDTO(permisoRepository.save(permiso));
     }
+
 
     @Transactional
     public PermisoResponseDTO actualizar(Integer id, PermisoRequestDTO dto) {
@@ -103,5 +109,36 @@ public class PermisoService {
     public void eliminar(Integer id) {
         Permiso permiso = permisoRepository.findById(id).orElseThrow(() -> new RuntimeException("Permiso no encontrado"));
         permisoRepository.delete(permiso);
+    }
+
+    @Transactional(readOnly = true)
+    public List<PermisoResponseDTO> listarPorActividad(Integer actividadId) {
+        if (!actividadRepository.existsById(actividadId)) {
+            throw new ResourceNotFoundException("Actividad no encontrada");
+        }
+        return permisoRepository.findByActividadId(actividadId)
+                .stream().map(permisoMapper::toResponseDTO).toList();
+    }
+
+    @Transactional
+    public PermisoResponseDTO autorizar(Integer id) {
+        Permiso permiso = permisoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Permiso no encontrado"));
+        if (!permiso.getActivo()) {
+            throw new BusinessException("No se puede autorizar un permiso dado de baja");
+        }
+        permiso.setAutorizado(true);
+        return permisoMapper.toResponseDTO(permisoRepository.save(permiso));
+    }
+
+    @Transactional
+    public PermisoResponseDTO rechazar(Integer id) {
+        Permiso permiso = permisoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Permiso no encontrado"));
+        if (!permiso.getActivo()) {
+            throw new BusinessException("No se puede rechazar un permiso dado de baja");
+        }
+        permiso.setAutorizado(false);
+        return permisoMapper.toResponseDTO(permisoRepository.save(permiso));
     }
 }

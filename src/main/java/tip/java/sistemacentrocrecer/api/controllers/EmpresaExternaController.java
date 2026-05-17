@@ -12,7 +12,7 @@ import tip.java.sistemacentrocrecer.dto.EmpresaExternaResponseDTO;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/Empresas-Externas")
+@RequestMapping("/api/v1/empresas-externas")
 @AllArgsConstructor
 @CrossOrigin("*")
 public class EmpresaExternaController {
@@ -43,6 +43,21 @@ public class EmpresaExternaController {
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
         empresaExternaService.eliminar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/actividad/{actividadId}")
+    public ResponseEntity<List<EmpresaExternaResponseDTO>> listarPorActividad(@PathVariable Integer actividadId) {
+        return ResponseEntity.ok(empresaExternaService.listarPorActividad(actividadId));
+    }
+
+    @GetMapping("/tipo/{tipoServicio}")
+    public ResponseEntity<List<EmpresaExternaResponseDTO>> listarPorTipo(@PathVariable String tipoServicio) {
+        return ResponseEntity.ok(empresaExternaService.listarPorTipoServicio(tipoServicio));
+    }
+
+    @PatchMapping("/{id}/desasignar")
+    public ResponseEntity<EmpresaExternaResponseDTO> desasignarActividad(@PathVariable Integer id) {
+        return ResponseEntity.ok(empresaExternaService.desasignarActividad(id));
     }
 
 }
