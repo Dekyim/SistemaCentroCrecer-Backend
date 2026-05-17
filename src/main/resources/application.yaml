@@ -26,3 +26,8 @@ logging:
   level:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+app:
+  default-admin:
+    email: ${DEFAULT_ADMIN_EMAIL}
+    password: ${DEFAULT_ADMIN_PASSWORD}
