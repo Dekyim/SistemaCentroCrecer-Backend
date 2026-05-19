@@ -24,15 +24,24 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
-
         final String authHeader = request.getHeader("Authorization");
+        System.out.println("=== JWT FILTER ===");
+        System.out.println("URL: " + request.getRequestURI());
+        System.out.println("AUTH HEADER: " + authHeader);
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        final String token = authHeader.substring(7);
+        System.out.println("TOKEN VALID: " + jwtUtil.esValido(token));
+
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        final String token = authHeader.substring(7);
 
         if (!jwtUtil.esValido(token)) {
             filterChain.doFilter(request, response);

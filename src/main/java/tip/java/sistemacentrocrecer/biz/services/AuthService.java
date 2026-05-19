@@ -9,7 +9,6 @@ import tip.java.sistemacentrocrecer.dto.LoginRequestDTO;
 import tip.java.sistemacentrocrecer.dto.LoginResponseDTO;
 import tip.java.sistemacentrocrecer.security.JwtUtil;
 
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -27,14 +26,14 @@ public class AuthService {
             throw new RuntimeException("Credenciales inválidas");
         }
 
-        String token = jwtUtil.generarToken(funcionario.getEmail(), "FUNCIONARIO");
-
+        String rolNombre = funcionario.getRol().getNombre();
+        String token = jwtUtil.generarToken(funcionario.getEmail(), rolNombre);
         return LoginResponseDTO.builder()
                 .token(token)
                 .tipoToken("Bearer")
-                .rol("FUNCIONARIO")
+                .rol(rolNombre)
                 .id(Long.valueOf(funcionario.getId()))
-                .nombreCompleto(funcionario.getNombre())
+                .nombreCompleto(funcionario.getNombre() + " " + funcionario.getApellido())
                 .email(funcionario.getEmail())
                 .expiracion(jwtUtil.getExpiracion(token))
                 .build();
