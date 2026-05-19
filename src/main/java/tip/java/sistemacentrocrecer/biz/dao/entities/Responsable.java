@@ -5,7 +5,6 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @AllArgsConstructor
@@ -26,7 +25,7 @@ public class Responsable {
     @Column(name = "apellido", nullable = false)
     private String apellido;
     @Column(name = "fecha_nacimiento")
-    private Date fechaNacimiento;
+    private LocalDate fechaNacimiento;
     @Column(name = "telefono")
     private String telefono;
     @Column(name = "activo")

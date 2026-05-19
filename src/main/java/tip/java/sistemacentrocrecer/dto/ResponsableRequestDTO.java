@@ -1,5 +1,6 @@
 package tip.java.sistemacentrocrecer.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
@@ -20,7 +21,8 @@ public class ResponsableRequestDTO {
     @Size(min = 2, max = 100)
     private String apellido;
 
-    private LocalDate fecha_nacimiento;
+    @JsonProperty("fechaNacimiento")
+    private LocalDate fechaNacimiento;
 
     @Pattern(regexp = "^[0-9+\\-\\s()]*$")
     private String telefono;

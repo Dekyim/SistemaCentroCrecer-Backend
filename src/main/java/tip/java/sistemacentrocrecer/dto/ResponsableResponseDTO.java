@@ -11,7 +11,7 @@ public class ResponsableResponseDTO {
     private String cedula;
     private String nombre;
     private String apellido;
-    private LocalDate fecha_nacimiento;
+    private LocalDate fechaNacimiento;
     private String telefono;
     private Boolean activo;
     private LocalDateTime fecha_baja;
