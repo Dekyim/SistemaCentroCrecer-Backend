@@ -2,6 +2,7 @@ package tip.java.sistemacentrocrecer.api.controllers;
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tip.java.sistemacentrocrecer.biz.dao.enums.EstadoLimpiezaEnum;
 import tip.java.sistemacentrocrecer.biz.services.AgendaLimpiezaService;
@@ -49,4 +50,20 @@ public class AgendaLimpiezaController {
    public AgendaLimpiezaResponseDTO cambiarEstado(@PathVariable Integer id, @RequestParam EstadoLimpiezaEnum estado){
         return agendaLimpiezaService.cambiarEstado(id, estado);
    }
+
+    @GetMapping("/funcionario/{funcionarioId}")
+    public ResponseEntity<List<AgendaLimpiezaResponseDTO>> listarPorFuncionario(@PathVariable Integer funcionarioId) {
+        return ResponseEntity.ok(agendaLimpiezaService.listarPorFuncionario(funcionarioId));
+    }
+
+    @GetMapping("/incumplimientos")
+    public ResponseEntity<List<AgendaLimpiezaResponseDTO>> detectarIncumplimientos() {
+        return ResponseEntity.ok(agendaLimpiezaService.detectarIncumplimientos());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
+        agendaLimpiezaService.eliminar(id);
+        return ResponseEntity.noContent().build();
+    }
 }

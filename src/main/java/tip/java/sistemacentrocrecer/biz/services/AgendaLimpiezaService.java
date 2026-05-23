@@ -8,8 +8,10 @@ import tip.java.sistemacentrocrecer.biz.dao.enums.EstadoLimpiezaEnum;
 import tip.java.sistemacentrocrecer.biz.dao.repositories.*;
 import tip.java.sistemacentrocrecer.dto.AgendaLimpiezaRequestDTO;
 import tip.java.sistemacentrocrecer.dto.AgendaLimpiezaResponseDTO;
+import tip.java.sistemacentrocrecer.exceptions.ResourceNotFoundException;
 import tip.java.sistemacentrocrecer.mapper.AgendaLimpiezaMapper;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -19,6 +21,7 @@ public class AgendaLimpiezaService {
     private final AgendaLimpiezaRepository agendaLimpiezaRepository;
     private final AgendaRepository agendaRepository;
     private final SubtipoAgendaRepository subtipoAgendaRepository;
+    private final FuncionarioRepository funcionarioRepository;
     private final AgendaLimpiezaMapper agendaLimpiezaMapper;
 
     public List<AgendaLimpiezaResponseDTO> listarTodos() {
@@ -96,6 +99,38 @@ public class AgendaLimpiezaService {
         agendaLimpieza.setEstado(estado);
 
         return agendaLimpiezaMapper.toResponseDTO(agendaLimpiezaRepository.save(agendaLimpieza));
+    }
+
+    @Transactional
+    public List<AgendaLimpiezaResponseDTO> listarPorFuncionario(Integer funcionarioId) {
+        if (!funcionarioRepository.existsById(funcionarioId)) {
+            throw new ResourceNotFoundException("Funcionario no encontrado");
+        }
+        return agendaLimpiezaRepository.findByAgendaFuncionarioId(funcionarioId)
+                .stream()
+                .map(agendaLimpiezaMapper::toResponseDTO)
+                .toList();
+    }
+
+    @Transactional
+    public List<AgendaLimpiezaResponseDTO> detectarIncumplimientos() {
+        LocalDate hoy = LocalDate.now();
+        return agendaLimpiezaRepository.findAll()
+                .stream()
+                .filter(l -> l.getEstado() == EstadoLimpiezaEnum.PENDIENTE
+                        || l.getEstado() == EstadoLimpiezaEnum.EN_PROCESO)
+                .filter(l -> l.getAgenda() != null
+                        && l.getAgenda().getFecha() != null
+                        && l.getAgenda().getFecha().isBefore(hoy))
+                .map(agendaLimpiezaMapper::toResponseDTO)
+                .toList();
+    }
+
+    @Transactional
+    public void eliminar(Integer id) {
+        AgendaLimpieza agendaLimpieza = agendaLimpiezaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("AgendaLimpieza no encontrada con id: " + id));
+        agendaLimpiezaRepository.delete(agendaLimpieza);
     }
 
 }

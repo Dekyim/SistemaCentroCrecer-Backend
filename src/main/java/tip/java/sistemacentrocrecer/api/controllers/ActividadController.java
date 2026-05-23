@@ -78,4 +78,18 @@ public class ActividadController {
     public ResponseEntity<Map<String, Object>> validarAutorizacion(@PathVariable Integer id) {
         return ResponseEntity.ok(actividadService.validarAutorizacion(id));
     }
+
+    @PatchMapping("/{id}/empresas")
+    public ResponseEntity<ActividadResponseDTO> asignarEmpresas(
+            @PathVariable Integer id,
+            @RequestBody List<Integer> empresasIds) {
+        return ResponseEntity.ok(actividadService.asignarEmpresas(id, empresasIds));
+    }
+
+    @PatchMapping("/{id}/permisos")
+    public ResponseEntity<ActividadResponseDTO> asignarPermisos(
+            @PathVariable Integer id,
+            @RequestBody List<Integer> permisosIds) {
+        return ResponseEntity.ok(actividadService.asignarPermisos(id, permisosIds));
+    }
 }

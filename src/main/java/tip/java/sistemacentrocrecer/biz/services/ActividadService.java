@@ -176,6 +176,36 @@ public class ActividadService {
     }
 
     @Transactional
+    public ActividadResponseDTO asignarEmpresas(Integer id, List<Integer> empresasIds) {
+        Actividad actividad = actividadRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Actividad no encontrada"));
+
+        List<EmpresaExterna> empresas = empresaExternaRepository.findAllById(empresasIds);
+        if (empresas.size() != empresasIds.size()) {
+            throw new BusinessException("Una o más empresas externas no encontradas");
+        }
+        empresas.forEach(e -> e.setActividad(actividad));
+        actividad.setEmpresasExternas(empresas);
+
+        return actividadMapper.toResponseDTO(actividadRepository.save(actividad));
+    }
+
+    @Transactional
+    public ActividadResponseDTO asignarPermisos(Integer id, List<Integer> permisosIds) {
+        Actividad actividad = actividadRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Actividad no encontrada"));
+
+        List<Permiso> permisos = permisoRepository.findAllById(permisosIds);
+        if (permisos.size() != permisosIds.size()) {
+            throw new BusinessException("Uno o más permisos no encontrados");
+        }
+        permisos.forEach(p -> p.setActividad(actividad));
+        actividad.setPermisos(permisos);
+
+        return actividadMapper.toResponseDTO(actividadRepository.save(actividad));
+    }
+
+    @Transactional
     public void eliminar(Integer id) {
         Actividad actividad = actividadRepository.findById(id).orElseThrow(() -> new RuntimeException("Actividad no encontrada"));
 
