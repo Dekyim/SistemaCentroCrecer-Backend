@@ -48,6 +48,7 @@ public class FuncionarioService {
 
         Funcionario funcionario = funcionarioMapper.toEntity(dto);
         funcionario.setRol(rol);
+        funcionario.setContrasenia(passwordEncoder.encode(dto.getContrasenia()));
 
         return funcionarioMapper.toResponseDTO(funcionarioRepository.save(funcionario));
     }
@@ -89,7 +90,7 @@ public class FuncionarioService {
         funcionario.setRol(rol);
 
         if (dto.getContrasenia() != null && !dto.getContrasenia().isBlank()) {
-            funcionario.setContrasenia(dto.getContrasenia());
+            funcionario.setContrasenia(passwordEncoder.encode(dto.getContrasenia()));
         }
 
         return funcionarioMapper.toResponseDTO(funcionarioRepository.save(funcionario));
