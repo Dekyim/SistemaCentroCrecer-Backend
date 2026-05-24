@@ -2,6 +2,8 @@ package tip.java.sistemacentrocrecer.api.controllers;
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tip.java.sistemacentrocrecer.biz.services.ReporteService;
@@ -31,6 +33,11 @@ public class ReporteController {
         return reporteService.listarActivos();
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ReporteResponseDTO> obtenerPorId(@PathVariable Integer id) {
+        return ResponseEntity.ok(reporteService.obtenerPorId(id));
+    }
+
     @PutMapping("/{id}/actualizar")
     public ResponseEntity<ReporteResponseDTO> actualizar(@PathVariable Integer id, @Valid @RequestBody ReporteRequestDTO dto) {
         return ResponseEntity.ok(reporteService.actualizarReporte(id, dto));
@@ -42,12 +49,27 @@ public class ReporteController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/{id}")
-    public ReporteResponseDTO obtenerPorId(@PathVariable Integer id) {
-        return reporteService.obtenerPorId(id);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
+        reporteService.eliminar(id);
+        return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/{id}/excel")
+    public ResponseEntity<byte[]> exportarExcel(@PathVariable Integer id) {
+        byte[] excel = reporteService.exportarExcel(id);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"reporte_" + id + ".xlsx\"")
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(excel);
+    }
 
-
-
+    @GetMapping("/{id}/pdf")
+    public ResponseEntity<byte[]> exportarPdf(@PathVariable Integer id) {
+        byte[] pdf = reporteService.exportarPdf(id);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"reporte_" + id + ".pdf\"")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
+    }
 }
