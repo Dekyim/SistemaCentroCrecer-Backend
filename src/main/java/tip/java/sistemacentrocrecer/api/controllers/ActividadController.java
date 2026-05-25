@@ -2,13 +2,19 @@ package tip.java.sistemacentrocrecer.api.controllers;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tip.java.sistemacentrocrecer.biz.services.ActividadService;
+import tip.java.sistemacentrocrecer.biz.services.AgendaService;
 import tip.java.sistemacentrocrecer.dto.ActividadRequestDTO;
 import tip.java.sistemacentrocrecer.dto.ActividadResponseDTO;
+import tip.java.sistemacentrocrecer.dto.AgendaFilterRequestDTO;
+import tip.java.sistemacentrocrecer.dto.AgendaResponseDTO;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +24,7 @@ import java.util.Map;
 @CrossOrigin("*")
 public class ActividadController {
     private final ActividadService actividadService;
+    private final AgendaService agendaService;
 
     @GetMapping
     public ResponseEntity<List<ActividadResponseDTO>> listarTodos() {
@@ -92,4 +99,5 @@ public class ActividadController {
             @RequestBody List<Integer> permisosIds) {
         return ResponseEntity.ok(actividadService.asignarPermisos(id, permisosIds));
     }
+
 }

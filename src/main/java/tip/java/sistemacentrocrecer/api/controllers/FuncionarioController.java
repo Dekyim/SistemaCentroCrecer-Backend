@@ -11,6 +11,7 @@ import tip.java.sistemacentrocrecer.dto.CambiarContraseniaRequestDTO;
 import tip.java.sistemacentrocrecer.dto.CambiarContraseniaResponseDTO;
 import tip.java.sistemacentrocrecer.dto.FuncionarioResponseDTO;
 import tip.java.sistemacentrocrecer.dto.FuncionarioRequestDTO;
+import tip.java.sistemacentrocrecer.dto.FuncionarioUpdateDTO;
 
 import java.util.List;
 
@@ -37,7 +38,7 @@ public class FuncionarioController {
     }
 
     @PutMapping("/{id}")
-    public FuncionarioResponseDTO actualizar(@PathVariable Integer id, @Valid @RequestBody FuncionarioRequestDTO dto) {
+    public FuncionarioResponseDTO actualizar(@PathVariable Integer id, @Valid @RequestBody FuncionarioUpdateDTO dto) {
         return funcionarioService.actualizar(id, dto);
     }
 

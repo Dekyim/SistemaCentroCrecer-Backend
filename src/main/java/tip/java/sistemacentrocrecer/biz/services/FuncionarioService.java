@@ -8,12 +8,7 @@ import tip.java.sistemacentrocrecer.biz.dao.entities.Funcionario;
 import tip.java.sistemacentrocrecer.biz.dao.entities.Rol;
 import tip.java.sistemacentrocrecer.biz.dao.repositories.FuncionarioRepository;
 import tip.java.sistemacentrocrecer.biz.dao.repositories.RolRepository;
-import tip.java.sistemacentrocrecer.dto.ActualizarPerfilRequestDTO;
-import tip.java.sistemacentrocrecer.dto.CambiarContraseniaSeguraRequestDTO;
-import tip.java.sistemacentrocrecer.dto.CambiarContraseniaRequestDTO;
-import tip.java.sistemacentrocrecer.dto.CambiarContraseniaResponseDTO;
-import tip.java.sistemacentrocrecer.dto.FuncionarioResponseDTO;
-import tip.java.sistemacentrocrecer.dto.FuncionarioRequestDTO;
+import tip.java.sistemacentrocrecer.dto.*;
 import tip.java.sistemacentrocrecer.exceptions.BusinessException;
 import tip.java.sistemacentrocrecer.exceptions.ResourceNotFoundException;
 import tip.java.sistemacentrocrecer.mapper.FuncionarioMapper;
@@ -67,7 +62,7 @@ public class FuncionarioService {
     }
 
     @Transactional
-    public FuncionarioResponseDTO actualizar(Integer id, FuncionarioRequestDTO dto) {
+    public FuncionarioResponseDTO actualizar(Integer id, FuncionarioUpdateDTO dto) {
 
         Funcionario funcionario = funcionarioRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Funcionario", id));
@@ -90,10 +85,6 @@ public class FuncionarioService {
         funcionario.setTelefono(dto.getTelefono());
         funcionario.setFechaNacimiento(dto.getFechaNacimiento());
         funcionario.setRol(rol);
-
-        if (dto.getContrasenia() != null && !dto.getContrasenia().isBlank()) {
-            funcionario.setContrasenia(passwordEncoder.encode(dto.getContrasenia()));
-        }
 
         return funcionarioMapper.toResponseDTO(funcionarioRepository.save(funcionario));
     }

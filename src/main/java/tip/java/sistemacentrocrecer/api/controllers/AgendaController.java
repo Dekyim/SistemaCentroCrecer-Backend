@@ -2,12 +2,16 @@ package tip.java.sistemacentrocrecer.api.controllers;
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tip.java.sistemacentrocrecer.biz.services.AgendaService;
 import tip.java.sistemacentrocrecer.dto.AgendaFilterRequestDTO;
 import tip.java.sistemacentrocrecer.dto.AgendaRequestDTO;
 import tip.java.sistemacentrocrecer.dto.AgendaResponseDTO;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -50,4 +54,15 @@ public class AgendaController {
 
     @GetMapping("/filtrar")
     public List<AgendaResponseDTO> filtrar(@Valid AgendaFilterRequestDTO filtro) {return agendaService.filtrar(filtro);}
+
+    @GetMapping("/semana")
+    public ResponseEntity<List<AgendaResponseDTO>> eventosSemana(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
+        LocalDate lunes = fecha.with(DayOfWeek.MONDAY);
+        LocalDate domingo = fecha.with(DayOfWeek.SUNDAY);
+        AgendaFilterRequestDTO filtro = new AgendaFilterRequestDTO();
+        filtro.setFechaDesde(lunes);
+        filtro.setFechaHasta(domingo);
+        return ResponseEntity.ok(agendaService.filtrar(filtro));
+    }
 }
