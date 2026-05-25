@@ -6,8 +6,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import tip.java.sistemacentrocrecer.biz.dao.entities.Responsable;
 import tip.java.sistemacentrocrecer.biz.dao.repositories.ResponsableRepository;
+import tip.java.sistemacentrocrecer.dto.ActualizarPerfilRequestDTO;
 import tip.java.sistemacentrocrecer.dto.CambiarContraseniaRequestDTO;
 import tip.java.sistemacentrocrecer.dto.CambiarContraseniaResponseDTO;
+import tip.java.sistemacentrocrecer.dto.CambiarContraseniaSeguraRequestDTO;
 import tip.java.sistemacentrocrecer.dto.ResponsableRequestDTO;
 import tip.java.sistemacentrocrecer.dto.ResponsableResponseDTO;
 import tip.java.sistemacentrocrecer.exceptions.BusinessException;
@@ -108,6 +110,42 @@ public class ResponsableService {
 
         responsable.setContrasenia(passwordEncoder.encode(nuevaContrasenia));
 
+        responsableRepository.save(responsable);
+
+        return new CambiarContraseniaResponseDTO("Contraseña actualizada exitosamente");
+    }
+
+    @Transactional
+    public ResponsableResponseDTO actualizarPerfil(Integer id, ActualizarPerfilRequestDTO dto) {
+        Responsable responsable = responsableRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Responsable no encontrado"));
+
+        responsable.setNombre(dto.getNombre());
+        responsable.setApellido(dto.getApellido());
+        responsable.setEmail(dto.getEmail());
+        responsable.setTelefono(dto.getTelefono());
+        responsable.setFechaNacimiento(dto.getFechaNacimiento());
+        if (dto.getFotoPerfil() != null) {
+            responsable.setFotoPerfil(dto.getFotoPerfil());
+        }
+
+        return responsableMapper.toDTO(responsableRepository.save(responsable));
+    }
+
+    @Transactional
+    public CambiarContraseniaResponseDTO cambiarPasswordSeguro(Integer id, CambiarContraseniaSeguraRequestDTO dto) {
+        Responsable responsable = responsableRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Responsable", id));
+
+        if (!passwordEncoder.matches(dto.getContraseniaActual(), responsable.getContrasenia())) {
+            throw new BusinessException("La contraseña actual es incorrecta");
+        }
+
+        if (dto.getNuevaContrasenia() == null || dto.getNuevaContrasenia().length() < 8) {
+            throw new BusinessException("La nueva contraseña debe tener al menos 8 caracteres");
+        }
+
+        responsable.setContrasenia(passwordEncoder.encode(dto.getNuevaContrasenia()));
         responsableRepository.save(responsable);
 
         return new CambiarContraseniaResponseDTO("Contraseña actualizada exitosamente");

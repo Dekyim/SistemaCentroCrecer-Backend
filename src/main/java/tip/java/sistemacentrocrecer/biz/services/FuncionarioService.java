@@ -8,6 +8,8 @@ import tip.java.sistemacentrocrecer.biz.dao.entities.Funcionario;
 import tip.java.sistemacentrocrecer.biz.dao.entities.Rol;
 import tip.java.sistemacentrocrecer.biz.dao.repositories.FuncionarioRepository;
 import tip.java.sistemacentrocrecer.biz.dao.repositories.RolRepository;
+import tip.java.sistemacentrocrecer.dto.ActualizarPerfilRequestDTO;
+import tip.java.sistemacentrocrecer.dto.CambiarContraseniaSeguraRequestDTO;
 import tip.java.sistemacentrocrecer.dto.CambiarContraseniaRequestDTO;
 import tip.java.sistemacentrocrecer.dto.CambiarContraseniaResponseDTO;
 import tip.java.sistemacentrocrecer.dto.FuncionarioResponseDTO;
@@ -147,7 +149,45 @@ public class FuncionarioService {
         );
     }
 
+    @Transactional
+    public FuncionarioResponseDTO actualizarPerfil(Integer id, ActualizarPerfilRequestDTO dto) {
+        Funcionario funcionario = funcionarioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Funcionario", id));
 
+        if (funcionarioRepository.existsByEmailAndIdNot(dto.getEmail(), id)) {
+            throw new BusinessException("Email ya en uso por otro usuario");
+        }
+
+        funcionario.setNombre(dto.getNombre());
+        funcionario.setApellido(dto.getApellido());
+        funcionario.setEmail(dto.getEmail());
+        funcionario.setTelefono(dto.getTelefono());
+        funcionario.setFechaNacimiento(dto.getFechaNacimiento());
+        if (dto.getFotoPerfil() != null) {
+            funcionario.setFotoPerfil(dto.getFotoPerfil());
+        }
+
+        return funcionarioMapper.toResponseDTO(funcionarioRepository.save(funcionario));
+    }
+
+    @Transactional
+    public CambiarContraseniaResponseDTO cambiarPasswordSeguro(Integer id, CambiarContraseniaSeguraRequestDTO dto) {
+        Funcionario funcionario = funcionarioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Funcionario", id));
+
+        if (!passwordEncoder.matches(dto.getContraseniaActual(), funcionario.getContrasenia())) {
+            throw new BusinessException("La contraseña actual es incorrecta");
+        }
+
+        if (dto.getNuevaContrasenia() == null || dto.getNuevaContrasenia().length() < 8) {
+            throw new BusinessException("La nueva contraseña debe tener al menos 8 caracteres");
+        }
+
+        funcionario.setContrasenia(passwordEncoder.encode(dto.getNuevaContrasenia()));
+        funcionarioRepository.save(funcionario);
+
+        return new CambiarContraseniaResponseDTO("Contraseña actualizada exitosamente");
+    }
 
 
 }

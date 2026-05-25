@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tip.java.sistemacentrocrecer.biz.services.ResponsableService;
+import tip.java.sistemacentrocrecer.dto.ActualizarPerfilRequestDTO;
+import tip.java.sistemacentrocrecer.dto.CambiarContraseniaSeguraRequestDTO;
 import tip.java.sistemacentrocrecer.dto.CambiarContraseniaRequestDTO;
 import tip.java.sistemacentrocrecer.dto.CambiarContraseniaResponseDTO;
 import tip.java.sistemacentrocrecer.dto.ResponsableRequestDTO;
@@ -65,5 +67,15 @@ public class ResponsableController {
         CambiarContraseniaResponseDTO response = responsableService.cambiarPassword(id, requestDTO);
 
         return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{id}/perfil")
+    public ResponseEntity<ResponsableResponseDTO> actualizarPerfil(@PathVariable Integer id, @Valid @RequestBody ActualizarPerfilRequestDTO dto) {
+        return ResponseEntity.ok(responsableService.actualizarPerfil(id, dto));
+    }
+
+    @PutMapping("/{id}/cambiar-contrasenia-seguro")
+    public ResponseEntity<CambiarContraseniaResponseDTO> cambiarPasswordSeguro(@PathVariable Integer id, @RequestBody CambiarContraseniaSeguraRequestDTO dto) {
+        return ResponseEntity.ok(responsableService.cambiarPasswordSeguro(id, dto));
     }
 }

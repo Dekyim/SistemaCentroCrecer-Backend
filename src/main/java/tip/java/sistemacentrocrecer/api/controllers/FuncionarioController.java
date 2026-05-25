@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tip.java.sistemacentrocrecer.biz.services.FuncionarioService;
+import tip.java.sistemacentrocrecer.dto.ActualizarPerfilRequestDTO;
+import tip.java.sistemacentrocrecer.dto.CambiarContraseniaSeguraRequestDTO;
 import tip.java.sistemacentrocrecer.dto.CambiarContraseniaRequestDTO;
 import tip.java.sistemacentrocrecer.dto.CambiarContraseniaResponseDTO;
 import tip.java.sistemacentrocrecer.dto.FuncionarioResponseDTO;
@@ -62,5 +64,18 @@ public class FuncionarioController {
         return funcionarioService.obtenerPorId(id);
     }
 
+    @PutMapping("/{id}/perfil")
+    public ResponseEntity<FuncionarioResponseDTO> actualizarPerfil(
+            @PathVariable Integer id,
+            @Valid @RequestBody ActualizarPerfilRequestDTO dto) {
+        return ResponseEntity.ok(funcionarioService.actualizarPerfil(id, dto));
+    }
+
+    @PutMapping("/{id}/cambiar-contrasenia-seguro")
+    public ResponseEntity<CambiarContraseniaResponseDTO> cambiarPasswordSeguro(
+            @PathVariable Integer id,
+            @RequestBody CambiarContraseniaSeguraRequestDTO dto) {
+        return ResponseEntity.ok(funcionarioService.cambiarPasswordSeguro(id, dto));
+    }
 
 }

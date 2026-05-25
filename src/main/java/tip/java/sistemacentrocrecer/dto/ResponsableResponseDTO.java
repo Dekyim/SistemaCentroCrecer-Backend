@@ -16,4 +16,6 @@ public class ResponsableResponseDTO {
     private Boolean activo;
     private LocalDateTime fecha_baja;
     private String email;
+    private String fotoPerfil;
+
 }

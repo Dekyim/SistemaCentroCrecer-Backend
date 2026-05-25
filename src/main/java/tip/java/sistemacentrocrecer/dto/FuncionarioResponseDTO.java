@@ -19,5 +19,7 @@ public class FuncionarioResponseDTO {
     private LocalDate fechaBaja;
     private RolResponseDTO rol;
     private List<GrupoResponseDTO> grupos;
+    private String fotoPerfil;
+
 
 }

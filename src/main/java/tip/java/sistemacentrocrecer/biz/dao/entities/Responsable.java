@@ -36,6 +36,8 @@ public class Responsable {
     private String email;
     @Column(name = "contrasenia")
     private String contrasenia;
+    @Column(name = "foto_perfil", length = 500)
+    private String fotoPerfil;
 
     @OneToMany(mappedBy = "responsable", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ResponsableNinio> ninios;
