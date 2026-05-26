@@ -12,6 +12,7 @@ public class AgendaResponseDTO {
     private LocalTime horaInicio;
     private LocalTime horaFin;
     private String descripcion;
+    private Boolean activo;
 
     private Integer funcionarioId;
     private String funcionarioNombre;

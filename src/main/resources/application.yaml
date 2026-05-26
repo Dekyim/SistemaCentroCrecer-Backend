@@ -21,10 +21,9 @@ spring:
         format_sql: true
         order_updates: true
         order_inserts: true
-    show-sql: true
+    show-sql: false
 logging:
   level:
-    org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
 app:
