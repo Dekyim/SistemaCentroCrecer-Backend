@@ -10,8 +10,6 @@ import tip.java.sistemacentrocrecer.dto.GrupoResponseDTO;
 public interface GrupoMapper {
 
     @Mapping(target = "cantidadNinios", expression = "java(grupo.getNinios() != null ? grupo.getNinios().size() : 0)")
-    @Mapping(target = "funcionarios", ignore = true)
-    @Mapping(target = "ninios", ignore = true)
     GrupoResponseDTO toResponseDTO(Grupo grupo);
 
     @Mapping(target = "id", ignore = true)
@@ -19,6 +17,6 @@ public interface GrupoMapper {
     @Mapping(target = "fechaBaja", ignore = true)
     @Mapping(target = "ninios", ignore = true)
     @Mapping(target = "funcionarios", ignore = true)
-    @Mapping(target = "reportes", ignore = true) 
+    @Mapping(target = "reportes", ignore = true)
     Grupo toEntity(GrupoRequestDTO dto);
 }

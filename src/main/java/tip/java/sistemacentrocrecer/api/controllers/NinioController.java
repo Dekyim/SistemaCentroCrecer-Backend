@@ -1,7 +1,6 @@
 package tip.java.sistemacentrocrecer.api.controllers;
 
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +28,11 @@ public class NinioController {
         return ninioService.listar();
     }
 
+    @GetMapping("/filtrar")
+    public List<NinioResponseDTO> listarFiltrado() {
+        return ninioService.listar();
+    }
+
     @GetMapping("/{id}")
     public NinioResponseDTO obtenerPorId(@PathVariable Integer id) {
         return ninioService.obtenerPorId(id);
@@ -43,5 +47,4 @@ public class NinioController {
     public void eliminar(@PathVariable Integer id) {
         ninioService.eliminar(id);
     }
-
 }

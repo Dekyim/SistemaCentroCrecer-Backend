@@ -18,5 +18,4 @@ public class GrupoResponseDTO {
     private Integer cantidadNinios;
     private List<FuncionarioResponseDTO> funcionarios;
     private List<NinioResponseDTO> ninios;
-
 }

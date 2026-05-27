@@ -16,76 +16,53 @@ import java.util.Date;
 
 @Mapper(componentModel = "spring")
 public interface NinioMapper {
+
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "activo", constant = "true")
     @Mapping(target = "fechaBaja", ignore = true)
-
     @Mapping(target = "condiciones", ignore = true)
     @Mapping(target = "reportes", ignore = true)
     @Mapping(target = "asistencias", ignore = true)
     @Mapping(target = "responsables", ignore = true)
     @Mapping(target = "permisos", ignore = true)
     @Mapping(target = "inscripciones", ignore = true)
-
     @Mapping(target = "cedula", source = "dto.cedula")
     @Mapping(target = "nombre", source = "dto.nombre")
     @Mapping(target = "apellido", source = "dto.apellido")
     @Mapping(target = "sexo", source = "dto.sexo")
     @Mapping(target = "direccion", source = "dto.direccion")
     @Mapping(target = "observaciones", source = "dto.observaciones")
-
     @Mapping(target = "grupo", source = "grupo")
-
-    @Mapping(
-            target = "fechaNacimiento",
-            source = "dto.fechaNacimiento",
-            qualifiedByName = "localDateToDate"
-    )
+    @Mapping(target = "fechaNacimiento", source = "dto.fechaNacimiento", qualifiedByName = "localDateToDate")
     Ninio toEntity(NinioRequestDTO dto, Grupo grupo);
 
-    @Mapping(
-            target = "fechaNacimiento",
-            source = "fechaNacimiento",
-            qualifiedByName = "dateToLocalDate"
-    )
-    @Mapping(
-            target = "fechaBaja",
-            source = "fechaBaja",
-            qualifiedByName = "localDateTimeToLocalDate"
-    )
+    @Mapping(target = "fechaNacimiento", source = "fechaNacimiento", qualifiedByName = "dateToLocalDate")
+    @Mapping(target = "fechaBaja", source = "fechaBaja", qualifiedByName = "localDateTimeToLocalDate")
+
+    @Mapping(target = "grupo", source = "grupo", qualifiedByName = "grupoSinNinios")
     NinioResponseDTO toDTO(Ninio entity);
 
+    @Named("grupoSinNinios")
+    @Mapping(target = "ninios", ignore = true)
     @Mapping(target = "funcionarios", ignore = true)
+    @Mapping(target = "cantidadNinios", expression = "java(grupo.getNinios() != null ? grupo.getNinios().size() : 0)")
     GrupoResponseDTO grupoToDTO(Grupo grupo);
 
     @Named("localDateToDate")
     static Date localDateToDate(LocalDate localDate) {
-        if (localDate == null) {
-            return null;
-        }
-
-        return Date.from(
-                localDate.atStartOfDay(ZoneId.systemDefault()).toInstant()
-        );
+        if (localDate == null) return null;
+        return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 
     @Named("dateToLocalDate")
     static LocalDate dateToLocalDate(Date date) {
-        if (date == null) {
-            return null;
-        }
-
-        return date.toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate();
+        if (date == null) return null;
+        return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
     @Named("localDateTimeToLocalDate")
     static LocalDate localDateTimeToLocalDate(LocalDateTime localDateTime) {
-        if (localDateTime == null) {
-            return null;
-        }
-
+        if (localDateTime == null) return null;
         return localDateTime.toLocalDate();
     }
 }

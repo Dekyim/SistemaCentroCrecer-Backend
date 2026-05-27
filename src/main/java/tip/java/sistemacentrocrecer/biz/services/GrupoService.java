@@ -26,18 +26,22 @@ public class GrupoService {
     private final NinioRepository ninioRepository;
     private final GrupoMapper grupoMapper;
 
+    @Transactional(readOnly = true)
     public List<GrupoResponseDTO> listarTodos() {
         return grupoRepository.findAll().stream()
                 .map(grupoMapper::toResponseDTO)
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public GrupoResponseDTO buscarPorId(Integer id) {
-        Grupo grupo = grupoRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Grupo no encontrado"));
+        Grupo grupo = grupoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Grupo no encontrado"));
         return grupoMapper.toResponseDTO(grupo);
     }
 
-    public List<GrupoResponseDTO> listarGruposActivos(){
+    @Transactional(readOnly = true)
+    public List<GrupoResponseDTO> listarGruposActivos() {
         return grupoRepository.findByActivoTrue().stream()
                 .map(grupoMapper::toResponseDTO)
                 .toList();
@@ -45,25 +49,20 @@ public class GrupoService {
 
     @Transactional
     public GrupoResponseDTO crear(GrupoRequestDTO dto) {
-
         if (dto.getHoraFin().isBefore(dto.getHoraInicio())) {
             throw new BusinessException("La hora de fin no puede ser menor que la de inicio");
         }
 
         Grupo grupo = grupoMapper.toEntity(dto);
 
-        //asignar funcionarios
         if (dto.getFuncionariosIds() != null) {
             List<Funcionario> funcionarios = funcionarioRepository.findAllById(dto.getFuncionariosIds());
             grupo.setFuncionarios(funcionarios);
         }
 
-        //asignar niños
         if (dto.getNiniosIds() != null) {
             List<Ninio> ninios = ninioRepository.findAllById(dto.getNiniosIds());
             grupo.setNinios(ninios);
-
-            //importante: setear relación inversa
             ninios.forEach(n -> n.setGrupo(grupo));
         }
 
@@ -72,7 +71,6 @@ public class GrupoService {
 
     @Transactional
     public GrupoResponseDTO actualizar(Integer id, GrupoRequestDTO dto) {
-
         Grupo grupo = grupoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Grupo", id));
 
@@ -85,21 +83,16 @@ public class GrupoService {
         grupo.setHoraFin(dto.getHoraFin());
         grupo.setRangoEdad(dto.getRangoEdad());
 
-
         if (dto.getFuncionariosIds() != null) {
             List<Funcionario> funcionarios = funcionarioRepository.findAllById(dto.getFuncionariosIds());
             grupo.setFuncionarios(funcionarios);
         }
 
-
         if (dto.getNiniosIds() != null) {
-
             if (grupo.getNinios() != null) {
                 grupo.getNinios().forEach(n -> n.setGrupo(null));
             }
-
             List<Ninio> ninios = ninioRepository.findAllById(dto.getNiniosIds());
-
             grupo.setNinios(ninios);
             ninios.forEach(n -> n.setGrupo(grupo));
         }
@@ -118,7 +111,6 @@ public class GrupoService {
 
         g.setActivo(false);
         g.setFechaBaja(LocalDateTime.now());
-
         grupoRepository.save(g);
     }
 }
