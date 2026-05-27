@@ -78,6 +78,18 @@ public class FuncionarioService {
         Rol rol = rolRepository.findById(dto.getRolId())
                 .orElseThrow(() -> new ResourceNotFoundException("Rol", dto.getRolId()));
 
+        // Protección: el rol ADMINISTRADOR_SISTEMA no se puede cambiar ni asignar desde edición
+        boolean esAdminActual = funcionario.getRol() != null &&
+                "ADMINISTRADOR_SISTEMA".equalsIgnoreCase(funcionario.getRol().getNombre());
+        boolean esAdminNuevo = "ADMINISTRADOR_SISTEMA".equalsIgnoreCase(rol.getNombre());
+
+        if (esAdminActual && !esAdminNuevo) {
+            throw new BusinessException("No se puede cambiar el rol de un Administrador de Sistema");
+        }
+        if (!esAdminActual && esAdminNuevo) {
+            throw new BusinessException("No se puede asignar el rol de Administrador de Sistema");
+        }
+
         funcionario.setCedula(dto.getCedula());
         funcionario.setNombre(dto.getNombre());
         funcionario.setApellido(dto.getApellido());
@@ -96,6 +108,11 @@ public class FuncionarioService {
 
         if (!f.isActivo()) {
             throw new BusinessException("Ya está inactivo");
+        }
+
+        // Protección: no se puede dar de baja a ningún Administrador de Sistema
+        if (f.getRol() != null && "ADMINISTRADOR_SISTEMA".equalsIgnoreCase(f.getRol().getNombre())) {
+            throw new BusinessException("No se puede dar de baja a un Administrador de Sistema");
         }
 
         f.setActivo(false);
@@ -162,6 +179,28 @@ public class FuncionarioService {
     }
 
     @Transactional
+    public CambiarContraseniaResponseDTO blanquearPassword(Integer id, CambiarContraseniaRequestDTO dto) {
+        String nuevaContrasenia = dto.getNuevaContrasenia();
+
+        if (nuevaContrasenia == null || nuevaContrasenia.length() < 8) {
+            throw new BusinessException("La contraseña temporal debe tener al menos 8 caracteres");
+        }
+
+        Funcionario funcionario = funcionarioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Funcionario", id));
+
+        if (!funcionario.isActivo()) {
+            throw new BusinessException("No se puede blanquear la contraseña de un funcionario inactivo");
+        }
+
+        funcionario.setContrasenia(passwordEncoder.encode(nuevaContrasenia));
+        funcionario.setMustChangePassword(true);
+        funcionarioRepository.save(funcionario);
+
+        return new CambiarContraseniaResponseDTO("Contraseña blanqueada. El funcionario deberá cambiarla al ingresar.");
+    }
+
+    @Transactional
     public CambiarContraseniaResponseDTO cambiarPasswordSeguro(Integer id, CambiarContraseniaSeguraRequestDTO dto) {
         Funcionario funcionario = funcionarioRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Funcionario", id));
@@ -175,6 +214,7 @@ public class FuncionarioService {
         }
 
         funcionario.setContrasenia(passwordEncoder.encode(dto.getNuevaContrasenia()));
+        funcionario.setMustChangePassword(false);
         funcionarioRepository.save(funcionario);
 
         return new CambiarContraseniaResponseDTO("Contraseña actualizada exitosamente");

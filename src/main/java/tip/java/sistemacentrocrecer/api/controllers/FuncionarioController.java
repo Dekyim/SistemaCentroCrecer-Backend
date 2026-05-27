@@ -50,8 +50,14 @@ public class FuncionarioController {
     @PutMapping("/{id}/cambiar-contrasenia")
     public ResponseEntity<CambiarContraseniaResponseDTO> cambiarPassword(@PathVariable Integer id, @RequestBody CambiarContraseniaRequestDTO requestDTO) {
         CambiarContraseniaResponseDTO response = funcionarioService.cambiarPassword(id, requestDTO);
-
         return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{id}/blanquear-contrasenia")
+    public ResponseEntity<CambiarContraseniaResponseDTO> blanquearPassword(
+            @PathVariable Integer id,
+            @RequestBody CambiarContraseniaRequestDTO requestDTO) {
+        return ResponseEntity.ok(funcionarioService.blanquearPassword(id, requestDTO));
     }
 
     @PutMapping("/{id}/alta")
@@ -73,9 +79,7 @@ public class FuncionarioController {
     }
 
     @PutMapping("/{id}/cambiar-contrasenia-seguro")
-    public ResponseEntity<CambiarContraseniaResponseDTO> cambiarPasswordSeguro(
-            @PathVariable Integer id,
-            @RequestBody CambiarContraseniaSeguraRequestDTO dto) {
+    public ResponseEntity<CambiarContraseniaResponseDTO> cambiarPasswordSeguro(@PathVariable Integer id, @RequestBody CambiarContraseniaSeguraRequestDTO dto) {
         return ResponseEntity.ok(funcionarioService.cambiarPasswordSeguro(id, dto));
     }
 

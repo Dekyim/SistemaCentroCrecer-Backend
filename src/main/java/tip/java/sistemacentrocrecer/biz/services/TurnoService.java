@@ -37,32 +37,43 @@ public class TurnoService {
     }
 
     public TurnoResponseDTO obtenerPorId(Integer id) {
-        Turno turno = turnoRepository.findById(id).orElseThrow(() -> new RuntimeException("Turno no encontrado con id: " + id));
+        Turno turno = turnoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Turno no encontrado con id: " + id));
         return turnoMapper.toResponseDTO(turno);
     }
 
     @Transactional
     public TurnoResponseDTO crear(TurnoRequestDTO dto) {
-
         Turno turno = turnoMapper.toEntity(dto);
 
-        Funcionario funcionario = funcionarioRepository.findById(dto.getFuncionarioId()).orElseThrow(() -> new RuntimeException("Funcionario no encontrado con id: " + dto.getFuncionarioId()));
+        Funcionario funcionario = funcionarioRepository.findById(dto.getFuncionarioId())
+                .orElseThrow(() -> new RuntimeException("Funcionario no encontrado con id: " + dto.getFuncionarioId()));
 
         turno.setFuncionario(funcionario);
         turno.setActivo(true);
+
+        if (dto.getDias() != null) {
+            turno.setDias(dto.getDias());
+        }
 
         return turnoMapper.toResponseDTO(turnoRepository.save(turno));
     }
 
     @Transactional
     public TurnoResponseDTO actualizar(Integer id, TurnoRequestDTO dto) {
-
-        Turno turno = turnoRepository.findById(id).orElseThrow(() -> new RuntimeException("Turno no encontrado con id: " + id));
+        Turno turno = turnoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Turno no encontrado con id: " + id));
 
         turno.setHoraInicio(dto.getHoraInicio());
         turno.setHoraFin(dto.getHoraFin());
 
-        Funcionario funcionario = funcionarioRepository.findById(dto.getFuncionarioId()).orElseThrow(() -> new RuntimeException("Funcionario no encontrado con id: " + dto.getFuncionarioId()));
+        if (dto.getDias() != null) {
+            turno.getDias().clear();
+            turno.getDias().addAll(dto.getDias());
+        }
+
+        Funcionario funcionario = funcionarioRepository.findById(dto.getFuncionarioId())
+                .orElseThrow(() -> new RuntimeException("Funcionario no encontrado con id: " + dto.getFuncionarioId()));
         turno.setFuncionario(funcionario);
 
         return turnoMapper.toResponseDTO(turnoRepository.save(turno));
@@ -70,11 +81,11 @@ public class TurnoService {
 
     @Transactional
     public void darDeBaja(Integer id) {
-
-        Turno turno = turnoRepository.findById(id).orElseThrow(() -> new RuntimeException("Turno no encontrado con id: " + id));
+        Turno turno = turnoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Turno no encontrado con id: " + id));
 
         if (!turno.getActivo()) {
-            throw new IllegalStateException("La agenda ya esta dada de baja");
+            throw new IllegalStateException("El turno ya está dado de baja");
         }
 
         turno.setActivo(false);

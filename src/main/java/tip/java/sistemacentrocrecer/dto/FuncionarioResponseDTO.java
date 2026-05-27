@@ -20,6 +20,7 @@ public class FuncionarioResponseDTO {
     private RolResponseDTO rol;
     private List<GrupoResponseDTO> grupos;
     private String fotoPerfil;
+    private Boolean mustChangePassword;
 
 
 }

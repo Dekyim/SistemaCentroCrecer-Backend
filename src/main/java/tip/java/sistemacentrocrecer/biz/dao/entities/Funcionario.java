@@ -37,6 +37,9 @@ public class Funcionario {
     private LocalDate fechaBaja;
     @Column(name = "foto_perfil", length = 500)
     private String fotoPerfil;
+    @Column(name = "must_change_password")
+    private Boolean mustChangePassword = false;
+
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rol_id")

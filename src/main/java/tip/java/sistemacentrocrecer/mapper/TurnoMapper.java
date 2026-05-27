@@ -13,6 +13,7 @@ public interface TurnoMapper {
 
     @Mapping(source = "funcionario.id", target = "funcionarioId")
     @Mapping(source = "funcionario", target = "funcionarioNombre", qualifiedByName = "nombreCompleto")
+    @Mapping(source = "dias", target = "dias")
     TurnoResponseDTO toResponseDTO(Turno turno);
 
     @Named("nombreCompleto")
@@ -25,6 +26,6 @@ public interface TurnoMapper {
     @Mapping(target = "activo", constant = "true")
     @Mapping(target = "fechaBaja", ignore = true)
     @Mapping(target = "funcionario", ignore = true)
-
+    @Mapping(source = "dias", target = "dias")
     Turno toEntity(TurnoRequestDTO dto);
 }
