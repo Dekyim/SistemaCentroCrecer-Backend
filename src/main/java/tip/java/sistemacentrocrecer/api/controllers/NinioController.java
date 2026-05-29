@@ -28,11 +28,6 @@ public class NinioController {
         return ninioService.listar();
     }
 
-    @GetMapping("/filtrar")
-    public List<NinioResponseDTO> listarFiltrado() {
-        return ninioService.listar();
-    }
-
     @GetMapping("/{id}")
     public NinioResponseDTO obtenerPorId(@PathVariable Integer id) {
         return ninioService.obtenerPorId(id);

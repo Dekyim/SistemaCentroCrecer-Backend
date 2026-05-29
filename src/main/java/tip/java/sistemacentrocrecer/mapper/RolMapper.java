@@ -16,5 +16,7 @@ public interface RolMapper {
     @Mapping(target = "activo", constant = "true")
     @Mapping(target = "fechaBaja", ignore = true)
     @Mapping(target = "padre", ignore = true)
+    @Mapping(target = "hijos", ignore = true)
+    @Mapping(target = "funcionarios", ignore = true)
     Rol toEntity(RolRequestDTO dto);
 }

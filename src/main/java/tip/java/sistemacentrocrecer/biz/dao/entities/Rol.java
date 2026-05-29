@@ -31,6 +31,6 @@ public class Rol {
     @OneToMany(mappedBy = "padre", fetch = FetchType.LAZY)
     private List<Rol> hijos;
 
-    @OneToOne(mappedBy = "rol", fetch = FetchType.LAZY)
-    private Funcionario funcionario;
+    @OneToMany(mappedBy = "rol", fetch = FetchType.LAZY)
+    private List<Funcionario> funcionarios;
 }

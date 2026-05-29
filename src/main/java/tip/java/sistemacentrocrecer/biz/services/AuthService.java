@@ -26,8 +26,14 @@ public class AuthService {
             throw new RuntimeException("Credenciales inválidas");
         }
 
+        if (!funcionario.isActivo()) {
+            throw new RuntimeException("La cuenta está inactiva. Contacte al administrador.");
+        }
+
         String rolNombre = funcionario.getRol().getNombre();
         String token = jwtUtil.generarToken(funcionario.getEmail(), rolNombre);
+
+        // BUG CORREGIDO: incluir mustChangePassword en la respuesta
         return LoginResponseDTO.builder()
                 .token(token)
                 .tipoToken("Bearer")
@@ -36,6 +42,7 @@ public class AuthService {
                 .nombreCompleto(funcionario.getNombre() + " " + funcionario.getApellido())
                 .email(funcionario.getEmail())
                 .expiracion(jwtUtil.getExpiracion(token))
+                .mustChangePassword(funcionario.getMustChangePassword() != null && funcionario.getMustChangePassword())
                 .build();
     }
 
@@ -57,6 +64,7 @@ public class AuthService {
                 .nombreCompleto(responsable.getNombre())
                 .email(responsable.getEmail())
                 .expiracion(jwtUtil.getExpiracion(token))
+                .mustChangePassword(false)
                 .build();
     }
 

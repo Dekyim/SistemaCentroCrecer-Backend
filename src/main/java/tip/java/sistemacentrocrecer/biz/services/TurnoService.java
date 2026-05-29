@@ -49,6 +49,10 @@ public class TurnoService {
         Funcionario funcionario = funcionarioRepository.findById(dto.getFuncionarioId())
                 .orElseThrow(() -> new RuntimeException("Funcionario no encontrado con id: " + dto.getFuncionarioId()));
 
+        if (!funcionario.isActivo()) {
+            throw new RuntimeException("No se puede asignar un turno a un funcionario inactivo");
+        }
+
         turno.setFuncionario(funcionario);
         turno.setActivo(true);
 

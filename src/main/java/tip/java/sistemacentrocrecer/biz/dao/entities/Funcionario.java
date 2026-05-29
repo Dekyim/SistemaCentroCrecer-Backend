@@ -40,8 +40,7 @@ public class Funcionario {
     @Column(name = "must_change_password")
     private Boolean mustChangePassword = false;
 
-
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rol_id")
     private Rol rol;
 
@@ -59,5 +58,4 @@ public class Funcionario {
 
     @OneToMany(mappedBy = "funcionario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Agenda> agendas;
-
 }

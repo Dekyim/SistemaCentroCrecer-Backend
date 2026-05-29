@@ -12,9 +12,10 @@ import lombok.NoArgsConstructor;
 public class LoginResponseDTO {
     private String token;
     private String tipoToken;      // "Bearer"
-    private String rol;            // "FUNCIONARIO" o "RESPONSABLE"
+    private String rol;            // nombre del rol
     private Long id;               // id del usuario autenticado
     private String nombreCompleto; // para mostrar en el header de la app
-    private String email;         // para confirmar quién inició sesión
+    private String email;          // para confirmar quién inició sesión
     private Long expiracion;       // timestamp cuando vence el token
+    private Boolean mustChangePassword;
 }

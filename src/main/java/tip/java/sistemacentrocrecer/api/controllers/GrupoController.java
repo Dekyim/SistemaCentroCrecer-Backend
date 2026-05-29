@@ -42,7 +42,7 @@ public class GrupoController {
         return ResponseEntity.ok(grupoService.actualizar(id, dto));
     }
 
-    @PutMapping("/{id}")
+    @GetMapping("/{id}")
     public GrupoResponseDTO obtenerPorId(@PathVariable Integer id) {
         return grupoService.buscarPorId(id);
     }

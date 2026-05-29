@@ -29,6 +29,10 @@ public class NinioService {
         Grupo grupo = grupoRepository.findById(dto.getGrupo().getId())
                 .orElseThrow(() -> new RuntimeException("Grupo no encontrado"));
 
+        if (!grupo.isActivo()) {
+            throw new RuntimeException("No se puede registrar un niño en un grupo inactivo");
+        }
+
         Ninio ninio = ninioMapper.toEntity(dto, grupo);
 
         return ninioMapper.toDTO(
