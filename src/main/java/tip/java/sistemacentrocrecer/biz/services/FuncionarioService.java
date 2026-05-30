@@ -50,11 +50,14 @@ public class FuncionarioService {
         return funcionarioMapper.toResponseDTO(funcionarioRepository.save(funcionario));
     }
 
+    @Transactional(readOnly = true)
     public List<FuncionarioResponseDTO> listarTodos() {
         return funcionarioRepository.findAll().stream()
                 .map(funcionarioMapper::toResponseDTO)
                 .toList();
     }
+
+    @Transactional(readOnly = true)
     public List<FuncionarioResponseDTO> listarActivos() {
         return funcionarioRepository.findByActivoTrue().stream()
                 .map(funcionarioMapper::toResponseDTO)
@@ -131,6 +134,8 @@ public class FuncionarioService {
         Funcionario funcionario = funcionarioRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Funcionario", id));
 
         funcionario.setContrasenia(passwordEncoder.encode(nuevaContrasenia));
+        // Asegurarse de que el flag quede limpio si se usa este endpoint directamente
+        funcionario.setMustChangePassword(false);
 
         funcionarioRepository.save(funcionario);
 
