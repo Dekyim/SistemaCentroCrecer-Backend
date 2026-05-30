@@ -72,4 +72,26 @@ public class ReporteController {
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(pdf);
     }
+
+    // Endpoints por niño
+    @GetMapping("/ninio/{ninioId}")
+    public ResponseEntity<List<ReporteResponseDTO>> listarPorNinio(@PathVariable Integer ninioId) {
+        return ResponseEntity.ok(reporteService.listarPorNinio(ninioId));
+    }
+
+    @GetMapping("/ninio/{ninioId}/activos")
+    public ResponseEntity<List<ReporteResponseDTO>> listarActivosPorNinio(@PathVariable Integer ninioId) {
+        return ResponseEntity.ok(reporteService.listarActivosPorNinio(ninioId));
+    }
+
+    // Endpoints por grupo
+    @GetMapping("/grupo/{grupoId}")
+    public ResponseEntity<List<ReporteResponseDTO>> listarPorGrupo(@PathVariable Integer grupoId) {
+        return ResponseEntity.ok(reporteService.listarPorGrupo(grupoId));
+    }
+
+    @GetMapping("/grupo/{grupoId}/activos")
+    public ResponseEntity<List<ReporteResponseDTO>> listarActivosPorGrupo(@PathVariable Integer grupoId) {
+        return ResponseEntity.ok(reporteService.listarActivosPorGrupo(grupoId));
+    }
 }

@@ -33,7 +33,6 @@ public class AuthService {
         String rolNombre = funcionario.getRol().getNombre();
         String token = jwtUtil.generarToken(funcionario.getEmail(), rolNombre);
 
-        // BUG CORREGIDO: incluir mustChangePassword en la respuesta
         return LoginResponseDTO.builder()
                 .token(token)
                 .tipoToken("Bearer")
@@ -43,6 +42,7 @@ public class AuthService {
                 .email(funcionario.getEmail())
                 .expiracion(jwtUtil.getExpiracion(token))
                 .mustChangePassword(funcionario.getMustChangePassword() != null && funcionario.getMustChangePassword())
+                .fotoPerfil(funcionario.getFotoPerfil())
                 .build();
     }
 

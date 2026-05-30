@@ -18,7 +18,6 @@ public class FuncionarioResponseDTO {
     private boolean activo;
     private LocalDate fechaBaja;
     private RolResponseDTO rol;
-    private List<GrupoResponseDTO> grupos;
     private String fotoPerfil;
     private Boolean mustChangePassword;
 

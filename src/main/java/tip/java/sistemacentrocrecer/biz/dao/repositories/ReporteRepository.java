@@ -4,6 +4,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import tip.java.sistemacentrocrecer.biz.dao.entities.Reporte;
 
@@ -13,18 +15,32 @@ import java.util.List;
 @Repository
 public interface ReporteRepository
         extends JpaRepository<Reporte, Integer>, JpaSpecificationExecutor<Reporte> {
-    //Listados
+    // Listados
     List<Reporte> findByActivoTrue();
     List<Reporte> findByFuncionario_Id(Integer funcionarioId);
     Page<Reporte> findByFuncionario_IdAndActivoTrue(Integer funcionarioId, Pageable pageable);
     List<Reporte> findByVistoFalseAndActivoTrue();
 
-    //Fechas
+    // Por niño
+    @Query("SELECT DISTINCT r FROM Reporte r JOIN r.reporteNinios rn WHERE rn.ninio.id = :ninioId")
+    List<Reporte> findByNinioId(@Param("ninioId") Integer ninioId);
+
+    @Query("SELECT DISTINCT r FROM Reporte r JOIN r.reporteNinios rn WHERE rn.ninio.id = :ninioId AND r.activo = true")
+    List<Reporte> findByNinioIdAndActivoTrue(@Param("ninioId") Integer ninioId);
+
+    // Por grupo
+    @Query("SELECT DISTINCT r FROM Reporte r JOIN r.reporteGrupos rg WHERE rg.grupo.id = :grupoId")
+    List<Reporte> findByGrupoId(@Param("grupoId") Integer grupoId);
+
+    @Query("SELECT DISTINCT r FROM Reporte r JOIN r.reporteGrupos rg WHERE rg.grupo.id = :grupoId AND r.activo = true")
+    List<Reporte> findByGrupoIdAndActivoTrue(@Param("grupoId") Integer grupoId);
+
+    // Fechas
     List<Reporte> findByFechaGeneracionBetweenAndActivoTrueOrderByFechaGeneracionDesc(
             LocalDateTime desde,
             LocalDateTime hasta
     );
 
-    //Metricas
+    // Métricas
     Long countByActivoTrueAndVistoFalse();
 }

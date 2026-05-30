@@ -18,4 +18,5 @@ public class LoginResponseDTO {
     private String email;          // para confirmar quién inició sesión
     private Long expiracion;       // timestamp cuando vence el token
     private Boolean mustChangePassword;
+    private String fotoPerfil;
 }

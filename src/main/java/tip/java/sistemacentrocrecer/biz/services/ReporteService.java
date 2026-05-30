@@ -6,7 +6,6 @@ import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -144,63 +143,48 @@ public class ReporteService {
                 .orElseThrow(() -> new RuntimeException("Funcionario no encontrado"));
         reporte.setFuncionario(funcionario);
 
-        // Grupos
-        List<ReporteGrupo> reporteGrupos = new ArrayList<>();
-
+        // Grupos — limpiar la colección existente y repoblarla (nunca reemplazar la referencia con set)
+        reporte.getReporteGrupos().clear();
         if (dto.getGruposIds() != null) {
-
             for (Integer grupoId : dto.getGruposIds()) {
-
                 Grupo grupo = grupoRepository.findById(grupoId)
-                        .orElseThrow(() ->
-                                new RuntimeException("Grupo no encontrado"));
-
+                        .orElseThrow(() -> new RuntimeException("Grupo no encontrado"));
                 ReporteGrupo rg = new ReporteGrupo();
                 rg.setReporte(reporte);
                 rg.setGrupo(grupo);
-
-                reporteGrupos.add(rg);
+                reporte.getReporteGrupos().add(rg);
             }
         }
-        reporte.setReporteGrupos(reporteGrupos);
 
-        //Niños
-        List<ReporteNinio> reporteNinios = new ArrayList<>();
-
+        // Niños — igual que grupos, limpiar y repoblar
+        reporte.getReporteNinios().clear();
         if (dto.getNiniosIds() != null) {
-
             for (Integer ninioId : dto.getNiniosIds()) {
-
                 Ninio ninio = ninioRepository.findById(ninioId)
-                        .orElseThrow(() ->
-                                new RuntimeException("Niño no encontrado"));
-
+                        .orElseThrow(() -> new RuntimeException("Niño no encontrado"));
                 ReporteNinio rn = new ReporteNinio();
                 rn.setReporte(reporte);
                 rn.setNinio(ninio);
-
-                reporteNinios.add(rn);
+                reporte.getReporteNinios().add(rn);
             }
         }
-        reporte.setReporteNinios(reporteNinios);
 
-        // Documentos
+        // Documentos — igual
         if (dto.getDocumentos() != null) {
-
-            List<DocumentoAdjunto> documentos = dto.getDocumentos()
-                    .stream()
+            reporte.getDocumentos().clear();
+            final Reporte reporteRef = reporte;
+            dto.getDocumentos().stream()
                     .map(documentoAdjuntoMapper::toEntity)
-                    .collect(java.util.stream.Collectors.toList());
-
-            for (DocumentoAdjunto doc : documentos) {
-                doc.setReporte(reporte);
-            }
-
-            reporte.setDocumentos(documentos);
+                    .forEach(doc -> {
+                        doc.setReporte(reporteRef);
+                        reporteRef.getDocumentos().add(doc);
+                    });
         }
+
         reporte = reporteRepository.save(reporte);
         return reporteMapper.toResponseDTO(reporte);
     }
+
 
     @Transactional(readOnly = true)
     public ReporteResponseDTO obtenerPorId(Integer id) {
@@ -495,5 +479,37 @@ public class ReporteService {
         valueCell.setPadding(5);
         valueCell.setBorderColor(new Color(200, 200, 200));
         table.addCell(valueCell);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReporteResponseDTO> listarPorNinio(Integer ninioId) {
+        return reporteRepository.findByNinioId(ninioId)
+                .stream()
+                .map(reporteMapper::toResponseDTO)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReporteResponseDTO> listarActivosPorNinio(Integer ninioId) {
+        return reporteRepository.findByNinioIdAndActivoTrue(ninioId)
+                .stream()
+                .map(reporteMapper::toResponseDTO)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReporteResponseDTO> listarPorGrupo(Integer grupoId) {
+        return reporteRepository.findByGrupoId(grupoId)
+                .stream()
+                .map(reporteMapper::toResponseDTO)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReporteResponseDTO> listarActivosPorGrupo(Integer grupoId) {
+        return reporteRepository.findByGrupoIdAndActivoTrue(grupoId)
+                .stream()
+                .map(reporteMapper::toResponseDTO)
+                .toList();
     }
 }

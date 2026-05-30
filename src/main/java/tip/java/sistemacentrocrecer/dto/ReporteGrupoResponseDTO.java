@@ -9,5 +9,4 @@ public class ReporteGrupoResponseDTO {
     private String reporteTitulo;
     private Integer grupoId;
     private String grupoNombre;
-
 }

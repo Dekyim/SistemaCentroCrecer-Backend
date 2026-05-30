@@ -9,5 +9,5 @@ public class ReporteNinioResponseDTO {
     private String reporteTitulo;
     private Integer ninioId;
     private String ninioNombre;
-
+    private String ninioApellido;
 }

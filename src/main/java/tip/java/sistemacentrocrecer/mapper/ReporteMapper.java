@@ -6,6 +6,8 @@ import org.mapstruct.Named;
 import tip.java.sistemacentrocrecer.biz.dao.entities.Reporte;
 import tip.java.sistemacentrocrecer.biz.dao.entities.ReporteGrupo;
 import tip.java.sistemacentrocrecer.biz.dao.entities.ReporteNinio;
+import tip.java.sistemacentrocrecer.dto.ReporteGrupoResponseDTO;
+import tip.java.sistemacentrocrecer.dto.ReporteNinioResponseDTO;
 import tip.java.sistemacentrocrecer.dto.ReporteRequestDTO;
 import tip.java.sistemacentrocrecer.dto.ReporteResponseDTO;
 
@@ -13,11 +15,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Mapper(componentModel = "spring", uses = {FuncionarioMapper.class, DocumentoAdjuntoMapper.class})// Para convertir objetos complejos
+@Mapper(componentModel = "spring", uses = {FuncionarioMapper.class, DocumentoAdjuntoMapper.class})
 public interface ReporteMapper {
-    //Metodos personalizados para mapear campos complejos que con conversion automatica no funcionaria
-    @Mapping(source = "reporteGrupos", target = "grupos", qualifiedByName = "gruposToNombres")
-    @Mapping(source = "reporteNinios", target = "ninios", qualifiedByName = "niniosToNombres")
+
+    @Mapping(source = "reporteGrupos", target = "grupos", qualifiedByName = "gruposToDTO")
+    @Mapping(source = "reporteNinios", target = "ninios", qualifiedByName = "niniosToDTO")
     ReporteResponseDTO toResponseDTO(Reporte reporte);
 
     @Mapping(target = "id", ignore = true)
@@ -30,22 +32,32 @@ public interface ReporteMapper {
     @Mapping(target = "reporteNinios", ignore = true)
     Reporte toEntity(ReporteRequestDTO dto);
 
-    // Metodo de conversion personalizado
-    @Named("gruposToNombres")
-    default List<String> gruposToNombres(List<ReporteGrupo> reporteGrupos) {
+    @Named("gruposToDTO")
+    default List<ReporteGrupoResponseDTO> gruposToDTO(List<ReporteGrupo> reporteGrupos) {
         if (reporteGrupos == null) return Collections.emptyList();
-        return reporteGrupos.stream()
-                .map(rg -> rg.getGrupo().getNombre())
-                .collect(Collectors.toList());
+        return reporteGrupos.stream().map(rg -> {
+            ReporteGrupoResponseDTO dto = new ReporteGrupoResponseDTO();
+            dto.setId(rg.getId());
+            dto.setReporteId(rg.getReporte() != null ? rg.getReporte().getId() : null);
+            dto.setReporteTitulo(rg.getReporte() != null ? rg.getReporte().getTitulo() : null);
+            dto.setGrupoId(rg.getGrupo() != null ? rg.getGrupo().getId() : null);
+            dto.setGrupoNombre(rg.getGrupo() != null ? rg.getGrupo().getNombre() : null);
+            return dto;
+        }).collect(Collectors.toList());
     }
 
-    // Metodo de conversion personalizado
-    @Named("niniosToNombres")
-    default List<String> niniosToNombres(List<ReporteNinio> reporteNinios) {
+    @Named("niniosToDTO")
+    default List<ReporteNinioResponseDTO> niniosToDTO(List<ReporteNinio> reporteNinios) {
         if (reporteNinios == null) return Collections.emptyList();
-        return reporteNinios.stream()
-                .map(rn -> rn.getNinio().getNombre())
-                .collect(Collectors.toList());
+        return reporteNinios.stream().map(rn -> {
+            ReporteNinioResponseDTO dto = new ReporteNinioResponseDTO();
+            dto.setId(rn.getId());
+            dto.setReporteId(rn.getReporte() != null ? rn.getReporte().getId() : null);
+            dto.setReporteTitulo(rn.getReporte() != null ? rn.getReporte().getTitulo() : null);
+            dto.setNinioId(rn.getNinio() != null ? rn.getNinio().getId() : null);
+            dto.setNinioNombre(rn.getNinio() != null ? rn.getNinio().getNombre() : null);
+            dto.setNinioApellido(rn.getNinio() != null ? rn.getNinio().getApellido() : null);
+            return dto;
+        }).collect(Collectors.toList());
     }
-
 }

@@ -17,5 +17,6 @@ public class NinioResponseDTO {
     private LocalDate fechaNacimiento;
     private boolean activo;
     private LocalDate fechaBaja;
-    private GrupoResponseDTO grupo;
+    private Integer grupoId;
+    private String grupoNombre;
 }

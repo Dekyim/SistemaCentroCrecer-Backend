@@ -9,7 +9,6 @@ import tip.java.sistemacentrocrecer.dto.FuncionarioRequestDTO;
 @Mapper(componentModel = "spring")
 public interface FuncionarioMapper {
 
-    @Mapping(target = "grupos", ignore = true)
     FuncionarioResponseDTO toResponseDTO(Funcionario funcionario);
 
     @Mapping(target = "activo", constant = "true")

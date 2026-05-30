@@ -16,9 +16,10 @@ public class ReporteResponseDTO {
     private Boolean activo;
     private LocalDateTime fechaBaja;
     private FuncionarioResponseDTO funcionario;
-    private List<String> grupos;
-    private List<String> ninios;
+
+    private List<ReporteGrupoResponseDTO> grupos;
+
+    private List<ReporteNinioResponseDTO> ninios;
+
     private List<DocumentoAdjuntoResponseDTO> documentos;
-
-
 }

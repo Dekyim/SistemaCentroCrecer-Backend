@@ -5,7 +5,6 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import tip.java.sistemacentrocrecer.biz.dao.entities.Grupo;
 import tip.java.sistemacentrocrecer.biz.dao.entities.Ninio;
-import tip.java.sistemacentrocrecer.dto.GrupoResponseDTO;
 import tip.java.sistemacentrocrecer.dto.NinioRequestDTO;
 import tip.java.sistemacentrocrecer.dto.NinioResponseDTO;
 
@@ -38,15 +37,9 @@ public interface NinioMapper {
 
     @Mapping(target = "fechaNacimiento", source = "fechaNacimiento", qualifiedByName = "dateToLocalDate")
     @Mapping(target = "fechaBaja", source = "fechaBaja", qualifiedByName = "localDateTimeToLocalDate")
-
-    @Mapping(target = "grupo", source = "grupo", qualifiedByName = "grupoSinNinios")
+    @Mapping(target = "grupoId",     source = "grupo.id")
+    @Mapping(target = "grupoNombre", source = "grupo.nombre")
     NinioResponseDTO toDTO(Ninio entity);
-
-    @Named("grupoSinNinios")
-    @Mapping(target = "ninios", ignore = true)
-    @Mapping(target = "funcionarios", ignore = true)
-    @Mapping(target = "cantidadNinios", expression = "java(grupo.getNinios() != null ? grupo.getNinios().size() : 0)")
-    GrupoResponseDTO grupoToDTO(Grupo grupo);
 
     @Named("localDateToDate")
     static Date localDateToDate(LocalDate localDate) {
