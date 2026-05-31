@@ -2,6 +2,7 @@ package tip.java.sistemacentrocrecer.dto;
 
 import lombok.Data;
 import tip.java.sistemacentrocrecer.biz.dao.enums.SexoNinioEnum;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -9,8 +10,8 @@ import java.util.List;
 public class NinioResponseDTO {
     private Integer id;
     private String cedula;
-    private String  nombre;
-    private String  apellido;
+    private String nombre;
+    private String apellido;
     private SexoNinioEnum sexo;
     private String direccion;
     private String observaciones;
@@ -19,4 +20,5 @@ public class NinioResponseDTO {
     private LocalDate fechaBaja;
     private Integer grupoId;
     private String grupoNombre;
+    private List<CondicionMedicaResponseDTO> condicionesMedicas;
 }

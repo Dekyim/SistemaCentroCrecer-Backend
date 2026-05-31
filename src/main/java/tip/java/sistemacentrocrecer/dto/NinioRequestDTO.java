@@ -1,10 +1,12 @@
 package tip.java.sistemacentrocrecer.dto;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import tip.java.sistemacentrocrecer.biz.dao.enums.SexoNinioEnum;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 public class NinioRequestDTO {
@@ -36,4 +38,19 @@ public class NinioRequestDTO {
     @NotNull(message = "La fechaNacimiento no puede ser nula")
     private LocalDate fechaNacimiento;
 
+
+    @Valid
+    private List<CondicionMedicaInlineDTO> condicionesMedicas;
+
+    @Data
+    public static class CondicionMedicaInlineDTO {
+
+        @NotBlank(message = "La condicion es obligatoria")
+        private String condicion;
+
+        private String observacion;
+
+        @NotNull(message = "Debe indicar si es cronica")
+        private Boolean esCronica;
+    }
 }

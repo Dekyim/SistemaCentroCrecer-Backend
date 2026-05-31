@@ -4,6 +4,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import tip.java.sistemacentrocrecer.biz.dao.entities.Asistencia;
 
@@ -16,7 +18,7 @@ public interface AsistenciaRepository
         extends JpaRepository<Asistencia, Integer>, JpaSpecificationExecutor<Asistencia>  {
     //Basicos
     List<Asistencia> findByNinio_Id(Integer ninioId);
-    Page<Asistencia> findByNinio_IdAndActivoTrue(Integer ninioId, Pageable pageable); //para implementar paginacion y ordenamiento de registros
+    Page<Asistencia> findByNinio_IdAndActivoTrue(Integer ninioId, Pageable pageable);
     List<Asistencia> findByFuncionario_Id(Integer funcionarioId);
     List<Asistencia> findByFecha(LocalDate fecha);
     Optional<Asistencia> findByNinio_Cedula(String cedula);
@@ -36,4 +38,41 @@ public interface AsistenciaRepository
             LocalDate hasta
     );
 
+    // ─── Nuevas queries para asistencia con restricciones de seguridad ───
+
+    /** Asistencias de niños de un grupo específico en una fecha */
+    List<Asistencia> findByNinio_Grupo_IdAndFechaAndActivoTrue(Integer grupoId, LocalDate fecha);
+
+    /** Niños del grupo del funcionario con asistencia marcada hoy */
+    @Query("SELECT a FROM Asistencia a " +
+            "JOIN a.ninio n " +
+            "JOIN n.grupo g " +
+            "JOIN g.funcionarios f " +
+            "WHERE f.id = :funcionarioId AND a.fecha = :fecha AND a.activo = true")
+    List<Asistencia> findAsistenciasDeNiniosPorFuncionarioYFecha(
+            @Param("funcionarioId") Integer funcionarioId,
+            @Param("fecha") LocalDate fecha
+    );
+
+    /** Verifica si el niño pertenece a un grupo del funcionario */
+    @Query("SELECT COUNT(n) > 0 FROM Ninio n " +
+            "JOIN n.grupo g " +
+            "JOIN g.funcionarios f " +
+            "WHERE n.id = :ninioId AND f.id = :funcionarioId AND n.activo = true AND g.activo = true")
+    boolean ninioPerteneceFuncionario(
+            @Param("ninioId") Integer ninioId,
+            @Param("funcionarioId") Integer funcionarioId
+    );
+
+    /** Asistencias de fecha de los grupos del funcionario */
+    @Query("SELECT a FROM Asistencia a " +
+            "JOIN a.ninio n " +
+            "JOIN n.grupo g " +
+            "JOIN g.funcionarios f " +
+            "WHERE f.id = :funcionarioId AND a.fecha = :fecha " +
+            "ORDER BY g.nombre, n.nombre")
+    List<Asistencia> findAsistenciasPorFuncionarioFecha(
+            @Param("funcionarioId") Integer funcionarioId,
+            @Param("fecha") LocalDate fecha
+    );
 }

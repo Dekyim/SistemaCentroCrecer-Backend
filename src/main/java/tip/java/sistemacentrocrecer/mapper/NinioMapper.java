@@ -3,15 +3,20 @@ package tip.java.sistemacentrocrecer.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
+import tip.java.sistemacentrocrecer.biz.dao.entities.CondicionMedica;
 import tip.java.sistemacentrocrecer.biz.dao.entities.Grupo;
 import tip.java.sistemacentrocrecer.biz.dao.entities.Ninio;
+import tip.java.sistemacentrocrecer.dto.CondicionMedicaResponseDTO;
 import tip.java.sistemacentrocrecer.dto.NinioRequestDTO;
 import tip.java.sistemacentrocrecer.dto.NinioResponseDTO;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface NinioMapper {
@@ -39,7 +44,15 @@ public interface NinioMapper {
     @Mapping(target = "fechaBaja", source = "fechaBaja", qualifiedByName = "localDateTimeToLocalDate")
     @Mapping(target = "grupoId",     source = "grupo.id")
     @Mapping(target = "grupoNombre", source = "grupo.nombre")
+    @Mapping(target = "condicionesMedicas", source = "condiciones", qualifiedByName = "condicionesToDTO")
     NinioResponseDTO toDTO(Ninio entity);
+
+    default List<NinioResponseDTO> toDTOList(List<Ninio> entities) {
+        if (entities == null) return Collections.emptyList();
+        return entities.stream()
+                .map(this::toDTO)
+                .toList();
+    }
 
     @Named("localDateToDate")
     static Date localDateToDate(LocalDate localDate) {
@@ -57,5 +70,18 @@ public interface NinioMapper {
     static LocalDate localDateTimeToLocalDate(LocalDateTime localDateTime) {
         if (localDateTime == null) return null;
         return localDateTime.toLocalDate();
+    }
+
+    @Named("condicionesToDTO")
+    static List<CondicionMedicaResponseDTO> condicionesToDTO(List<CondicionMedica> condiciones) {
+        if (condiciones == null) return Collections.emptyList();
+        return condiciones.stream().map(c -> {
+            CondicionMedicaResponseDTO dto = new CondicionMedicaResponseDTO();
+            dto.setCondicionId(c.getCondicionId());
+            dto.setCondicion(c.getCondicion());
+            dto.setObservacion(c.getObservaciones());
+            dto.setEsCronica(c.getEsCronica());
+            return dto;
+        }).collect(Collectors.toList());
     }
 }
