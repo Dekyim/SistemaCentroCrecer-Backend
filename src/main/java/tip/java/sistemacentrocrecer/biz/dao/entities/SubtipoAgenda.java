@@ -21,4 +21,10 @@ public class SubtipoAgenda {
     @Column(name = "subtipo", nullable = false)
     private String subtipo;
 
+    @OneToMany(mappedBy = "subtipoAgenda", fetch = FetchType.LAZY)
+    private List<DetalleAgenda> detallesAgenda;
+
+    @OneToMany(mappedBy = "subtipoAgenda", fetch = FetchType.LAZY)
+    private List<AgendaLimpieza> agendasLimpieza;
+
 }

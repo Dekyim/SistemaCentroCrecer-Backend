@@ -22,6 +22,5 @@ public interface AgendaMapper {
     @Mapping(target = "funcionario",     ignore = true)
     @Mapping(target = "tipo",            ignore = true)
     @Mapping(target = "detalles",        ignore = true)
-    @Mapping(target = "agendasLimpieza", ignore = true)
     Agenda toEntity(AgendaRequestDTO dto);
 }

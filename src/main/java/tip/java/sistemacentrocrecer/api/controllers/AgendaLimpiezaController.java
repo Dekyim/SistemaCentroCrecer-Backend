@@ -6,11 +6,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tip.java.sistemacentrocrecer.biz.dao.enums.EstadoLimpiezaEnum;
 import tip.java.sistemacentrocrecer.biz.services.AgendaLimpiezaService;
-import tip.java.sistemacentrocrecer.biz.services.AgendaService;
 import tip.java.sistemacentrocrecer.dto.AgendaLimpiezaRequestDTO;
 import tip.java.sistemacentrocrecer.dto.AgendaLimpiezaResponseDTO;
-import tip.java.sistemacentrocrecer.dto.AgendaRequestDTO;
-import tip.java.sistemacentrocrecer.dto.AgendaResponseDTO;
+
 
 import java.util.List;
 

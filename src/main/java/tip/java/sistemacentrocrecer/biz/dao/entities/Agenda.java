@@ -1,6 +1,5 @@
 package tip.java.sistemacentrocrecer.biz.dao.entities;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -43,7 +42,4 @@ public class Agenda {
 
     @OneToMany(mappedBy = "agenda", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<DetalleAgenda> detalles;
-
-    @OneToMany(mappedBy = "agenda", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<AgendaLimpieza> agendasLimpieza;
 }

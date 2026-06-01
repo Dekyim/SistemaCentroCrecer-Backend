@@ -9,13 +9,15 @@ import tip.java.sistemacentrocrecer.dto.AgendaLimpiezaResponseDTO;
 @Mapper(componentModel = "spring")
 public interface AgendaLimpiezaMapper {
 
-    @Mapping(source = "agenda.id", target = "agendaId")
+    @Mapping(source = "funcionario.id",     target = "funcionarioId")
+    @Mapping(source = "funcionario.nombre", target = "funcionarioNombre")
     @Mapping(source = "subtipoAgenda.subtipoId", target = "subtipoAgendaId")
-    @Mapping(source = "subtipoAgenda.subtipo", target = "subtipoAgendaNombre")
+    @Mapping(source = "subtipoAgenda.subtipo",   target = "subtipoAgendaNombre")
     AgendaLimpiezaResponseDTO toResponseDTO(AgendaLimpieza agendaLimpieza);
 
-    @Mapping(target = "agenda", ignore = true)
-    @Mapping(target = "subtipoAgenda", ignore = true)
-    @Mapping(target = "estado", constant = "PENDIENTE")
+    @Mapping(target = "funcionario",    ignore = true)
+    @Mapping(target = "subtipoAgenda",  ignore = true)
+    @Mapping(target = "estado",         constant = "PENDIENTE")
+    @Mapping(target = "id",            ignore = true)
     AgendaLimpieza toEntity(AgendaLimpiezaRequestDTO dto);
 }

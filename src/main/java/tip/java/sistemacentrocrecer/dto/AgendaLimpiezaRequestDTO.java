@@ -5,9 +5,11 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 @Data
 public class AgendaLimpiezaRequestDTO {
-
 
     @NotBlank(message = "La descripción no puede estar vacía")
     @Size(max = 255, message = "La descripción no puede superar los 255 caracteres")
@@ -20,10 +22,17 @@ public class AgendaLimpiezaRequestDTO {
     @NotNull(message = "La frecuencia es obligatoria")
     private Integer frecuencia;
 
-    @NotNull(message = "La agenda es obligatoria")
-    private Integer agendaId;
+    @NotNull(message = "La fecha es obligatoria")
+    private LocalDate fecha;
+
+    @NotNull(message = "La hora de inicio es obligatoria")
+    private LocalTime horaInicio;
+
+    private LocalTime horaFin;
+
+    @NotNull(message = "El funcionario es obligatorio")
+    private Integer funcionarioId;
 
     @NotNull(message = "El subtipo de agenda es obligatorio")
     private Integer subtipoAgendaId;
-
 }
