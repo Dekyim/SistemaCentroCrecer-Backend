@@ -35,8 +35,16 @@ public class DetalleAgendaService {
                 .toList();
     }
 
+    public List<DetalleAgendaResponseDTO> listarPorAgenda(Integer agendaId) {
+        return detalleAgendaRepository.findByAgendaId(agendaId)
+                .stream()
+                .map(detalleAgendaMapper::toResponseDTO)
+                .toList();
+    }
+
     public DetalleAgendaResponseDTO obtenerPorId(Integer id) {
-        DetalleAgenda detalleAgenda = detalleAgendaRepository.findById(id).orElseThrow(() -> new RuntimeException("Detalle de agenda no encontrado con id: " + id));
+        DetalleAgenda detalleAgenda = detalleAgendaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Detalle de agenda no encontrado con id: " + id));
         return detalleAgendaMapper.toResponseDTO(detalleAgenda);
     }
 
@@ -45,11 +53,14 @@ public class DetalleAgendaService {
 
         DetalleAgenda detalleAgenda = detalleAgendaMapper.toEntity(dto);
 
-        Agenda agenda = agendaRepository.findById(dto.getAgendaId()).orElseThrow(() -> new RuntimeException("Agenda no encontrada con id: " + dto.getAgendaId()));
-        SubtipoAgenda subtipo = subtipoAgendaRepository.findById(dto.getSubtipoAgendaId()).orElseThrow(() -> new RuntimeException("SubtipoAgenda no encontrado con id: " + dto.getSubtipoAgendaId()));
+        Agenda agenda = agendaRepository.findById(dto.getAgendaId())
+                .orElseThrow(() -> new RuntimeException("Agenda no encontrada con id: " + dto.getAgendaId()));
+        SubtipoAgenda subtipo = subtipoAgendaRepository.findById(dto.getSubtipoAgendaId())
+                .orElseThrow(() -> new RuntimeException("SubtipoAgenda no encontrado con id: " + dto.getSubtipoAgendaId()));
 
         detalleAgenda.setAgenda(agenda);
         detalleAgenda.setSubtipoAgenda(subtipo);
+        detalleAgenda.setActivo(true);
 
         return detalleAgendaMapper.toResponseDTO(detalleAgendaRepository.save(detalleAgenda));
     }
@@ -57,14 +68,16 @@ public class DetalleAgendaService {
     @Transactional
     public DetalleAgendaResponseDTO actualizar(Integer id, DetalleAgendaRequestDTO dto) {
 
-        DetalleAgenda detalleAgenda = detalleAgendaRepository.findById(id).orElseThrow(() -> new RuntimeException("Detalle Agenda no encontrado con id: " + id));
+        DetalleAgenda detalleAgenda = detalleAgendaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Detalle Agenda no encontrado con id: " + id));
 
         detalleAgenda.setDescripcionEspecifica(dto.getDescripcionEspecifica());
         detalleAgenda.setRequiereParticipantes(dto.getRequiereParticipantes());
 
-
-        Agenda agenda = agendaRepository.findById(dto.getAgendaId()).orElseThrow(() -> new RuntimeException("Agenda no encontrada con id: " + dto.getAgendaId()));
-        SubtipoAgenda subtipo = subtipoAgendaRepository.findById(dto.getSubtipoAgendaId()).orElseThrow(() -> new RuntimeException("SubtipoAgenda no encontrado con id: " + dto.getSubtipoAgendaId()));
+        Agenda agenda = agendaRepository.findById(dto.getAgendaId())
+                .orElseThrow(() -> new RuntimeException("Agenda no encontrada con id: " + dto.getAgendaId()));
+        SubtipoAgenda subtipo = subtipoAgendaRepository.findById(dto.getSubtipoAgendaId())
+                .orElseThrow(() -> new RuntimeException("SubtipoAgenda no encontrado con id: " + dto.getSubtipoAgendaId()));
         detalleAgenda.setAgenda(agenda);
         detalleAgenda.setSubtipoAgenda(subtipo);
 
@@ -74,7 +87,8 @@ public class DetalleAgendaService {
     @Transactional
     public void darDeBaja(Integer id) {
 
-        DetalleAgenda detalleAgenda = detalleAgendaRepository.findById(id).orElseThrow(() -> new RuntimeException("Detalle Agenda no encontrado con id: " + id));
+        DetalleAgenda detalleAgenda = detalleAgendaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Detalle Agenda no encontrado con id: " + id));
 
         if (!detalleAgenda.getActivo()) {
             throw new IllegalStateException("El detalle agenda ya esta dado de baja");

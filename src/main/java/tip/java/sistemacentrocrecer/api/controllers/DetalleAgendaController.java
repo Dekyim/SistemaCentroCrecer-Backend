@@ -17,7 +17,11 @@ public class DetalleAgendaController {
     private final DetalleAgendaService detalleAgendaService;
 
     @GetMapping
-    public List<DetalleAgendaResponseDTO> listarTodos() {
+    public List<DetalleAgendaResponseDTO> listarTodos(
+            @RequestParam(required = false) Integer agendaId) {
+        if (agendaId != null) {
+            return detalleAgendaService.listarPorAgenda(agendaId);
+        }
         return detalleAgendaService.listarTodos();
     }
 
