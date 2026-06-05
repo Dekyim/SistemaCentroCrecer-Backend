@@ -37,15 +37,17 @@ public class TurnoController {
     }
 
     @PutMapping("/{id}")
-    public TurnoResponseDTO actualizar(
-            @PathVariable Integer id,
-            @Valid @RequestBody TurnoRequestDTO dto
-    ) {
+    public TurnoResponseDTO actualizar(@PathVariable Integer id, @Valid @RequestBody TurnoRequestDTO dto) {
         return turnoService.actualizar(id, dto);
     }
 
     @DeleteMapping("/{id}")
     public void darDeBaja(@PathVariable Integer id) {
         turnoService.darDeBaja(id);
+    }
+
+    @PutMapping("/{id}/reactivar")
+    public TurnoResponseDTO reactivar(@PathVariable Integer id) {
+        return turnoService.reactivar(id);
     }
 }

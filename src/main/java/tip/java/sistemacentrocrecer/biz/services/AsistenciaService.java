@@ -17,6 +17,10 @@ import tip.java.sistemacentrocrecer.exceptions.ResourceNotFoundException;
 import tip.java.sistemacentrocrecer.mapper.AsistenciaMapper;
 import tip.java.sistemacentrocrecer.mapper.NinioMapper;
 
+import tip.java.sistemacentrocrecer.biz.dao.enums.EstadoPuntualidadEnum;
+import tip.java.sistemacentrocrecer.biz.dao.repositories.TurnoRepository;
+
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -27,10 +31,75 @@ public class AsistenciaService {
     private final AsistenciaRepository asistenciaRepository;
     private final FuncionarioRepository funcionarioRepository;
     private final NinioRepository ninioRepository;
+    private final TurnoRepository turnoRepository;
     private final AsistenciaMapper asistenciaMapper;
     private final NinioMapper ninioMapper;
 
-    // ─── Métodos existentes ───────────────────────────────────────────────────
+    private static final int TOLERANCIA_MINUTOS = 10;
+
+    private EstadoPuntualidadEnum calcularEstadoEntrada(Integer funcionarioId, LocalDate fecha, LocalTime horaRegistrada) {
+        DayOfWeek diaSemana = fecha.getDayOfWeek();
+        List<tip.java.sistemacentrocrecer.biz.dao.entities.Turno> turnos =
+                turnoRepository.findByFuncionarioIdAndActivoTrue(funcionarioId)
+                        .stream()
+                        .filter(t -> t.getDias().contains(diaSemana))
+                        .toList();
+
+        if (turnos.isEmpty()) return EstadoPuntualidadEnum.SIN_TURNO_ASIGNADO;
+
+        // Buscar el turno más cercano (por hora de inicio) que aplica al día
+        return turnos.stream()
+                .map(t -> {
+                    LocalTime inicio = t.getHoraInicio();
+                    long diffMinutos = java.time.Duration.between(inicio, horaRegistrada).toMinutes();
+                    if (diffMinutos <= TOLERANCIA_MINUTOS && diffMinutos >= -TOLERANCIA_MINUTOS) {
+                        return EstadoPuntualidadEnum.EN_HORARIO;
+                    } else if (horaRegistrada.isAfter(inicio.plusMinutes(TOLERANCIA_MINUTOS))) {
+                        return EstadoPuntualidadEnum.TARDE;
+                    } else {
+                        return EstadoPuntualidadEnum.TEMPRANO;
+                    }
+                })
+                // Si algún turno dice EN_HORARIO, priorizar ese resultado
+                .min((a, b) -> {
+                    if (a == EstadoPuntualidadEnum.EN_HORARIO) return -1;
+                    if (b == EstadoPuntualidadEnum.EN_HORARIO) return 1;
+                    return 0;
+                })
+                .orElse(EstadoPuntualidadEnum.SIN_TURNO_ASIGNADO);
+    }
+
+    private EstadoPuntualidadEnum calcularEstadoSalida(Integer funcionarioId, LocalDate fecha, LocalTime horaRegistrada) {
+        DayOfWeek diaSemana = fecha.getDayOfWeek();
+        List<tip.java.sistemacentrocrecer.biz.dao.entities.Turno> turnos =
+                turnoRepository.findByFuncionarioIdAndActivoTrue(funcionarioId)
+                        .stream()
+                        .filter(t -> t.getDias().contains(diaSemana))
+                        .toList();
+
+        if (turnos.isEmpty()) return EstadoPuntualidadEnum.SIN_TURNO_ASIGNADO;
+
+        return turnos.stream()
+                .map(t -> {
+                    LocalTime fin = t.getHoraFin();
+                    long diffMinutos = java.time.Duration.between(fin, horaRegistrada).toMinutes();
+                    if (diffMinutos <= TOLERANCIA_MINUTOS && diffMinutos >= -TOLERANCIA_MINUTOS) {
+                        return EstadoPuntualidadEnum.EN_HORARIO;
+                    } else if (horaRegistrada.isBefore(fin.minusMinutes(TOLERANCIA_MINUTOS))) {
+                        return EstadoPuntualidadEnum.TEMPRANO;
+                    } else {
+                        return EstadoPuntualidadEnum.TARDE;
+                    }
+                })
+                .min((a, b) -> {
+                    if (a == EstadoPuntualidadEnum.EN_HORARIO) return -1;
+                    if (b == EstadoPuntualidadEnum.EN_HORARIO) return 1;
+                    return 0;
+                })
+                .orElse(EstadoPuntualidadEnum.SIN_TURNO_ASIGNADO);
+    }
+
+
 
     public List<AsistenciaResponseDTO> listarTodos() {
         return asistenciaRepository.findAll().stream()
@@ -82,8 +151,6 @@ public class AsistenciaService {
         asistenciaRepository.save(a);
     }
 
-    // ─── Métodos con restricciones de seguridad ───────────────────────────────
-
     private Funcionario getFuncionarioAutenticado() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return funcionarioRepository.findByEmail(email)
@@ -121,7 +188,12 @@ public class AsistenciaService {
         asistencia.setFuncionarioNombre(funcionario.getNombre() + " " + funcionario.getApellido());
         asistencia.setFuncionarioCedula(funcionario.getCedula());
 
-        return asistenciaMapper.toResponseDTO(asistenciaRepository.save(asistencia));
+        AsistenciaResponseDTO respuesta = asistenciaMapper.toResponseDTO(asistenciaRepository.save(asistencia));
+        respuesta.setEstadoEntrada(calcularEstadoEntrada(funcionario.getId(), fecha, horaEntrada));
+        if (dto.getHoraSalida() != null) {
+            respuesta.setEstadoSalida(calcularEstadoSalida(funcionario.getId(), fecha, dto.getHoraSalida()));
+        }
+        return respuesta;
     }
 
     @Transactional
@@ -147,7 +219,10 @@ public class AsistenciaService {
         }
 
         asistencia.setHoraSalida(horaSalidaFinal);
-        return asistenciaMapper.toResponseDTO(asistenciaRepository.save(asistencia));
+        AsistenciaResponseDTO respuesta = asistenciaMapper.toResponseDTO(asistenciaRepository.save(asistencia));
+        respuesta.setEstadoEntrada(calcularEstadoEntrada(funcionario.getId(), asistencia.getFecha(), asistencia.getHoraEntrada()));
+        respuesta.setEstadoSalida(calcularEstadoSalida(funcionario.getId(), asistencia.getFecha(), horaSalidaFinal));
+        return respuesta;
     }
 
     public AsistenciaResponseDTO obtenerMiRegistroDelDia(LocalDate fecha) {
@@ -159,7 +234,14 @@ public class AsistenciaService {
                 .stream()
                 .filter(a -> a.getFecha().equals(fechaBusqueda) && a.getNinio() == null)
                 .findFirst()
-                .map(asistenciaMapper::toResponseDTO)
+                .map(a -> {
+                    AsistenciaResponseDTO dto = asistenciaMapper.toResponseDTO(a);
+                    dto.setEstadoEntrada(calcularEstadoEntrada(funcionario.getId(), a.getFecha(), a.getHoraEntrada()));
+                    if (a.getHoraSalida() != null) {
+                        dto.setEstadoSalida(calcularEstadoSalida(funcionario.getId(), a.getFecha(), a.getHoraSalida()));
+                    }
+                    return dto;
+                })
                 .orElse(null);
     }
 

@@ -2,6 +2,7 @@ package tip.java.sistemacentrocrecer.biz.services;
 
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import tip.java.sistemacentrocrecer.biz.dao.entities.Funcionario;
 import tip.java.sistemacentrocrecer.biz.dao.entities.Turno;
@@ -9,6 +10,7 @@ import tip.java.sistemacentrocrecer.biz.dao.repositories.FuncionarioRepository;
 import tip.java.sistemacentrocrecer.biz.dao.repositories.TurnoRepository;
 import tip.java.sistemacentrocrecer.dto.TurnoRequestDTO;
 import tip.java.sistemacentrocrecer.dto.TurnoResponseDTO;
+import tip.java.sistemacentrocrecer.exceptions.BusinessException;
 import tip.java.sistemacentrocrecer.mapper.TurnoMapper;
 
 import java.time.LocalDateTime;
@@ -96,5 +98,38 @@ public class TurnoService {
         turno.setFechaBaja(LocalDateTime.now());
 
         turnoRepository.save(turno);
+    }
+
+    @Transactional
+    public TurnoResponseDTO reactivar(Integer id) {
+        Funcionario solicitante = getFuncionarioAutenticado();
+
+        Turno turno = turnoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Turno no encontrado con id: " + id));
+
+        if (turno.getActivo()) {
+            throw new BusinessException("El turno ya está activo");
+        }
+
+        // Cualquier funcionario puede reactivar su propio turno;
+        // admin y coordinadora pueden reactivar cualquiera
+        boolean esAdminOCoord = solicitante.getRol() != null &&
+                (solicitante.getRol().getNombre().equals("ADMINISTRADOR_SISTEMA") ||
+                        solicitante.getRol().getNombre().equals("COORDINADORA"));
+
+        if (!esAdminOCoord && !turno.getFuncionario().getId().equals(solicitante.getId())) {
+            throw new BusinessException("Solo podés dar de alta tus propios turnos");
+        }
+
+        turno.setActivo(true);
+        turno.setFechaBaja(null);
+
+        return turnoMapper.toResponseDTO(turnoRepository.save(turno));
+    }
+
+    private Funcionario getFuncionarioAutenticado() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return funcionarioRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException("Funcionario autenticado no encontrado"));
     }
 }

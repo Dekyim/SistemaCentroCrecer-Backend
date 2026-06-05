@@ -1,6 +1,7 @@
 package tip.java.sistemacentrocrecer.dto;
 
 import lombok.Data;
+import tip.java.sistemacentrocrecer.biz.dao.enums.EstadoPuntualidadEnum;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -14,6 +15,9 @@ public class AsistenciaResponseDTO {
     private LocalTime horaSalida;
     private String observaciones;
     private Boolean activo;
+
+    private EstadoPuntualidadEnum estadoEntrada;
+    private EstadoPuntualidadEnum estadoSalida;
 
     private Integer ninioId;
     private String ninioNombre;
