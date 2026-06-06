@@ -4,14 +4,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import tip.java.sistemacentrocrecer.biz.services.InscripcionService;
 import tip.java.sistemacentrocrecer.biz.services.ResponsableService;
-import tip.java.sistemacentrocrecer.dto.ActualizarPerfilRequestDTO;
-import tip.java.sistemacentrocrecer.dto.CambiarContraseniaSeguraRequestDTO;
-import tip.java.sistemacentrocrecer.dto.CambiarContraseniaRequestDTO;
-import tip.java.sistemacentrocrecer.dto.CambiarContraseniaResponseDTO;
-import tip.java.sistemacentrocrecer.dto.ResponsableRequestDTO;
-import tip.java.sistemacentrocrecer.dto.ResponsableResponseDTO;
+import tip.java.sistemacentrocrecer.dto.*;
 
 import java.util.List;
 
@@ -20,62 +17,69 @@ import java.util.List;
 @RequestMapping("/api/v1/responsables")
 @RequiredArgsConstructor
 public class ResponsableController {
-    private final ResponsableService responsableService;
+
+    private final ResponsableService  responsableService;
+    private final InscripcionService  inscripcionService;
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
     public ResponseEntity<List<ResponsableResponseDTO>> listar() {
         return ResponseEntity.ok(responsableService.listar());
     }
 
     @GetMapping("/activos")
+    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
     public ResponseEntity<List<ResponsableResponseDTO>> listarActivos() {
         return ResponseEntity.ok(responsableService.listarActivos());
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO', 'RESPONSABLE')")
     public ResponseEntity<ResponsableResponseDTO> buscarPorId(@PathVariable Integer id) {
         return ResponseEntity.ok(responsableService.buscarPorId(id));
     }
 
     @PostMapping
-    public ResponseEntity<ResponsableResponseDTO> crear(
-            @Valid @RequestBody ResponsableRequestDTO dto) {
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(responsableService.crear(dto));
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ResponsableResponseDTO> crear(@Valid @RequestBody ResponsableRequestDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(responsableService.crear(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponsableResponseDTO> actualizar(
-            @PathVariable Integer id,
-            @Valid @RequestBody ResponsableRequestDTO dto) {
-
+    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
+    public ResponseEntity<ResponsableResponseDTO> actualizar(@PathVariable Integer id, @Valid @RequestBody ResponsableRequestDTO dto) {
         return ResponseEntity.ok(responsableService.actualizar(id, dto));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> bajaLogica(@PathVariable Integer id) {
-
         responsableService.bajaLogica(id);
-
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}/cambiar-contrasenia")
+    @PreAuthorize("hasAnyRole('ADMIN', 'RESPONSABLE')")
     public ResponseEntity<CambiarContraseniaResponseDTO> cambiarPassword(@PathVariable Integer id, @RequestBody CambiarContraseniaRequestDTO requestDTO) {
-
-        CambiarContraseniaResponseDTO response = responsableService.cambiarPassword(id, requestDTO);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(responsableService.cambiarPassword(id, requestDTO));
     }
 
     @PutMapping("/{id}/perfil")
+    @PreAuthorize("hasAnyRole('ADMIN', 'RESPONSABLE')")
     public ResponseEntity<ResponsableResponseDTO> actualizarPerfil(@PathVariable Integer id, @Valid @RequestBody ActualizarPerfilRequestDTO dto) {
         return ResponseEntity.ok(responsableService.actualizarPerfil(id, dto));
     }
 
     @PutMapping("/{id}/cambiar-contrasenia-seguro")
+    @PreAuthorize("hasAnyRole('ADMIN', 'RESPONSABLE')")
     public ResponseEntity<CambiarContraseniaResponseDTO> cambiarPasswordSeguro(@PathVariable Integer id, @RequestBody CambiarContraseniaSeguraRequestDTO dto) {
         return ResponseEntity.ok(responsableService.cambiarPasswordSeguro(id, dto));
+    }
+
+
+    @PostMapping("/registro-completo")
+    public ResponseEntity<List<InscripcionSolicitudResponseDTO>> registroCompleto(@Valid @RequestBody RegistroCompletoRequestDTO dto) {
+        List<InscripcionSolicitudResponseDTO> solicitudes = inscripcionService.registrarResponsableConNinos(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(solicitudes);
     }
 }
