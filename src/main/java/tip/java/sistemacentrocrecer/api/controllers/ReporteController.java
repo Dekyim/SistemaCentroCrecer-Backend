@@ -73,6 +73,19 @@ public class ReporteController {
                 .body(pdf);
     }
 
+    // Marcar como visto
+    @PutMapping("/{id}/visto")
+    public ResponseEntity<Void> marcarComoVisto(@PathVariable Integer id, @RequestParam Integer responsableId) {
+        reporteService.marcarComoVisto(id, responsableId);
+        return ResponseEntity.ok().build();
+    }
+
+    // Reportes visibles por responsable
+    @GetMapping("/responsable/{responsableId}")
+    public ResponseEntity<List<ReporteResponseDTO>> listarActivosPorResponsable(@PathVariable Integer responsableId) {
+        return ResponseEntity.ok(reporteService.listarActivosPorResponsable(responsableId));
+    }
+
     // Endpoints por niño
     @GetMapping("/ninio/{ninioId}")
     public ResponseEntity<List<ReporteResponseDTO>> listarPorNinio(@PathVariable Integer ninioId) {

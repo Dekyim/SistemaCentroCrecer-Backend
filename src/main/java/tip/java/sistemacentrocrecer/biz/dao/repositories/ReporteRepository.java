@@ -41,6 +41,25 @@ public interface ReporteRepository
             LocalDateTime hasta
     );
 
+    // Por responsable via niño asignado directamente al reporte
+    @Query("SELECT DISTINCT r FROM Reporte r" +
+            " JOIN r.reporteNinios rn" +
+            " JOIN rn.ninio n" +
+            " JOIN n.responsables rsp" +
+            " WHERE r.activo = true AND rsp.responsable.id = :responsableId" +
+            " ORDER BY r.fechaGeneracion DESC")
+    List<Reporte> findActivosByResponsableIdViaNinio(@Param("responsableId") Integer responsableId);
+
+    // Por responsable via grupo del niño asociado al reporte
+    @Query("SELECT DISTINCT r FROM Reporte r" +
+            " JOIN r.reporteGrupos rg" +
+            " JOIN rg.grupo g" +
+            " JOIN g.ninios n2" +
+            " JOIN n2.responsables rsp2" +
+            " WHERE r.activo = true AND rsp2.responsable.id = :responsableId" +
+            " ORDER BY r.fechaGeneracion DESC")
+    List<Reporte> findActivosByResponsableIdViaGrupo(@Param("responsableId") Integer responsableId);
+
     // Métricas
     Long countByActivoTrueAndVistoFalse();
 }

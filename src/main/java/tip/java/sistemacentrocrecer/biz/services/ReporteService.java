@@ -28,6 +28,7 @@ import tip.java.sistemacentrocrecer.biz.dao.repositories.FuncionarioRepository;
 import tip.java.sistemacentrocrecer.biz.dao.repositories.GrupoRepository;
 import tip.java.sistemacentrocrecer.biz.dao.repositories.NinioRepository;
 import tip.java.sistemacentrocrecer.biz.dao.repositories.ReporteRepository;
+import tip.java.sistemacentrocrecer.biz.dao.repositories.ResponsableRepository;
 import tip.java.sistemacentrocrecer.dto.ReporteRequestDTO;
 import tip.java.sistemacentrocrecer.dto.ReporteResponseDTO;
 import tip.java.sistemacentrocrecer.mapper.DocumentoAdjuntoMapper;
@@ -39,6 +40,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.Date;
 import java.util.List;
 
@@ -50,16 +52,19 @@ public class ReporteService {
     private final FuncionarioRepository funcionarioRepository;
     private final GrupoRepository grupoRepository;
     private final NinioRepository ninioRepository;
+    private final ResponsableRepository responsableRepository;
 
     private final ReporteMapper reporteMapper;
     private final DocumentoAdjuntoMapper documentoAdjuntoMapper;
+    private final NotificacionService notificacionService;
+    private final EmailService emailService;
 
     @Transactional
     public ReporteResponseDTO crearReporte(ReporteRequestDTO dto) {
         Reporte reporte = reporteMapper.toEntity(dto);
         reporte.setFechaGeneracion(new Date());
         reporte.setActivo(true);
-        reporte.setVisto(true);
+        reporte.setVisto(false);
 
         // Funcionario
         Funcionario funcionario = funcionarioRepository.findById(dto.getFuncionarioId())
@@ -479,6 +484,58 @@ public class ReporteService {
         valueCell.setPadding(5);
         valueCell.setBorderColor(new Color(200, 200, 200));
         table.addCell(valueCell);
+    }
+
+    @Transactional
+    public void marcarComoVisto(Integer id, Integer responsableId) {
+        Reporte reporte = reporteRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Reporte no encontrado"));
+
+        if (Boolean.TRUE.equals(reporte.getVisto())) return; // ya fue visto, no re-notificar
+
+        reporte.setVisto(true);
+        reporteRepository.save(reporte);
+
+        // Obtener nombre del responsable
+        Responsable responsable = responsableRepository.findById(responsableId).orElse(null);
+        String nombreResponsable = responsable != null
+                ? responsable.getNombre() + " " + responsable.getApellido()
+                : "Un responsable";
+
+        // Notificación interna al funcionario
+        Funcionario funcionario = reporte.getFuncionario();
+        if (funcionario != null) {
+            notificacionService.crearNotificacion(funcionario, reporte, nombreResponsable);
+
+            // Email al funcionario
+            if (funcionario.getEmail() != null && !funcionario.getEmail().isBlank()) {
+                emailService.enviarNotificacionVisto(
+                        funcionario.getEmail(),
+                        funcionario.getNombre() + " " + funcionario.getApellido(),
+                        reporte.getTitulo(),
+                        nombreResponsable
+                );
+            }
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReporteResponseDTO> listarActivosPorResponsable(Integer responsableId) {
+        List<Reporte> porNinio = reporteRepository.findActivosByResponsableIdViaNinio(responsableId);
+        List<Reporte> porGrupo = reporteRepository.findActivosByResponsableIdViaGrupo(responsableId);
+
+        // Unir sin duplicados, preservando orden por fechaGeneracion DESC
+        java.util.Map<Integer, Reporte> merged = new java.util.LinkedHashMap<>();
+        for (Reporte r : porNinio) merged.put(r.getId(), r);
+        for (Reporte r : porGrupo) merged.putIfAbsent(r.getId(), r);
+
+        return merged.values().stream()
+                .sorted(java.util.Comparator.comparing(
+                        Reporte::getFechaGeneracion,
+                        java.util.Comparator.nullsLast(java.util.Comparator.reverseOrder())
+                ))
+                .map(reporteMapper::toResponseDTO)
+                .toList();
     }
 
     @Transactional(readOnly = true)
