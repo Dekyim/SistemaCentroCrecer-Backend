@@ -18,6 +18,7 @@ public class NinioResponseDTO {
     private LocalDate fechaNacimiento;
     private boolean activo;
     private LocalDate fechaBaja;
+    private String fotoUrl;
 
     private Integer grupoId;
     private String grupoNombre;
@@ -25,6 +26,20 @@ public class NinioResponseDTO {
     private GrupoResumenDTO grupo;
 
     private List<CondicionMedicaResponseDTO> condicionesMedicas;
+
+    private List<ResponsableResumenDTO> responsables;
+
+    @Data
+    public static class ResponsableResumenDTO {
+        private Integer id;
+        private String nombre;
+        private String apellido;
+        private String cedula;
+        private String telefono;
+        private String email;
+        private String tipoRelacion;
+        private Boolean autorizadoRetiro;
+    }
 
     @Data
     public static class GrupoResumenDTO {

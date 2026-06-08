@@ -39,6 +39,8 @@ public class Ninio {
     private boolean activo;
     @Column(name = "fecha_baja")
     private LocalDateTime fechaBaja;
+    @Column(name = "foto_url")
+    private String fotoUrl;
 
     @OneToMany(mappedBy = "ninio", cascade = CascadeType.ALL)
     private List<CondicionMedica> condiciones;

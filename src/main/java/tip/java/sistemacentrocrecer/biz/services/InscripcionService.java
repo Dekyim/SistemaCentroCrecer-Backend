@@ -193,6 +193,20 @@ public class InscripcionService {
         inscripcion.setMotivoBaja(dto.getMotivo());
         inscripcion.setFechaBaja(LocalDateTime.now());
         inscripcionRepository.save(inscripcion);
+
+        // Si el niño no tiene ninguna inscripción activa, darlo de baja
+        Ninio ninio = inscripcion.getNinio();
+        if (ninio != null) {
+            boolean tieneOtraActiva = inscripcionRepository.findByNinioId(ninio.getId())
+                    .stream()
+                    .anyMatch(i -> !i.getId().equals(inscripcionId)
+                            && i.getEstadoInscripcion() == EstadoInscripcionEnum.ACTIVA);
+            if (!tieneOtraActiva) {
+                ninio.setActivo(false);
+                ninio.setFechaBaja(LocalDateTime.now());
+                ninioRepository.save(ninio);
+            }
+        }
     }
 
     private void validarUnicidadResponsable(String cedula, String email) {

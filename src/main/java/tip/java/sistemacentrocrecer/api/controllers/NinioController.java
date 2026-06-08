@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import tip.java.sistemacentrocrecer.biz.services.NinioService;
+import tip.java.sistemacentrocrecer.dto.NinioFotoRequestDTO;
 import tip.java.sistemacentrocrecer.dto.NinioRequestDTO;
 import tip.java.sistemacentrocrecer.dto.NinioResponseDTO;
 
@@ -41,5 +42,11 @@ public class NinioController {
     @DeleteMapping("/{id}/baja")
     public void eliminar(@PathVariable Integer id) {
         ninioService.eliminar(id);
+    }
+
+    @PutMapping("/{id}/foto")
+    public NinioResponseDTO actualizarFoto(@PathVariable Integer id,
+            @RequestBody NinioFotoRequestDTO dto) {
+        return ninioService.actualizarFoto(id, dto.getFotoUrl());
     }
 }

@@ -6,6 +6,7 @@ import org.mapstruct.Named;
 import tip.java.sistemacentrocrecer.biz.dao.entities.CondicionMedica;
 import tip.java.sistemacentrocrecer.biz.dao.entities.Grupo;
 import tip.java.sistemacentrocrecer.biz.dao.entities.Ninio;
+import tip.java.sistemacentrocrecer.biz.dao.entities.ResponsableNinio;
 import tip.java.sistemacentrocrecer.dto.CondicionMedicaResponseDTO;
 import tip.java.sistemacentrocrecer.dto.NinioRequestDTO;
 import tip.java.sistemacentrocrecer.dto.NinioResponseDTO;
@@ -31,6 +32,7 @@ public interface NinioMapper {
     @Mapping(target = "responsables", ignore = true)
     @Mapping(target = "permisos",     ignore = true)
     @Mapping(target = "inscripciones",ignore = true)
+    @Mapping(target = "fotoUrl",      ignore = true)
     @Mapping(target = "cedula",           source = "dto.cedula")
     @Mapping(target = "nombre",           source = "dto.nombre")
     @Mapping(target = "apellido",         source = "dto.apellido")
@@ -47,6 +49,8 @@ public interface NinioMapper {
     @Mapping(target = "grupoNombre",     source = "grupo.nombre")
     @Mapping(target = "grupo",           source = "grupo",            qualifiedByName = "grupoToResumen")
     @Mapping(target = "condicionesMedicas", source = "condiciones",   qualifiedByName = "condicionesToDTO")
+    @Mapping(target = "responsables",    source = "responsables",     qualifiedByName = "responsablesToDTO")
+    @Mapping(target = "fotoUrl",             source = "fotoUrl")
     NinioResponseDTO toDTO(Ninio entity);
 
     default List<NinioResponseDTO> toDTOList(List<Ninio> entities) {
@@ -63,6 +67,9 @@ public interface NinioMapper {
     @Named("dateToLocalDate")
     static LocalDate dateToLocalDate(Date date) {
         if (date == null) return null;
+        if (date instanceof java.sql.Date) {
+            return ((java.sql.Date) date).toLocalDate();
+        }
         return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
@@ -93,6 +100,25 @@ public interface NinioMapper {
             dto.setCondicion(c.getCondicion());
             dto.setObservacion(c.getObservaciones());
             dto.setEsCronica(c.getEsCronica());
+            return dto;
+        }).collect(Collectors.toList());
+    }
+
+    @Named("responsablesToDTO")
+    static List<NinioResponseDTO.ResponsableResumenDTO> responsablesToDTO(List<ResponsableNinio> responsables) {
+        if (responsables == null) return Collections.emptyList();
+        return responsables.stream().map(rn -> {
+            NinioResponseDTO.ResponsableResumenDTO dto = new NinioResponseDTO.ResponsableResumenDTO();
+            if (rn.getResponsable() != null) {
+                dto.setId(rn.getResponsable().getId());
+                dto.setNombre(rn.getResponsable().getNombre());
+                dto.setApellido(rn.getResponsable().getApellido());
+                dto.setCedula(rn.getResponsable().getCedula());
+                dto.setTelefono(rn.getResponsable().getTelefono());
+                dto.setEmail(rn.getResponsable().getEmail());
+            }
+            dto.setTipoRelacion(rn.getTipoRelacion());
+            dto.setAutorizadoRetiro(rn.getAutorizadoRetiro());
             return dto;
         }).collect(Collectors.toList());
     }
