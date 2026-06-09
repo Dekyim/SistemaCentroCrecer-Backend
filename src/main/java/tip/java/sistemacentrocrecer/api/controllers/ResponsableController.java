@@ -18,23 +18,30 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ResponsableController {
 
+    private static final String ROLES_FUNCIONARIO =
+            "hasAnyRole('ADMIN','ADMINISTRADOR_SISTEMA'," +
+                    "'COORDINADORA','ASISTENTE_SOCIAL','PSICOLOGO','PSICOMOTRICISTA'," +
+                    "'MAESTRA','ADMINISTRATIVO','EDUCADOR'," +
+                    "'TALLERISTA_PLASTICA','TALLERISTA_CERAMICA','TALLERISTA_CORPORAL'," +
+                    "'AUXILIAR_LIMPIEZA')";
+
     private final ResponsableService  responsableService;
     private final InscripcionService  inscripcionService;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
+    @PreAuthorize(ROLES_FUNCIONARIO)
     public ResponseEntity<List<ResponsableResponseDTO>> listar() {
         return ResponseEntity.ok(responsableService.listar());
     }
 
     @GetMapping("/activos")
-    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
+    @PreAuthorize(ROLES_FUNCIONARIO)
     public ResponseEntity<List<ResponsableResponseDTO>> listarActivos() {
         return ResponseEntity.ok(responsableService.listarActivos());
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO', 'RESPONSABLE')")
+    @PreAuthorize(ROLES_FUNCIONARIO + " or hasRole('RESPONSABLE')")
     public ResponseEntity<ResponsableResponseDTO> buscarPorId(@PathVariable Integer id) {
         return ResponseEntity.ok(responsableService.buscarPorId(id));
     }

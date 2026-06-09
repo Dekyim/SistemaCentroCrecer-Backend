@@ -197,10 +197,10 @@ public class AsistenciaService {
     }
 
     @Transactional
-    public AsistenciaResponseDTO registrarSalidaPropia(LocalDate fecha, LocalTime horaSalida) {
+    public AsistenciaResponseDTO registrarSalidaPropia(RegistroSalidaFuncionarioRequestDTO dto) {
         Funcionario funcionario = getFuncionarioAutenticado();
 
-        LocalDate fechaBusqueda = fecha != null ? fecha : LocalDate.now();
+        LocalDate fechaBusqueda = dto.getFecha() != null ? dto.getFecha() : LocalDate.now();
 
         Asistencia asistencia = asistenciaRepository
                 .findByFuncionario_Id(funcionario.getId())
@@ -213,12 +213,20 @@ public class AsistenciaService {
             throw new BusinessException("Ya existe una hora de salida registrada para hoy");
         }
 
-        LocalTime horaSalidaFinal = horaSalida != null ? horaSalida : LocalTime.now();
+        LocalTime horaSalidaFinal = dto.getHoraSalida() != null ? dto.getHoraSalida() : LocalTime.now();
         if (horaSalidaFinal.isBefore(asistencia.getHoraEntrada())) {
             throw new BusinessException("La hora de salida no puede ser anterior a la hora de entrada (" + asistencia.getHoraEntrada() + ")");
         }
 
         asistencia.setHoraSalida(horaSalidaFinal);
+        if (dto.getObservaciones() != null && !dto.getObservaciones().isBlank()) {
+            String obsActual = asistencia.getObservaciones();
+            asistencia.setObservaciones(
+                    obsActual != null && !obsActual.isBlank()
+                            ? obsActual + " | " + dto.getObservaciones().trim()
+                            : dto.getObservaciones().trim()
+            );
+        }
         AsistenciaResponseDTO respuesta = asistenciaMapper.toResponseDTO(asistenciaRepository.save(asistencia));
         respuesta.setEstadoEntrada(calcularEstadoEntrada(funcionario.getId(), asistencia.getFecha(), asistencia.getHoraEntrada()));
         respuesta.setEstadoSalida(calcularEstadoSalida(funcionario.getId(), asistencia.getFecha(), horaSalidaFinal));
@@ -294,7 +302,7 @@ public class AsistenciaService {
     }
 
     @Transactional
-    public AsistenciaResponseDTO registrarSalidaNinio(Integer asistenciaId, LocalTime horaSalida) {
+    public AsistenciaResponseDTO registrarSalidaNinio(Integer asistenciaId, RegistroSalidaNinioRequestDTO dto) {
         Funcionario funcionario = getFuncionarioAutenticado();
 
         Asistencia asistencia = asistenciaRepository.findById(asistenciaId)
@@ -314,12 +322,20 @@ public class AsistenciaService {
             throw new BusinessException("Ya existe una hora de salida registrada para este niño");
         }
 
-        LocalTime horaSalidaFinal = horaSalida != null ? horaSalida : LocalTime.now();
+        LocalTime horaSalidaFinal = dto.getHoraSalida() != null ? dto.getHoraSalida() : LocalTime.now();
         if (horaSalidaFinal.isBefore(asistencia.getHoraEntrada())) {
             throw new BusinessException("La hora de salida no puede ser anterior a la hora de entrada (" + asistencia.getHoraEntrada() + ")");
         }
 
         asistencia.setHoraSalida(horaSalidaFinal);
+        if (dto.getObservaciones() != null && !dto.getObservaciones().isBlank()) {
+            String obsActual = asistencia.getObservaciones();
+            asistencia.setObservaciones(
+                    obsActual != null && !obsActual.isBlank()
+                            ? obsActual + " | " + dto.getObservaciones().trim()
+                            : dto.getObservaciones().trim()
+            );
+        }
         return asistenciaMapper.toResponseDTO(asistenciaRepository.save(asistencia));
     }
 
@@ -328,5 +344,55 @@ public class AsistenciaService {
         return ninioMapper.toDTOList(
                 ninioRepository.findNiniosByFuncionarioId(funcionario.getId())
         );
+    }
+
+    // ── RF30: Historial de asistencias de un niño por cédula ────────────────
+
+    public List<AsistenciaResponseDTO> historialPorCedula(String cedula) {
+        ninioRepository.findByCedula(cedula)
+                .orElseThrow(() -> new CedulaNotFoundException(cedula));
+        return asistenciaRepository.findHistorialPorCedulaNinio(cedula)
+                .stream()
+                .map(asistenciaMapper::toResponseDTO)
+                .toList();
+    }
+
+    // ── RF31 / RF32: Frecuencia de asistencia e inasistencia ────────────────
+
+    public FrecuenciaAsistenciaResponseDTO frecuenciaPorCedula(String cedula, LocalDate desde, LocalDate hasta) {
+        if (hasta.isBefore(desde)) {
+            throw new BusinessException("La fecha 'hasta' no puede ser anterior a 'desde'");
+        }
+
+        Ninio ninio = ninioRepository.findByCedula(cedula)
+                .orElseThrow(() -> new CedulaNotFoundException(cedula));
+
+        long diasPresente = asistenciaRepository.countByNinio_IdAndFechaBetweenAndActivoTrue(
+                ninio.getId(), desde, hasta);
+
+        long totalDiasHabiles = asistenciaRepository.countDiasConAsistenciaEnPeriodo(desde, hasta);
+
+        long diasAusente = totalDiasHabiles - diasPresente;
+        if (diasAusente < 0) diasAusente = 0;
+
+        double pctAsistencia = totalDiasHabiles > 0
+                ? Math.round((diasPresente * 100.0 / totalDiasHabiles) * 10.0) / 10.0 : 0.0;
+        double pctInasistencia = totalDiasHabiles > 0
+                ? Math.round((diasAusente * 100.0 / totalDiasHabiles) * 10.0) / 10.0 : 0.0;
+
+        FrecuenciaAsistenciaResponseDTO dto = new FrecuenciaAsistenciaResponseDTO();
+        dto.setNinioId(ninio.getId());
+        dto.setNinioNombre(ninio.getNombre());
+        dto.setNinioApellido(ninio.getApellido());
+        dto.setNinioCedula(ninio.getCedula());
+        dto.setGrupoNombre(ninio.getGrupo() != null ? ninio.getGrupo().getNombre() : null);
+        dto.setDesde(desde);
+        dto.setHasta(hasta);
+        dto.setDiasPresente(diasPresente);
+        dto.setDiasAusente(diasAusente);
+        dto.setTotalDiasHabiles(totalDiasHabiles);
+        dto.setPorcentajeAsistencia(pctAsistencia);
+        dto.setPorcentajeInasistencia(pctInasistencia);
+        return dto;
     }
 }

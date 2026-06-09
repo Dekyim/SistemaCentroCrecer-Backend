@@ -26,6 +26,7 @@ public class ResponsableService {
     private final ResponsableMapper responsableMapper;
     private final PasswordEncoder passwordEncoder;
 
+    @Transactional(readOnly = true)
     public List<ResponsableResponseDTO> listar() {
         return responsableRepository.findAll()
                 .stream()
@@ -33,6 +34,7 @@ public class ResponsableService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<ResponsableResponseDTO> listarActivos() {
         return responsableRepository.findByActivoTrue()
                 .stream()

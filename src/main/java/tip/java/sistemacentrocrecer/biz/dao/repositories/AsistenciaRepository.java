@@ -75,4 +75,18 @@ public interface AsistenciaRepository
             @Param("funcionarioId") Integer funcionarioId,
             @Param("fecha") LocalDate fecha
     );
+
+    @Query("SELECT a FROM Asistencia a " +
+            "JOIN a.ninio n " +
+            "WHERE n.cedula = :cedula AND a.ninio IS NOT NULL " +
+            "ORDER BY a.fecha DESC")
+    List<Asistencia> findHistorialPorCedulaNinio(@Param("cedula") String cedula);
+
+    @Query("SELECT COUNT(DISTINCT a.fecha) FROM Asistencia a " +
+            "WHERE a.ninio IS NOT NULL AND a.activo = true " +
+            "AND a.fecha BETWEEN :desde AND :hasta")
+    long countDiasConAsistenciaEnPeriodo(
+            @Param("desde") LocalDate desde,
+            @Param("hasta") LocalDate hasta
+    );
 }

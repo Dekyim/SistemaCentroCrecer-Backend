@@ -10,7 +10,6 @@ import tip.java.sistemacentrocrecer.dto.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/asistencias")
@@ -50,10 +49,8 @@ public class AsistenciaController {
     }
 
     @PutMapping("/mi-salida")
-    public ResponseEntity<AsistenciaResponseDTO> registrarMiSalida(@RequestBody Map<String, String> body) {
-        LocalDate fecha = body.containsKey("fecha") ? LocalDate.parse(body.get("fecha")) : null;
-        LocalTime horaSalida = body.containsKey("horaSalida") ? LocalTime.parse(body.get("horaSalida")) : null;
-        return ResponseEntity.ok(asistenciaService.registrarSalidaPropia(fecha, horaSalida));
+    public ResponseEntity<AsistenciaResponseDTO> registrarMiSalida(@RequestBody RegistroSalidaFuncionarioRequestDTO dto) {
+        return ResponseEntity.ok(asistenciaService.registrarSalidaPropia(dto));
     }
 
     @GetMapping("/mi-registro")
@@ -76,13 +73,25 @@ public class AsistenciaController {
 
     @PutMapping("/ninio/{id}/salida")
     public ResponseEntity<AsistenciaResponseDTO> registrarSalidaNinio(
-            @PathVariable Integer id, @RequestBody Map<String, String> body) {
-        LocalTime horaSalida = body.containsKey("horaSalida") ? LocalTime.parse(body.get("horaSalida")) : null;
-        return ResponseEntity.ok(asistenciaService.registrarSalidaNinio(id, horaSalida));
+            @PathVariable Integer id, @RequestBody RegistroSalidaNinioRequestDTO dto) {
+        return ResponseEntity.ok(asistenciaService.registrarSalidaNinio(id, dto));
     }
 
     @GetMapping("/mis-ninios-disponibles")
     public ResponseEntity<List<NinioResponseDTO>> misNiniosDisponibles() {
         return ResponseEntity.ok(asistenciaService.listarNiniosDeMisGrupos());
+    }
+
+    @GetMapping("/historial/{cedula}")
+    public ResponseEntity<List<AsistenciaResponseDTO>> historialPorCedula(@PathVariable String cedula) {
+        return ResponseEntity.ok(asistenciaService.historialPorCedula(cedula));
+    }
+
+    @GetMapping("/frecuencia/{cedula}")
+    public ResponseEntity<FrecuenciaAsistenciaResponseDTO> frecuenciaPorCedula(
+            @PathVariable String cedula,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta) {
+        return ResponseEntity.ok(asistenciaService.frecuenciaPorCedula(cedula, desde, hasta));
     }
 }
