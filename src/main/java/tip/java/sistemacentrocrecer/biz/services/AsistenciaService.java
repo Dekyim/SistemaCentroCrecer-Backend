@@ -395,4 +395,21 @@ public class AsistenciaService {
         dto.setPorcentajeInasistencia(pctInasistencia);
         return dto;
     }
+
+    public List<AsistenciaResponseDTO> listarAsistenciasFuncionariosPorRango(LocalDate desde, LocalDate hasta) {
+        if (hasta.isBefore(desde)) {
+            throw new BusinessException("La fecha 'hasta' no puede ser anterior a 'desde'");
+        }
+        return asistenciaRepository.findAsistenciasFuncionariosPorRango(desde, hasta)
+                .stream()
+                .map(a -> {
+                    AsistenciaResponseDTO dto = asistenciaMapper.toResponseDTO(a);
+                    dto.setEstadoEntrada(calcularEstadoEntrada(a.getFuncionario().getId(), a.getFecha(), a.getHoraEntrada()));
+                    if (a.getHoraSalida() != null) {
+                        dto.setEstadoSalida(calcularEstadoSalida(a.getFuncionario().getId(), a.getFecha(), a.getHoraSalida()));
+                    }
+                    return dto;
+                })
+                .toList();
+    }
 }

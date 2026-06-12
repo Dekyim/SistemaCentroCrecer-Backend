@@ -89,4 +89,14 @@ public interface AsistenciaRepository
             @Param("desde") LocalDate desde,
             @Param("hasta") LocalDate hasta
     );
+
+    @Query("SELECT a FROM Asistencia a " +
+            "WHERE a.funcionario IS NOT NULL AND a.ninio IS NULL " +
+            "AND a.fecha BETWEEN :desde AND :hasta " +
+            "AND a.activo = true " +
+            "ORDER BY a.fecha DESC, a.funcionarioNombre ASC")
+    List<Asistencia> findAsistenciasFuncionariosPorRango(
+            @Param("desde") LocalDate desde,
+            @Param("hasta") LocalDate hasta
+    );
 }

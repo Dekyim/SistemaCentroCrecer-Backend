@@ -94,4 +94,11 @@ public class AsistenciaController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta) {
         return ResponseEntity.ok(asistenciaService.frecuenciaPorCedula(cedula, desde, hasta));
     }
+
+    @GetMapping("/funcionarios/rango")
+    public ResponseEntity<List<AsistenciaResponseDTO>> asistenciasFuncionariosPorRango(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta) {
+        return ResponseEntity.ok(asistenciaService.listarAsistenciasFuncionariosPorRango(desde, hasta));
+    }
 }
