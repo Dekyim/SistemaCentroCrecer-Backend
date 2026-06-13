@@ -18,6 +18,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ResponsableController {
 
+    private static final String ROLES_GESTION_RESPONSABLE =
+            "hasAnyRole('ADMINISTRADOR_SISTEMA','COORDINADORA','ASISTENTE_SOCIAL','PSICOLOGO')";
+
     private static final String ROLES_FUNCIONARIO =
             "hasAnyRole('ADMIN','ADMINISTRADOR_SISTEMA'," +
                     "'COORDINADORA','ASISTENTE_SOCIAL','PSICOLOGO','PSICOMOTRICISTA'," +
@@ -59,9 +62,16 @@ public class ResponsableController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize(ROLES_GESTION_RESPONSABLE)
     public ResponseEntity<Void> bajaLogica(@PathVariable Integer id) {
         responsableService.bajaLogica(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}/activar")
+    @PreAuthorize(ROLES_GESTION_RESPONSABLE)
+    public ResponseEntity<Void> activar(@PathVariable Integer id) {
+        responsableService.activar(id);
         return ResponseEntity.noContent().build();
     }
 

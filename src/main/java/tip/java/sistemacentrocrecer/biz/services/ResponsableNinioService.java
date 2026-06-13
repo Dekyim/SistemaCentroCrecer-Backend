@@ -24,6 +24,14 @@ public class ResponsableNinioService {
     private final ResponsableNinioMapper responsableNinioMapper;
 
     @Transactional(readOnly = true)
+    public List<ResponsableNinioResponseDTO> listarPorNinio(Integer ninioId) {
+        return responsableNinioRepository.findByNinioId(ninioId)
+                .stream()
+                .map(responsableNinioMapper::toResponseDTO)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public List<ResponsableNinioResponseDTO> listarTodos() {
         return responsableNinioRepository.findAll()
                 .stream()
@@ -39,6 +47,9 @@ public class ResponsableNinioService {
 
     @Transactional
     public ResponsableNinioResponseDTO crear(ResponsableNinioRequestDTO dto) {
+        if (responsableNinioRepository.existsByNinioIdAndResponsableId(dto.getNinioId(), dto.getResponsableId())) {
+            throw new RuntimeException("El responsable ya está vinculado a este niño");
+        }
         ResponsableNinio responsableNinio = responsableNinioMapper.toEntity(dto);
 
         Ninio ninio = ninioRepository.findById(dto.getNinioId()).orElseThrow(() -> new RuntimeException("Niño no encontrado"));

@@ -27,7 +27,7 @@ public class AuthService {
         }
 
         if (!funcionario.isActivo()) {
-            throw new RuntimeException("La cuenta está inactiva. Contacte al administrador.");
+            throw new RuntimeException("Tu cuenta ha sido desactivada por un administrador o referente del centro. Contactate con el Centro Crecer para más información.");
         }
 
         String rolNombre = funcionario.getRol().getNombre();
@@ -52,6 +52,10 @@ public class AuthService {
 
         if (!passwordEncoder.matches(req.getContrasenia(), responsable.getContrasenia())) {
             throw new RuntimeException("Credenciales inválidas");
+        }
+
+        if (!Boolean.TRUE.equals(responsable.getActivo())) {
+            throw new RuntimeException("Tu cuenta ha sido desactivada por un administrador o referente del centro. Contactate con el Centro Crecer para más información.");
         }
 
         String token = jwtUtil.generarToken(responsable.getEmail(), "RESPONSABLE");

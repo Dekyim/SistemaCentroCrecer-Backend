@@ -14,12 +14,15 @@ import java.util.Map;
 public class AuthController {
     private final AuthService authService;
 
+    private static final String MSG_DESACTIVADA = "Tu cuenta ha sido desactivada";
+
     @PostMapping("/funcionario/login")
     public ResponseEntity<?> loginFuncionario(@RequestBody LoginRequestDTO request) {
         try {
             return ResponseEntity.ok(authService.loginFuncionario(request));
         } catch (RuntimeException e) {
-            return ResponseEntity.status(401).body(Map.of("error", e.getMessage()));
+            int status = e.getMessage().contains(MSG_DESACTIVADA) ? 403 : 401;
+            return ResponseEntity.status(status).body(Map.of("error", e.getMessage()));
         }
     }
 
@@ -28,7 +31,8 @@ public class AuthController {
         try {
             return ResponseEntity.ok(authService.loginResponsable(request));
         } catch (RuntimeException e) {
-            return ResponseEntity.status(401).body(Map.of("error", e.getMessage()));
+            int status = e.getMessage().contains(MSG_DESACTIVADA) ? 403 : 401;
+            return ResponseEntity.status(status).body(Map.of("error", e.getMessage()));
         }
     }
 

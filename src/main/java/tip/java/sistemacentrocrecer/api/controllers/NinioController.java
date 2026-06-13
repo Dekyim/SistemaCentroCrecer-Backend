@@ -3,10 +3,12 @@ package tip.java.sistemacentrocrecer.api.controllers;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import tip.java.sistemacentrocrecer.biz.services.NinioService;
 import tip.java.sistemacentrocrecer.dto.NinioFotoRequestDTO;
 import tip.java.sistemacentrocrecer.dto.NinioRequestDTO;
+import tip.java.sistemacentrocrecer.dto.NinioResponsableUpdateDTO;
 import tip.java.sistemacentrocrecer.dto.NinioResponseDTO;
 
 import java.util.List;
@@ -46,7 +48,19 @@ public class NinioController {
 
     @PutMapping("/{id}/foto")
     public NinioResponseDTO actualizarFoto(@PathVariable Integer id,
-            @RequestBody NinioFotoRequestDTO dto) {
+                                           @RequestBody NinioFotoRequestDTO dto) {
         return ninioService.actualizarFoto(id, dto.getFotoUrl());
+    }
+
+    @GetMapping("/mis-ninios")
+    @PreAuthorize("hasRole('RESPONSABLE')")
+    public List<NinioResponseDTO> misNinios(@RequestParam Integer responsableId) {
+        return ninioService.listarPorResponsable(responsableId);
+    }
+
+    @PutMapping("/{id}/responsable-actualizar")
+    @PreAuthorize("hasRole('RESPONSABLE')")
+    public NinioResponseDTO actualizarPorResponsable(@PathVariable Integer id, @RequestParam Integer responsableId, @Valid @RequestBody NinioResponsableUpdateDTO dto) {
+        return ninioService.actualizarPorResponsable(id, responsableId, dto);
     }
 }

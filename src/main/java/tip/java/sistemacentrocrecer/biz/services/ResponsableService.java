@@ -100,6 +100,17 @@ public class ResponsableService {
     }
 
     @Transactional
+    public void activar(Integer id) {
+
+        Responsable responsable = responsableRepository.findById(id).orElseThrow(() -> new RuntimeException("Responsable no encontrado"));
+
+        responsable.setActivo(true);
+        responsable.setFechaBaja(null);
+
+        responsableRepository.save(responsable);
+    }
+
+    @Transactional
     public CambiarContraseniaResponseDTO cambiarPassword(Integer id, CambiarContraseniaRequestDTO requestDTO) {
 
         String nuevaContrasenia = requestDTO.getNuevaContrasenia();

@@ -9,14 +9,15 @@ import tip.java.sistemacentrocrecer.biz.dao.entities.Ninio;
 import tip.java.sistemacentrocrecer.biz.dao.repositories.CondicionMedicaRepository;
 import tip.java.sistemacentrocrecer.biz.dao.repositories.GrupoRepository;
 import tip.java.sistemacentrocrecer.biz.dao.repositories.NinioRepository;
+import tip.java.sistemacentrocrecer.biz.dao.repositories.ResponsableNinioRepository;
+import tip.java.sistemacentrocrecer.biz.dao.repositories.ResponsableRepository;
 import tip.java.sistemacentrocrecer.dto.NinioRequestDTO;
 import tip.java.sistemacentrocrecer.dto.NinioResponseDTO;
+import tip.java.sistemacentrocrecer.dto.NinioResponsableUpdateDTO;
 import tip.java.sistemacentrocrecer.mapper.NinioMapper;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,6 +26,8 @@ public class NinioService {
     private final NinioRepository ninioRepository;
     private final GrupoRepository grupoRepository;
     private final CondicionMedicaRepository condicionMedicaRepository;
+    private final ResponsableNinioRepository responsableNinioRepository;
+    private final ResponsableRepository responsableRepository;
     private final NinioMapper ninioMapper;
 
     @Transactional
@@ -125,5 +128,77 @@ public class NinioService {
         Ninio ninio = ninioRepository.findById(id).orElseThrow(() -> new RuntimeException("Niño no encontrado"));
         ninio.setFotoUrl(fotoUrl);
         return ninioMapper.toDTO(ninioRepository.save(ninio));
+    }
+
+    @Transactional(readOnly = true)
+    public List<NinioResponseDTO> listarPorResponsable(Integer responsableId) {
+        List<Ninio> ninios = responsableNinioRepository.findNiniosByResponsableId(responsableId);
+        if (!ninios.isEmpty()) {
+            responsableNinioRepository.findNiniosWithCondiciones(ninios);
+        }
+        return ninioMapper.toDTOList(ninios);
+    }
+
+    @Transactional
+    public NinioResponseDTO actualizarPorResponsable(Integer ninioId, Integer responsableId, NinioResponsableUpdateDTO dto) {
+        if (!responsableNinioRepository.existsByNinioIdAndResponsableId(ninioId, responsableId)) {
+            throw new RuntimeException("No tenés permiso para modificar los datos de este niño");
+        }
+        Ninio ninio = ninioRepository.findById(ninioId)
+                .orElseThrow(() -> new RuntimeException("Niño no encontrado"));
+
+        ninio.setDireccion(dto.getDireccion());
+        ninio.setObservaciones(dto.getObservaciones());
+        ninioRepository.save(ninio);
+
+        // Sincronizar condiciones médicas
+        List<CondicionMedica> existentes = condicionMedicaRepository.findByNinioId(ninioId);
+
+        if (dto.getCondicionesMedicas() != null) {
+            // IDs que vienen en el request (las que se conservan/actualizan)
+            List<Integer> idsEnviados = dto.getCondicionesMedicas().stream()
+                    .filter(c -> c.getCondicionId() != null)
+                    .map(NinioResponsableUpdateDTO.CondicionMedicaInlineDTO::getCondicionId)
+                    .collect(Collectors.toList());
+
+            // Eliminar las que ya no están en el request
+            existentes.stream()
+                    .filter(e -> !idsEnviados.contains(e.getCondicionId()))
+                    .forEach(condicionMedicaRepository::delete);
+
+            final Ninio ninioRef = ninio;
+            for (NinioResponsableUpdateDTO.CondicionMedicaInlineDTO c : dto.getCondicionesMedicas()) {
+                if (c.getCondicionId() != null) {
+                    // Actualizar existente
+                    condicionMedicaRepository.findById(c.getCondicionId()).ifPresent(cm -> {
+                        cm.setCondicion(c.getCondicion());
+                        cm.setObservaciones(c.getObservacion());
+                        cm.setEsCronica(c.getEsCronica());
+                        condicionMedicaRepository.save(cm);
+                    });
+                } else {
+                    // Crear nueva
+                    CondicionMedica nueva = CondicionMedica.builder()
+                            .condicion(c.getCondicion())
+                            .observaciones(c.getObservacion())
+                            .esCronica(c.getEsCronica())
+                            .ninio(ninioRef)
+                            .build();
+                    condicionMedicaRepository.save(nueva);
+                }
+            }
+        } else {
+            // Si viene null, eliminar todas
+            condicionMedicaRepository.deleteAll(existentes);
+        }
+
+        // Recargar con condiciones actualizadas
+        Ninio recargado = ninioRepository.findByIdWithCondiciones(ninioId)
+                .orElseThrow(() -> new RuntimeException("Niño no encontrado"));
+        ninioRepository.findByIdWithResponsables(ninioId).ifPresent(full -> {
+            recargado.setResponsables(full.getResponsables());
+            recargado.setGrupo(full.getGrupo());
+        });
+        return ninioMapper.toDTO(recargado);
     }
 }
