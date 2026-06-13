@@ -12,7 +12,9 @@ import tip.java.sistemacentrocrecer.dto.AgendaResponseDTO;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/agendas")
@@ -64,5 +66,22 @@ public class AgendaController {
         filtro.setFechaDesde(lunes);
         filtro.setFechaHasta(domingo);
         return ResponseEntity.ok(agendaService.filtrar(filtro));
+    }
+
+    @GetMapping("/sugerencias")
+    public ResponseEntity<List<AgendaResponseDTO>> sugerirReprogramacion(
+            @RequestParam Integer funcionarioId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime horaInicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime horaFin) {
+        return ResponseEntity.ok(
+                agendaService.sugerirReprogramacion(funcionarioId, fecha, horaInicio, horaFin));
+    }
+
+    @GetMapping("/sobrecarga")
+    public ResponseEntity<Map<String, Object>> detectarSobrecarga(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
+            @RequestParam(defaultValue = "3") int maxEventos) {
+        return ResponseEntity.ok(agendaService.detectarSobrecarga(fecha, maxEventos));
     }
 }

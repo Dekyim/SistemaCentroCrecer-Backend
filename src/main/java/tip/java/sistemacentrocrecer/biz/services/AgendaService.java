@@ -16,11 +16,11 @@ import tip.java.sistemacentrocrecer.exceptions.BusinessException;
 import tip.java.sistemacentrocrecer.exceptions.ResourceNotFoundException;
 import tip.java.sistemacentrocrecer.mapper.AgendaMapper;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -180,5 +180,78 @@ public class AgendaService {
                     .toList();
         }
         return solapadas.isEmpty();
+    }
+
+    public List<AgendaResponseDTO> sugerirReprogramacion(
+            Integer funcionarioId, LocalDate fecha,
+            LocalTime horaInicio, LocalTime horaFin) {
+
+        List<Agenda> ocupadas = agendaRepository
+                .findByFuncionarioIdAndFechaAndHoraInicioLessThanAndHoraFinGreaterThanAndActivoTrue(
+                        funcionarioId, fecha, horaFin, horaInicio);
+
+        long duracionMinutos = java.time.Duration.between(horaInicio, horaFin).toMinutes();
+
+        LocalTime inicio = LocalTime.of(7, 0);
+        LocalTime fin    = LocalTime.of(19, 0);
+
+        List<Agenda> todasDelDia = agendaRepository
+                .findByFechaAndFuncionarioId(fecha, funcionarioId)
+                .stream()
+                .filter(Agenda::getActivo)
+                .sorted(Comparator.comparing(Agenda::getHoraInicio))
+                .toList();
+
+        List<LocalTime[]> sugerencias = new ArrayList<>();
+        LocalTime cursor = inicio;
+
+        for (Agenda a : todasDelDia) {
+            if (cursor.plusMinutes(duracionMinutos).compareTo(a.getHoraInicio()) <= 0) {
+                sugerencias.add(new LocalTime[]{cursor, cursor.plusMinutes(duracionMinutos)});
+            }
+            if (a.getHoraFin().isAfter(cursor)) cursor = a.getHoraFin();
+        }
+        if (cursor.plusMinutes(duracionMinutos).compareTo(fin) <= 0) {
+            sugerencias.add(new LocalTime[]{cursor, cursor.plusMinutes(duracionMinutos)});
+        }
+
+        return sugerencias.stream().limit(3).map(s -> {
+            AgendaResponseDTO dto = new AgendaResponseDTO();
+            dto.setFecha(fecha);
+            dto.setHoraInicio(s[0]);
+            dto.setHoraFin(s[1]);
+            dto.setDescripcion("Horario sugerido disponible");
+            return dto;
+        }).toList();
+    }
+
+    public Map<String, Object> detectarSobrecarga(LocalDate fecha, int maxEventosPorDia) {
+        List<Agenda> agendas = agendaRepository.findByFecha(fecha)
+                .stream().filter(Agenda::getActivo).toList();
+
+        Map<Funcionario, List<Agenda>> porFuncionario = agendas.stream()
+                .collect(Collectors.groupingBy(Agenda::getFuncionario));
+
+        List<Map<String, Object>> sobrecargados = porFuncionario.entrySet().stream()
+                .filter(e -> e.getValue().size() > maxEventosPorDia)
+                .map(e -> {
+                    long minutosTotales = e.getValue().stream()
+                            .mapToLong(a -> Duration.between(a.getHoraInicio(), a.getHoraFin()).toMinutes())
+                            .sum();
+
+                    Map<String, Object> item = new HashMap<>();
+                    item.put("funcionarioId",   e.getKey().getId());
+                    item.put("nombre",          e.getKey().getNombre() + " " + e.getKey().getApellido());
+                    item.put("cantidadEventos", e.getValue().size());
+                    item.put("horasOcupadas",   minutosTotales / 60.0);
+                    return item;
+                })
+                .toList();
+
+        return Map.of(
+                "fecha", fecha,
+                "umbralMaximo", maxEventosPorDia,
+                "funcionariosSobrecargados", sobrecargados
+        );
     }
 }

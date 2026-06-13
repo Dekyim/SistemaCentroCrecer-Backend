@@ -34,6 +34,7 @@ public class AsistenciaService {
     private final TurnoRepository turnoRepository;
     private final AsistenciaMapper asistenciaMapper;
     private final NinioMapper ninioMapper;
+    private final ActividadService actividadService;
 
     private static final int TOLERANCIA_MINUTOS = 10;
 
@@ -267,6 +268,10 @@ public class AsistenciaService {
         boolean tieneAcceso = asistenciaRepository.ninioPerteneceFuncionario(ninio.getId(), funcionario.getId());
         if (!tieneAcceso) {
             throw new BusinessException("No tiene permisos para marcar asistencia de este niño. Solo puede marcar asistencia de niños de sus grupos.");
+        }
+
+        if (dto.getActividadId() != null) {
+            actividadService.validarPermisoParaActividad(dto.getActividadId(), ninio.getId());
         }
 
         LocalDate fecha = dto.getFecha() != null ? dto.getFecha() : LocalDate.now();

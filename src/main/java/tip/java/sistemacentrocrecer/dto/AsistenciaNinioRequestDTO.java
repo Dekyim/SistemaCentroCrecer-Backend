@@ -25,4 +25,6 @@ public class AsistenciaNinioRequestDTO {
 
     @NotNull(message = "El id del niño no puede ser nulo")
     private Integer ninioId;
+
+    private Integer actividadId;
 }

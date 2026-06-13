@@ -12,6 +12,7 @@ import tip.java.sistemacentrocrecer.dto.ActividadRequestDTO;
 import tip.java.sistemacentrocrecer.dto.ActividadResponseDTO;
 import tip.java.sistemacentrocrecer.dto.AgendaFilterRequestDTO;
 import tip.java.sistemacentrocrecer.dto.AgendaResponseDTO;
+import tip.java.sistemacentrocrecer.exceptions.BusinessException;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -100,4 +101,21 @@ public class ActividadController {
         return ResponseEntity.ok(actividadService.asignarPermisos(id, permisosIds));
     }
 
+    @GetMapping("/{actividadId}/verificar-permiso/{ninioId}")
+    public ResponseEntity<Map<String, Object>> verificarPermiso(
+            @PathVariable Integer actividadId,
+            @PathVariable Integer ninioId) {
+        try {
+            actividadService.validarPermisoParaActividad(actividadId, ninioId);
+            return ResponseEntity.ok(Map.of(
+                    "autorizado", true,
+                    "mensaje", "El niño tiene permiso para participar"
+            ));
+        } catch (BusinessException e) {
+            return ResponseEntity.ok(Map.of(
+                    "autorizado", false,
+                    "mensaje", e.getMessage()
+            ));
+        }
+    }
 }

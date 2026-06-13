@@ -205,6 +205,23 @@ public class ActividadService {
         return actividadMapper.toResponseDTO(actividadRepository.save(actividad));
     }
 
+    public void validarPermisoParaActividad(Integer actividadId, Integer ninioId) {
+        Actividad actividad = actividadRepository.findById(actividadId)
+                .orElseThrow(() -> new ResourceNotFoundException("Actividad no encontrada"));
+
+        Permiso permiso = permisoRepository
+                .findByActividadIdAndNinioId(actividadId, ninioId)
+                .orElseThrow(() -> new BusinessException(
+                        "El niño no tiene permiso registrado para esta actividad"));
+
+        if (!permiso.getActivo()) {
+            throw new BusinessException("El permiso está dado de baja");
+        }
+        if (!Boolean.TRUE.equals(permiso.getAutorizado())) {
+            throw new BusinessException("El niño no tiene autorización para participar en esta actividad");
+        }
+    }
+
     @Transactional
     public void eliminar(Integer id) {
         Actividad actividad = actividadRepository.findById(id).orElseThrow(() -> new RuntimeException("Actividad no encontrada"));
