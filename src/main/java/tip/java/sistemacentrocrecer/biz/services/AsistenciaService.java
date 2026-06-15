@@ -270,11 +270,11 @@ public class AsistenciaService {
             throw new BusinessException("No tiene permisos para marcar asistencia de este niño. Solo puede marcar asistencia de niños de sus grupos.");
         }
 
-        if (dto.getActividadId() != null) {
-            actividadService.validarPermisoParaActividad(dto.getActividadId(), ninio.getId());
-        }
-
         LocalDate fecha = dto.getFecha() != null ? dto.getFecha() : LocalDate.now();
+
+        actividadService.validarPermisoParaActividadDelDia(
+                dto.getActividadId(), ninio.getId(), fecha
+        );
 
         if (asistenciaRepository.existsByNinio_IdAndFechaAndActivoTrue(ninio.getId(), fecha)) {
             throw new BusinessException("Ya se registró asistencia para el niño " + ninio.getNombre() + " el día " + fecha);

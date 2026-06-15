@@ -74,4 +74,10 @@ public class PermisoController {
     public ResponseEntity<PermisoResponseDTO> rechazar(@PathVariable Integer id) {
         return ResponseEntity.ok(permisoService.rechazar(id));
     }
+
+    @GetMapping("/responsable/{responsableId}")
+    public ResponseEntity<List<PermisoResponseDTO>> listarPorResponsable(
+            @PathVariable Integer responsableId) {
+        return ResponseEntity.ok(permisoService.listarPorResponsable(responsableId));
+    }
 }

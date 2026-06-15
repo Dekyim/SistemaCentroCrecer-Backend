@@ -25,4 +25,6 @@ public interface ActividadRepository extends JpaRepository<Actividad, Integer> {
     List<Actividad> findByActivoTrueAndFechaDesdeLessThanEqualAndFechaHastaGreaterThanEqual(LocalDate fechaDesde, LocalDate fechaHasta);
 
     List<Actividad> findByActivoTrueAndFechaDesdeGreaterThan(LocalDate desde);
+
+    List<Actividad> findByNiniosIdAndFechaDesde(Integer ninioId, LocalDate fechaDesde);
 }

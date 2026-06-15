@@ -12,7 +12,15 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@Table(name = "permisos")
+@Table(
+        name = "permisos",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_permiso_ninio_actividad",
+                        columnNames = {"ninio_cedula", "actividad_id"}
+                )
+        }
+)
 public class Permiso {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,7 +32,7 @@ public class Permiso {
     @Column(name = "autorizado")
     private Boolean autorizado;
 
-    @Column(name = "ninio_cedula", unique = true, nullable = false , length = 8)
+    @Column(name = "ninio_cedula", nullable = false , length = 8)
     private String ninioCedula;
 
     @ManyToOne(fetch = FetchType.LAZY)

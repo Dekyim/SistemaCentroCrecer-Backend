@@ -141,4 +141,12 @@ public class PermisoService {
         permiso.setAutorizado(false);
         return permisoMapper.toResponseDTO(permisoRepository.save(permiso));
     }
+
+    @Transactional(readOnly = true)
+    public List<PermisoResponseDTO> listarPorResponsable(Integer responsableId) {
+        return permisoRepository.findByResponsableIdAndActivoTrue(responsableId)
+                .stream()
+                .map(permisoMapper::toResponseDTO)
+                .toList();
+    }
 }

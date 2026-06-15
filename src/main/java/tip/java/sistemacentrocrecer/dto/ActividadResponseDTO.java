@@ -20,6 +20,5 @@ public class ActividadResponseDTO {
     private LocalDateTime fechaBaja;
     private String lugar;
     private List<NinioResponseDTO> ninios;
-    private List<PermisoResponseDTO> permisos;
     private List<EmpresaExternaResponseDTO> empresasExternas;
 }

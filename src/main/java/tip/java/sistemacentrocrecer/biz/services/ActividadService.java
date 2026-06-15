@@ -98,6 +98,19 @@ public class ActividadService {
         if (ninios.size() != niniosIds.size()) {
             throw new BusinessException("Uno o más niños no encontrados");
         }
+        for (Ninio ninio : ninios) {
+            boolean yaExiste = permisoRepository
+                    .existsByActividadIdAndNinioId(actividad.getId(), ninio.getId());
+            if (!yaExiste) {
+                Permiso permiso = new Permiso();
+                permiso.setActividad(actividad);
+                permiso.setNinio(ninio);
+                permiso.setNinioCedula(ninio.getCedula());
+                permiso.setAutorizado(false);
+                permiso.setActivo(true);
+                permisoRepository.save(permiso);
+            }
+        }
         actividad.setNinios(ninios);
         return actividadMapper.toResponseDTO(actividadRepository.save(actividad));
     }
@@ -219,6 +232,31 @@ public class ActividadService {
         }
         if (!Boolean.TRUE.equals(permiso.getAutorizado())) {
             throw new BusinessException("El niño no tiene autorización para participar en esta actividad");
+        }
+    }
+
+    public void validarPermisoParaActividadDelDia(
+            Integer actividadId, Integer ninioId, LocalDate fecha) {
+
+        if (actividadId != null) {
+            validarPermisoParaActividad(actividadId, ninioId);
+            return;
+        }
+
+        List<Actividad> actividadesDelDia = actividadRepository
+                .findByNiniosIdAndFechaDesde(ninioId, fecha);
+
+        if (actividadesDelDia.isEmpty()) return;
+
+        boolean tienePermisoAutorizado = actividadesDelDia.stream()
+                .anyMatch(a -> permisoRepository
+                        .findByActividadIdAndNinioId(a.getId(), ninioId)
+                        .map(p -> p.getActivo() && Boolean.TRUE.equals(p.getAutorizado()))
+                        .orElse(false));
+
+        if (!tienePermisoAutorizado) {
+            throw new BusinessException(
+                    "El niño tiene actividades programadas para hoy pero no cuenta con permiso autorizado.");
         }
     }
 
