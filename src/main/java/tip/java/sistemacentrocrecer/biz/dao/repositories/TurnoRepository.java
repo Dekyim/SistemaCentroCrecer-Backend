@@ -32,4 +32,7 @@ public interface TurnoRepository extends JpaRepository<Turno, Integer>, JpaSpeci
     boolean existsByFuncionarioIdAndHoraInicioAndHoraFinAndIdNot(Integer funcionarioId, LocalTime horaInicio, LocalTime horaFin, Integer id);
 
     long countByActivoTrue();
+
+    // por rol del funcionario
+    List<Turno> findByFuncionario_Rol_NombreIgnoreCase(String rolNombre);
 }

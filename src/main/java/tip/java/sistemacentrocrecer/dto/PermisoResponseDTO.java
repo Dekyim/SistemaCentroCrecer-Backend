@@ -1,9 +1,7 @@
 package tip.java.sistemacentrocrecer.dto;
 
 import lombok.Data;
-
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Data
 public class PermisoResponseDTO {
@@ -14,4 +12,5 @@ public class PermisoResponseDTO {
     private Boolean activo;
     private LocalDateTime fechaBaja;
     private Boolean autorizado;
+    private Boolean respondido;
 }

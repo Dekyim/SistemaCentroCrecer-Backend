@@ -21,6 +21,11 @@ public class TurnoController {
         return turnoService.listarTodos();
     }
 
+    @GetMapping("/visibles")
+    public List<TurnoResponseDTO> listarVisibles() {
+        return turnoService.listarVisibles();
+    }
+
     @GetMapping("/activos")
     public List<TurnoResponseDTO> listarActivos() {
         return turnoService.listarActivos();

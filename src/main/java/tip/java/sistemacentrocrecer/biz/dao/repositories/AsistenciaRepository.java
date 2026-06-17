@@ -16,7 +16,7 @@ import java.util.Optional;
 @Repository
 public interface AsistenciaRepository
         extends JpaRepository<Asistencia, Integer>, JpaSpecificationExecutor<Asistencia>  {
-    //Basicos
+
     List<Asistencia> findByNinio_Id(Integer ninioId);
     Page<Asistencia> findByNinio_IdAndActivoTrue(Integer ninioId, Pageable pageable);
     List<Asistencia> findByFuncionario_Id(Integer funcionarioId);
@@ -26,7 +26,8 @@ public interface AsistenciaRepository
     Optional<Asistencia> findByNinio_IdAndFecha(Integer ninioId, LocalDate fecha);
     boolean existsByNinio_IdAndFechaAndActivoTrue(Integer ninioId, LocalDate fecha);
 
-    //Para periodos
+    List<Asistencia> findByNinio_IdInAndFechaAndActivoTrue(List<Integer> ninioIds, LocalDate fecha);
+
     List<Asistencia> findByNinio_IdAndFechaBetweenAndActivoTrueOrderByFechaDesc(
             Integer ninioId,
             LocalDate desde,
@@ -38,12 +39,9 @@ public interface AsistenciaRepository
             LocalDate hasta
     );
 
-    // ─── Nuevas queries para asistencia con restricciones de seguridad ───
 
-    /** Asistencias de niños de un grupo específico en una fecha */
     List<Asistencia> findByNinio_Grupo_IdAndFechaAndActivoTrue(Integer grupoId, LocalDate fecha);
 
-    /** Niños del grupo del funcionario con asistencia marcada hoy */
     @Query("SELECT a FROM Asistencia a " +
             "JOIN a.ninio n " +
             "JOIN n.grupo g " +
@@ -54,7 +52,6 @@ public interface AsistenciaRepository
             @Param("fecha") LocalDate fecha
     );
 
-    /** Verifica si el niño pertenece a un grupo del funcionario */
     @Query("SELECT COUNT(n) > 0 FROM Ninio n " +
             "JOIN n.grupo g " +
             "JOIN g.funcionarios f " +
@@ -64,7 +61,6 @@ public interface AsistenciaRepository
             @Param("funcionarioId") Integer funcionarioId
     );
 
-    /** Asistencias de fecha de los grupos del funcionario */
     @Query("SELECT a FROM Asistencia a " +
             "JOIN a.ninio n " +
             "JOIN n.grupo g " +

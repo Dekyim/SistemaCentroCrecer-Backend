@@ -265,9 +265,11 @@ public class AsistenciaService {
             throw new BusinessException("El niño no está activo en el sistema");
         }
 
-        boolean tieneAcceso = asistenciaRepository.ninioPerteneceFuncionario(ninio.getId(), funcionario.getId());
-        if (!tieneAcceso) {
-            throw new BusinessException("No tiene permisos para marcar asistencia de este niño. Solo puede marcar asistencia de niños de sus grupos.");
+        if (dto.getActividadId() == null) {
+            boolean tieneAcceso = asistenciaRepository.ninioPerteneceFuncionario(ninio.getId(), funcionario.getId());
+            if (!tieneAcceso) {
+                throw new BusinessException("No tiene permisos para marcar asistencia de este niño. Solo puede marcar asistencia de niños de sus grupos.");
+            }
         }
 
         LocalDate fecha = dto.getFecha() != null ? dto.getFecha() : LocalDate.now();
@@ -344,14 +346,24 @@ public class AsistenciaService {
         return asistenciaMapper.toResponseDTO(asistenciaRepository.save(asistencia));
     }
 
+    public List<AsistenciaResponseDTO> listarAsistenciasPorNinios(List<Integer> ninioIds, LocalDate fecha) {
+        getFuncionarioAutenticado();
+        if (ninioIds == null || ninioIds.isEmpty()) {
+            return List.of();
+        }
+        LocalDate fechaBusqueda = fecha != null ? fecha : LocalDate.now();
+        return asistenciaRepository.findByNinio_IdInAndFechaAndActivoTrue(ninioIds, fechaBusqueda)
+                .stream()
+                .map(asistenciaMapper::toResponseDTO)
+                .toList();
+    }
+
     public List<NinioResponseDTO> listarNiniosDeMisGrupos() {
         Funcionario funcionario = getFuncionarioAutenticado();
         return ninioMapper.toDTOList(
                 ninioRepository.findNiniosByFuncionarioId(funcionario.getId())
         );
     }
-
-    // ── RF30: Historial de asistencias de un niño por cédula ────────────────
 
     public List<AsistenciaResponseDTO> historialPorCedula(String cedula) {
         ninioRepository.findByCedula(cedula)
@@ -362,7 +374,6 @@ public class AsistenciaService {
                 .toList();
     }
 
-    // ── RF31 / RF32: Frecuencia de asistencia e inasistencia ────────────────
 
     public FrecuenciaAsistenciaResponseDTO frecuenciaPorCedula(String cedula, LocalDate desde, LocalDate hasta) {
         if (hasta.isBefore(desde)) {

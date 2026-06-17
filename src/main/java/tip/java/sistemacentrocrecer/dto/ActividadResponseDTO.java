@@ -19,6 +19,7 @@ public class ActividadResponseDTO {
     private Boolean activo;
     private LocalDateTime fechaBaja;
     private String lugar;
+    private Integer diasLimiteModificacion;
     private List<NinioResponseDTO> ninios;
     private List<EmpresaExternaResponseDTO> empresasExternas;
 }

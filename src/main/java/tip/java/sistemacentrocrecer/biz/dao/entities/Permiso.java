@@ -32,6 +32,9 @@ public class Permiso {
     @Column(name = "autorizado")
     private Boolean autorizado;
 
+    @Column(name = "respondido")
+    private Boolean respondido = false;
+
     @Column(name = "ninio_cedula", nullable = false , length = 8)
     private String ninioCedula;
 

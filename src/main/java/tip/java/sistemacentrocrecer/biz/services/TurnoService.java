@@ -15,6 +15,7 @@ import tip.java.sistemacentrocrecer.mapper.TurnoMapper;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Service
 @AllArgsConstructor
@@ -27,6 +28,28 @@ public class TurnoService {
     public List<TurnoResponseDTO> listarTodos() {
         return turnoRepository.findAll()
                 .stream()
+                .map(turnoMapper::toResponseDTO)
+                .toList();
+    }
+
+    public List<TurnoResponseDTO> listarVisibles() {
+        Funcionario solicitante = getFuncionarioAutenticado();
+        String rolNombre = solicitante.getRol() != null ? solicitante.getRol().getNombre() : "";
+
+        boolean esAdminOCoord = rolNombre.equals("ADMINISTRADOR_SISTEMA") || rolNombre.equals("COORDINADORA");
+
+        if (esAdminOCoord) {
+            return turnoRepository.findAll()
+                    .stream()
+                    .map(turnoMapper::toResponseDTO)
+                    .toList();
+        }
+
+        List<Turno> propios = turnoRepository.findByFuncionarioId(solicitante.getId());
+        List<Turno> deCoordinadoras = turnoRepository.findByFuncionario_Rol_NombreIgnoreCase("COORDINADORA");
+
+        return Stream.concat(propios.stream(), deCoordinadoras.stream())
+                .distinct()
                 .map(turnoMapper::toResponseDTO)
                 .toList();
     }
@@ -111,8 +134,6 @@ public class TurnoService {
             throw new BusinessException("El turno ya está activo");
         }
 
-        // Cualquier funcionario puede reactivar su propio turno;
-        // admin y coordinadora pueden reactivar cualquiera
         boolean esAdminOCoord = solicitante.getRol() != null &&
                 (solicitante.getRol().getNombre().equals("ADMINISTRADOR_SISTEMA") ||
                         solicitante.getRol().getNombre().equals("COORDINADORA"));

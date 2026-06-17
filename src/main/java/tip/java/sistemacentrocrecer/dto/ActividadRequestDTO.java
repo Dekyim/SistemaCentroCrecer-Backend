@@ -1,6 +1,7 @@
 package tip.java.sistemacentrocrecer.dto;
 
 import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Min;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -32,6 +33,9 @@ public class ActividadRequestDTO {
     @NotBlank(message = "El lugar es obligatorio")
     @Size(max = 200, message = "El lugar no puede superar los 200 caracteres")
     private String lugar;
+
+    @Min(value = 0, message = "El límite de días no puede ser negativo")
+    private Integer diasLimiteModificacion;
 
     private List<Integer> niniosIds;
 

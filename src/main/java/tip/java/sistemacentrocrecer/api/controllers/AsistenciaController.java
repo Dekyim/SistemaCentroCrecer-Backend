@@ -82,6 +82,13 @@ public class AsistenciaController {
         return ResponseEntity.ok(asistenciaService.listarNiniosDeMisGrupos());
     }
 
+    @GetMapping("/por-ninios")
+    public ResponseEntity<List<AsistenciaResponseDTO>> asistenciasPorNinios(
+            @RequestParam List<Integer> ninioIds,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
+        return ResponseEntity.ok(asistenciaService.listarAsistenciasPorNinios(ninioIds, fecha));
+    }
+
     @GetMapping("/historial/{cedula}")
     public ResponseEntity<List<AsistenciaResponseDTO>> historialPorCedula(@PathVariable String cedula) {
         return ResponseEntity.ok(asistenciaService.historialPorCedula(cedula));

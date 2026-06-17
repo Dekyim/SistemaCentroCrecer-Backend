@@ -38,6 +38,9 @@ public class Actividad {
     @Column(name = "lugar")
     private String lugar;
 
+    @Column(name = "dias_limite_modificacion")
+    private Integer diasLimiteModificacion;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "actividad_ninio",

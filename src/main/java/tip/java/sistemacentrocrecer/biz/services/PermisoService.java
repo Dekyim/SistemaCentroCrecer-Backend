@@ -15,6 +15,7 @@ import tip.java.sistemacentrocrecer.exceptions.BusinessException;
 import tip.java.sistemacentrocrecer.exceptions.ResourceNotFoundException;
 import tip.java.sistemacentrocrecer.mapper.PermisoMapper;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -53,7 +54,7 @@ public class PermisoService {
     @Transactional
     public PermisoResponseDTO crear(PermisoRequestDTO dto) {
         if (permisoRepository.existsByActividadIdAndNinioId(dto.getActividadId(), ninioRepository.findByCedula(dto.getNinioCedula())
-                        .orElseThrow(() -> new ResourceNotFoundException("Niño no encontrado")).getId())) {
+                .orElseThrow(() -> new ResourceNotFoundException("Niño no encontrado")).getId())) {
             throw new BusinessException("Ya existe un permiso para ese niño en esta actividad");
         }
 
@@ -71,7 +72,6 @@ public class PermisoService {
 
         return permisoMapper.toResponseDTO(permisoRepository.save(permiso));
     }
-
 
     @Transactional
     public PermisoResponseDTO actualizar(Integer id, PermisoRequestDTO dto) {
@@ -127,8 +127,34 @@ public class PermisoService {
         if (!permiso.getActivo()) {
             throw new BusinessException("No se puede autorizar un permiso dado de baja");
         }
+        validarPlazoModificacion(permiso);
         permiso.setAutorizado(true);
+        permiso.setRespondido(true);
         return permisoMapper.toResponseDTO(permisoRepository.save(permiso));
+    }
+
+    private void validarPlazoModificacion(Permiso permiso) {
+        Actividad actividad = permiso.getActividad();
+        if (actividad == null) return;
+
+        // El evento ya ocurrió: no se puede autorizar/rechazar/modificar bajo ninguna circunstancia,
+        // tenga o no configurado un plazo límite de modificación.
+        LocalDate fechaEvento = actividad.getFechaHasta() != null
+                ? actividad.getFechaHasta()
+                : actividad.getFechaDesde();
+        if (fechaEvento != null && LocalDate.now().isAfter(fechaEvento)) {
+            throw new BusinessException(
+                    "No se puede modificar la autorización: la actividad ya finalizó el " + fechaEvento
+            );
+        }
+
+        if (actividad.getDiasLimiteModificacion() == null) return;
+        LocalDate limite = actividad.getFechaDesde().minusDays(actividad.getDiasLimiteModificacion());
+        if (LocalDate.now().isAfter(limite)) {
+            throw new BusinessException(
+                    "No se puede modificar la autorización: el plazo límite fue el " + limite
+            );
+        }
     }
 
     @Transactional
@@ -138,7 +164,9 @@ public class PermisoService {
         if (!permiso.getActivo()) {
             throw new BusinessException("No se puede rechazar un permiso dado de baja");
         }
+        validarPlazoModificacion(permiso);
         permiso.setAutorizado(false);
+        permiso.setRespondido(true);
         return permisoMapper.toResponseDTO(permisoRepository.save(permiso));
     }
 
