@@ -158,11 +158,21 @@ public class AsistenciaService {
                 .orElseThrow(() -> new BusinessException("Funcionario autenticado no encontrado"));
     }
 
+    private void validarFechaEsHoy(LocalDate fecha) {
+        if (fecha != null && fecha.isAfter(LocalDate.now())) {
+            throw new BusinessException("No se puede registrar asistencia para una fecha futura");
+        }
+        if (fecha != null && fecha.isBefore(LocalDate.now())) {
+            throw new BusinessException("No se puede registrar asistencia fuera de fecha. Solo se permite marcar asistencia del día de hoy");
+        }
+    }
+
     @Transactional
     public AsistenciaResponseDTO registrarEntradaPropia(RegistroEntradaFuncionarioRequestDTO dto) {
         Funcionario funcionario = getFuncionarioAutenticado();
 
         LocalDate fecha = dto.getFecha() != null ? dto.getFecha() : LocalDate.now();
+        validarFechaEsHoy(fecha);
 
         boolean yaRegistrado = asistenciaRepository
                 .findByFuncionario_Id(funcionario.getId())
@@ -202,6 +212,7 @@ public class AsistenciaService {
         Funcionario funcionario = getFuncionarioAutenticado();
 
         LocalDate fechaBusqueda = dto.getFecha() != null ? dto.getFecha() : LocalDate.now();
+        validarFechaEsHoy(fechaBusqueda);
 
         Asistencia asistencia = asistenciaRepository
                 .findByFuncionario_Id(funcionario.getId())
@@ -273,6 +284,7 @@ public class AsistenciaService {
         }
 
         LocalDate fecha = dto.getFecha() != null ? dto.getFecha() : LocalDate.now();
+        validarFechaEsHoy(fecha);
 
         actividadService.validarPermisoParaActividadDelDia(
                 dto.getActividadId(), ninio.getId(), fecha
@@ -318,6 +330,8 @@ public class AsistenciaService {
         if (asistencia.getNinio() == null) {
             throw new BusinessException("El registro no corresponde a un niño");
         }
+
+        validarFechaEsHoy(asistencia.getFecha());
 
         boolean tieneAcceso = asistenciaRepository.ninioPerteneceFuncionario(
                 asistencia.getNinio().getId(), funcionario.getId());
