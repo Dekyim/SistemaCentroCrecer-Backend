@@ -22,12 +22,15 @@ import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import tip.java.sistemacentrocrecer.biz.dao.entities.*;
 import tip.java.sistemacentrocrecer.biz.dao.repositories.FuncionarioRepository;
 import tip.java.sistemacentrocrecer.biz.dao.repositories.GrupoRepository;
 import tip.java.sistemacentrocrecer.biz.dao.repositories.NinioRepository;
 import tip.java.sistemacentrocrecer.biz.dao.repositories.ReporteRepository;
+import tip.java.sistemacentrocrecer.biz.dao.repositories.ResponsableNinioRepository;
 import tip.java.sistemacentrocrecer.biz.dao.repositories.ResponsableRepository;
 import tip.java.sistemacentrocrecer.dto.ReporteRequestDTO;
 import tip.java.sistemacentrocrecer.dto.ReporteResponseDTO;
@@ -42,7 +45,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -53,6 +58,7 @@ public class ReporteService {
     private final GrupoRepository grupoRepository;
     private final NinioRepository ninioRepository;
     private final ResponsableRepository responsableRepository;
+    private final ResponsableNinioRepository responsableNinioRepository;
 
     private final ReporteMapper reporteMapper;
     private final DocumentoAdjuntoMapper documentoAdjuntoMapper;
@@ -123,8 +129,65 @@ public class ReporteService {
         }
         reporte = reporteRepository.save(reporte);
 
+        notificarResponsablesNuevoReporte(reporte);
+
         return reporteMapper.toResponseDTO(reporte);
 
+    }
+
+    private void notificarResponsablesNuevoReporte(Reporte reporte) {
+        Set<String> emailsNotificados = new LinkedHashSet<>();
+
+        if (reporte.getReporteNinios() != null) {
+            for (ReporteNinio reporteNinio : reporte.getReporteNinios()) {
+                notificarResponsablesDeNinio(
+                        reporteNinio.getNinio(),
+                        reporte,
+                        emailsNotificados
+                );
+            }
+        }
+
+        if (reporte.getReporteGrupos() != null) {
+            for (ReporteGrupo reporteGrupo : reporte.getReporteGrupos()) {
+                Grupo grupo = reporteGrupo.getGrupo();
+
+                if (grupo.getNinios() != null) {
+                    for (Ninio ninio : grupo.getNinios()) {
+                        notificarResponsablesDeNinio(ninio, reporte, emailsNotificados);
+                    }
+                }
+            }
+        }
+    }
+
+    private void notificarResponsablesDeNinio(Ninio ninio, Reporte reporte, Set<String> emailsNotificados) {
+        if (ninio == null || ninio.getId() == 0) {
+            return;
+        }
+
+        List<ResponsableNinio> responsables = responsableNinioRepository.findByNinioId(ninio.getId());
+
+        for (ResponsableNinio responsableNinio : responsables) {
+            Responsable responsable = responsableNinio.getResponsable();
+
+            if (responsable == null || Boolean.FALSE.equals(responsable.getActivo())) {
+                continue;
+            }
+
+            String email = responsable.getEmail();
+
+            if (email == null || email.isBlank() || !emailsNotificados.add(email)) {
+                continue;
+            }
+
+            emailService.enviarNotificacionNuevoReporte(
+                    email,
+                    responsable.getNombre() + " " + responsable.getApellido(),
+                    reporte.getTitulo(),
+                    ninio.getNombre() + " " + ninio.getApellido()
+            );
+        }
     }
 
     public List<ReporteResponseDTO> listarTodos(){
@@ -488,24 +551,44 @@ public class ReporteService {
 
     @Transactional
     public void marcarComoVisto(Integer id, Integer responsableId) {
-        Reporte reporte = reporteRepository.findById(id)
+        Reporte reporte = reporteRepository.findByIdForUpdate(id)
                 .orElseThrow(() -> new RuntimeException("Reporte no encontrado"));
 
-        if (Boolean.TRUE.equals(reporte.getVisto())) return; // ya fue visto, no re-notificar
+        String emailAutenticado = SecurityContextHolder.getContext().getAuthentication().getName();
+        Responsable responsable = responsableRepository.findByEmail(emailAutenticado)
+                .orElseThrow(() -> new AccessDeniedException("Responsable autenticado no encontrado"));
+
+        if (!responsable.getId().equals(responsableId)) {
+            throw new AccessDeniedException("No puede marcar reportes en nombre de otro responsable");
+        }
+
+        boolean puedeVerReporte =
+                reporteRepository.existeParaResponsableViaNinio(id, responsableId) ||
+                reporteRepository.existeParaResponsableViaGrupo(id, responsableId);
+
+        if (!puedeVerReporte) {
+            throw new AccessDeniedException("No tiene permisos para ver este reporte");
+        }
+
+        if (Boolean.TRUE.equals(reporte.getVisto())) {
+            return;
+        }
 
         reporte.setVisto(true);
         reporteRepository.save(reporte);
 
-        // Obtener nombre del responsable
-        Responsable responsable = responsableRepository.findById(responsableId).orElse(null);
-        String nombreResponsable = responsable != null
-                ? responsable.getNombre() + " " + responsable.getApellido()
-                : "Un responsable";
+        String nombreResponsable = responsable.getNombre() + " " + responsable.getApellido();
+        String nombreNinio = obtenerNombreNinioDelReporte(reporte);
 
         // Notificación interna al funcionario
         Funcionario funcionario = reporte.getFuncionario();
         if (funcionario != null) {
-            notificacionService.crearNotificacion(funcionario, reporte, nombreResponsable);
+            notificacionService.crearNotificacion(
+                    funcionario,
+                    reporte,
+                    nombreResponsable,
+                    nombreNinio
+            );
 
             // Email al funcionario
             if (funcionario.getEmail() != null && !funcionario.getEmail().isBlank()) {
@@ -517,6 +600,19 @@ public class ReporteService {
                 );
             }
         }
+    }
+
+    private String obtenerNombreNinioDelReporte(Reporte reporte) {
+        if (reporte.getReporteNinios() == null || reporte.getReporteNinios().isEmpty()) {
+            return null;
+        }
+
+        Ninio ninio = reporte.getReporteNinios().getFirst().getNinio();
+        if (ninio == null) {
+            return null;
+        }
+
+        return ninio.getNombre() + " " + ninio.getApellido();
     }
 
     @Transactional(readOnly = true)

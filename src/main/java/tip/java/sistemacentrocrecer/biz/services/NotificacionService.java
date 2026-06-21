@@ -19,15 +19,29 @@ public class NotificacionService {
     private final NotificacionRepository notificacionRepository;
 
     @Transactional
-    public void crearNotificacion(Funcionario funcionario, Reporte reporte, String nombreResponsable) {
-        Notificacion notif = Notificacion.builder()
+    public void crearNotificacion(Funcionario funcionario, Reporte reporte,
+                                  String nombreResponsable, String nombreNinio) {
+        if (notificacionRepository.existsByFuncionario_IdAndReporte_Id(
+                funcionario.getId(), reporte.getId())) {
+            return;
+        }
+
+        String mensaje = "El responsable " + nombreResponsable +
+                " vio el reporte: " + reporte.getTitulo();
+
+        if (nombreNinio != null && !nombreNinio.isBlank()) {
+            mensaje += " (" + nombreNinio + ")";
+        }
+
+        Notificacion notificacion = Notificacion.builder()
                 .funcionario(funcionario)
                 .reporte(reporte)
-                .mensaje("El responsable " + nombreResponsable + " leyó tu reporte \"" + reporte.getTitulo() + "\"")
+                .mensaje(mensaje)
                 .leida(false)
                 .fechaCreacion(LocalDateTime.now())
                 .build();
-        notificacionRepository.save(notif);
+
+        notificacionRepository.save(notificacion);
     }
 
     @Transactional(readOnly = true)
@@ -46,9 +60,9 @@ public class NotificacionService {
 
     @Transactional
     public void marcarComoLeida(Integer notificacionId) {
-        notificacionRepository.findById(notificacionId).ifPresent(n -> {
-            n.setLeida(true);
-            notificacionRepository.save(n);
+        notificacionRepository.findById(notificacionId).ifPresent(notificacion -> {
+            notificacion.setLeida(true);
+            notificacionRepository.save(notificacion);
         });
     }
 
@@ -57,16 +71,18 @@ public class NotificacionService {
         notificacionRepository.marcarTodasComoLeidas(funcionarioId);
     }
 
-    private NotificacionResponseDTO toDTO(Notificacion n) {
+    private NotificacionResponseDTO toDTO(Notificacion notificacion) {
         NotificacionResponseDTO dto = new NotificacionResponseDTO();
-        dto.setId(n.getId());
-        dto.setMensaje(n.getMensaje());
-        dto.setLeida(n.getLeida());
-        dto.setFechaCreacion(n.getFechaCreacion());
-        if (n.getReporte() != null) {
-            dto.setReporteId(n.getReporte().getId());
-            dto.setReporteTitulo(n.getReporte().getTitulo());
+        dto.setId(notificacion.getId());
+        dto.setMensaje(notificacion.getMensaje());
+        dto.setLeida(notificacion.getLeida());
+        dto.setFechaCreacion(notificacion.getFechaCreacion());
+
+        if (notificacion.getReporte() != null) {
+            dto.setReporteId(notificacion.getReporte().getId());
+            dto.setReporteTitulo(notificacion.getReporte().getTitulo());
         }
+
         return dto;
     }
 }

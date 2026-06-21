@@ -12,6 +12,8 @@ import java.util.List;
 @Repository
 public interface NotificacionRepository extends JpaRepository<Notificacion, Integer> {
 
+    boolean existsByFuncionario_IdAndReporte_Id(Integer funcionarioId, Integer reporteId);
+
     List<Notificacion> findByFuncionario_IdOrderByFechaCreacionDesc(Integer funcionarioId);
 
     List<Notificacion> findByFuncionario_IdAndLeidaFalseOrderByFechaCreacionDesc(Integer funcionarioId);

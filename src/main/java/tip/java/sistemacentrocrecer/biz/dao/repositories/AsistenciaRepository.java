@@ -55,11 +55,19 @@ public interface AsistenciaRepository
     @Query("SELECT COUNT(n) > 0 FROM Ninio n " +
             "JOIN n.grupo g " +
             "JOIN g.funcionarios f " +
-            "WHERE n.id = :ninioId AND f.id = :funcionarioId AND n.activo = true AND g.activo = true")
+            "WHERE n.id = :ninioId AND f.id = :funcionarioId")
     boolean ninioPerteneceFuncionario(
             @Param("ninioId") Integer ninioId,
             @Param("funcionarioId") Integer funcionarioId
     );
+
+    @Query("SELECT DISTINCT a FROM Asistencia a " +
+            "LEFT JOIN a.ninio n " +
+            "LEFT JOIN n.grupo g " +
+            "LEFT JOIN g.funcionarios f " +
+            "WHERE a.ninio IS NULL OR f.id = :funcionarioId " +
+            "ORDER BY a.fecha DESC")
+    List<Asistencia> findAccesiblesPorFuncionario(@Param("funcionarioId") Integer funcionarioId);
 
     @Query("SELECT a FROM Asistencia a " +
             "JOIN a.ninio n " +

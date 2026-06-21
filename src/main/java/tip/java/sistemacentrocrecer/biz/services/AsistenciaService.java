@@ -1,6 +1,7 @@
 package tip.java.sistemacentrocrecer.biz.services;
 
 import lombok.AllArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -35,6 +37,7 @@ public class AsistenciaService {
     private final AsistenciaMapper asistenciaMapper;
     private final NinioMapper ninioMapper;
     private final ActividadService actividadService;
+    private final CalendarioLaboralService calendarioLaboralService;
 
     private static final int TOLERANCIA_MINUTOS = 10;
 
@@ -103,7 +106,8 @@ public class AsistenciaService {
 
 
     public List<AsistenciaResponseDTO> listarTodos() {
-        return asistenciaRepository.findAll().stream()
+        Funcionario funcionario = getFuncionarioAutenticado();
+        return asistenciaRepository.findAccesiblesPorFuncionario(funcionario.getId()).stream()
                 .map(asistenciaMapper::toResponseDTO)
                 .toList();
     }
@@ -111,10 +115,15 @@ public class AsistenciaService {
     public AsistenciaResponseDTO obtenerPorId(Integer id) {
         Asistencia a = asistenciaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Asistencia", id));
+        validarAccesoAAsistenciaDeNinio(a);
         return asistenciaMapper.toResponseDTO(a);
     }
 
     public AsistenciaResponseDTO obtenerPorCedula(String cedula) {
+        Ninio ninio = ninioRepository.findByCedula(cedula)
+                .orElseThrow(() -> new CedulaNotFoundException(cedula));
+        validarAccesoANinio(ninio);
+
         Asistencia a = asistenciaRepository.findByNinio_Cedula(cedula)
                 .orElseThrow(() -> new CedulaNotFoundException(cedula));
         return asistenciaMapper.toResponseDTO(a);
@@ -127,6 +136,10 @@ public class AsistenciaService {
         }
         Ninio ninio = ninioRepository.findById(dto.getNinioId())
                 .orElseThrow(() -> new ResourceNotFoundException("Niño", dto.getNinioId()));
+        validarAccesoANinio(ninio);
+
+        validarDiaLaborableParaNinio(dto.getFecha());
+
         Funcionario funcionario = funcionarioRepository.findById(dto.getFuncionarioId())
                 .orElseThrow(() -> new ResourceNotFoundException("Funcionario", dto.getFuncionarioId()));
 
@@ -145,6 +158,8 @@ public class AsistenciaService {
     public void darDeBaja(Integer id) {
         Asistencia a = asistenciaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Asistencia", id));
+        validarAccesoAAsistenciaDeNinio(a);
+
         if (!a.getActivo()) {
             throw new BusinessException("La asistencia ya está inactiva");
         }
@@ -155,7 +170,22 @@ public class AsistenciaService {
     private Funcionario getFuncionarioAutenticado() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return funcionarioRepository.findByEmail(email)
-                .orElseThrow(() -> new BusinessException("Funcionario autenticado no encontrado"));
+                .orElseThrow(() -> new AccessDeniedException("El usuario autenticado no es un funcionario autorizado"));
+    }
+
+    private void validarAccesoANinio(Ninio ninio) {
+        Funcionario funcionario = getFuncionarioAutenticado();
+        boolean tieneAcceso = asistenciaRepository.ninioPerteneceFuncionario(ninio.getId(), funcionario.getId());
+
+        if (!tieneAcceso) {
+            throw new AccessDeniedException("No tiene permisos para consultar o modificar asistencias de este niño");
+        }
+    }
+
+    private void validarAccesoAAsistenciaDeNinio(Asistencia asistencia) {
+        if (asistencia.getNinio() != null) {
+            validarAccesoANinio(asistencia.getNinio());
+        }
     }
 
     private void validarFechaEsHoy(LocalDate fecha) {
@@ -164,6 +194,16 @@ public class AsistenciaService {
         }
         if (fecha != null && fecha.isBefore(LocalDate.now())) {
             throw new BusinessException("No se puede registrar asistencia fuera de fecha. Solo se permite marcar asistencia del día de hoy");
+        }
+    }
+
+    private void validarDiaLaborableParaNinio(LocalDate fecha) {
+        if (fecha == null) {
+            throw new BusinessException("La fecha de asistencia es obligatoria");
+        }
+
+        if (!esDiaDeSemana(fecha) || calendarioLaboralService.esDiaNoLaborable(fecha)) {
+            throw new BusinessException("No se puede registrar asistencia de niños en un día no laborable");
         }
     }
 
@@ -272,19 +312,15 @@ public class AsistenciaService {
         Ninio ninio = ninioRepository.findById(dto.getNinioId())
                 .orElseThrow(() -> new ResourceNotFoundException("Niño", dto.getNinioId()));
 
+        validarAccesoANinio(ninio);
+
         if (!ninio.isActivo()) {
             throw new BusinessException("El niño no está activo en el sistema");
         }
 
-        if (dto.getActividadId() == null) {
-            boolean tieneAcceso = asistenciaRepository.ninioPerteneceFuncionario(ninio.getId(), funcionario.getId());
-            if (!tieneAcceso) {
-                throw new BusinessException("No tiene permisos para marcar asistencia de este niño. Solo puede marcar asistencia de niños de sus grupos.");
-            }
-        }
-
         LocalDate fecha = dto.getFecha() != null ? dto.getFecha() : LocalDate.now();
         validarFechaEsHoy(fecha);
+        validarDiaLaborableParaNinio(fecha);
 
         actividadService.validarPermisoParaActividadDelDia(
                 dto.getActividadId(), ninio.getId(), fecha
@@ -322,8 +358,6 @@ public class AsistenciaService {
 
     @Transactional
     public AsistenciaResponseDTO registrarSalidaNinio(Integer asistenciaId, RegistroSalidaNinioRequestDTO dto) {
-        Funcionario funcionario = getFuncionarioAutenticado();
-
         Asistencia asistencia = asistenciaRepository.findById(asistenciaId)
                 .orElseThrow(() -> new ResourceNotFoundException("Asistencia", asistenciaId));
 
@@ -331,13 +365,8 @@ public class AsistenciaService {
             throw new BusinessException("El registro no corresponde a un niño");
         }
 
+        validarAccesoANinio(asistencia.getNinio());
         validarFechaEsHoy(asistencia.getFecha());
-
-        boolean tieneAcceso = asistenciaRepository.ninioPerteneceFuncionario(
-                asistencia.getNinio().getId(), funcionario.getId());
-        if (!tieneAcceso) {
-            throw new BusinessException("No tiene permisos para modificar la asistencia de este niño");
-        }
 
         if (asistencia.getHoraSalida() != null) {
             throw new BusinessException("Ya existe una hora de salida registrada para este niño");
@@ -362,9 +391,17 @@ public class AsistenciaService {
 
     public List<AsistenciaResponseDTO> listarAsistenciasPorNinios(List<Integer> ninioIds, LocalDate fecha) {
         getFuncionarioAutenticado();
+
         if (ninioIds == null || ninioIds.isEmpty()) {
             return List.of();
         }
+
+        for (Integer ninioId : ninioIds) {
+            Ninio ninio = ninioRepository.findById(ninioId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Niño", ninioId));
+            validarAccesoANinio(ninio);
+        }
+
         LocalDate fechaBusqueda = fecha != null ? fecha : LocalDate.now();
         return asistenciaRepository.findByNinio_IdInAndFechaAndActivoTrue(ninioIds, fechaBusqueda)
                 .stream()
@@ -380,8 +417,10 @@ public class AsistenciaService {
     }
 
     public List<AsistenciaResponseDTO> historialPorCedula(String cedula) {
-        ninioRepository.findByCedula(cedula)
+        Ninio ninio = ninioRepository.findByCedula(cedula)
                 .orElseThrow(() -> new CedulaNotFoundException(cedula));
+        validarAccesoANinio(ninio);
+
         return asistenciaRepository.findHistorialPorCedulaNinio(cedula)
                 .stream()
                 .map(asistenciaMapper::toResponseDTO)
@@ -396,11 +435,23 @@ public class AsistenciaService {
 
         Ninio ninio = ninioRepository.findByCedula(cedula)
                 .orElseThrow(() -> new CedulaNotFoundException(cedula));
+        validarAccesoANinio(ninio);
 
-        long diasPresente = asistenciaRepository.countByNinio_IdAndFechaBetweenAndActivoTrue(
-                ninio.getId(), desde, hasta);
+        Set<LocalDate> fechasNoLaborables =
+                calendarioLaboralService.obtenerFechasNoLaborables(desde, hasta);
 
-        long totalDiasHabiles = asistenciaRepository.countDiasConAsistenciaEnPeriodo(desde, hasta);
+        long diasPresente = asistenciaRepository
+                .findByNinio_IdAndFechaBetweenAndActivoTrueOrderByFechaDesc(
+                        ninio.getId(), desde, hasta
+                )
+                .stream()
+                .map(Asistencia::getFecha)
+                .distinct()
+                .filter(this::esDiaDeSemana)
+                .filter(fecha -> !fechasNoLaborables.contains(fecha))
+                .count();
+
+        long totalDiasHabiles = calendarioLaboralService.contarDiasHabiles(desde, hasta);
 
         long diasAusente = totalDiasHabiles - diasPresente;
         if (diasAusente < 0) diasAusente = 0;
@@ -424,6 +475,11 @@ public class AsistenciaService {
         dto.setPorcentajeAsistencia(pctAsistencia);
         dto.setPorcentajeInasistencia(pctInasistencia);
         return dto;
+    }
+
+    private boolean esDiaDeSemana(LocalDate fecha) {
+        return fecha.getDayOfWeek() != DayOfWeek.SATURDAY &&
+                fecha.getDayOfWeek() != DayOfWeek.SUNDAY;
     }
 
     public List<AsistenciaResponseDTO> listarAsistenciasFuncionariosPorRango(LocalDate desde, LocalDate hasta) {

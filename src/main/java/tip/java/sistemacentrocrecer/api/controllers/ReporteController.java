@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import tip.java.sistemacentrocrecer.biz.services.ReporteService;
 import tip.java.sistemacentrocrecer.dto.ReporteRequestDTO;
@@ -75,6 +76,7 @@ public class ReporteController {
 
     // Marcar como visto
     @PutMapping("/{id}/visto")
+    @PreAuthorize("hasRole('RESPONSABLE')")
     public ResponseEntity<Void> marcarComoVisto(@PathVariable Integer id, @RequestParam Integer responsableId) {
         reporteService.marcarComoVisto(id, responsableId);
         return ResponseEntity.ok().build();

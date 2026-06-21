@@ -2,6 +2,7 @@ package tip.java.sistemacentrocrecer.biz.dao.repositories;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -9,12 +10,18 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import tip.java.sistemacentrocrecer.biz.dao.entities.Reporte;
 
+import jakarta.persistence.LockModeType;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ReporteRepository
         extends JpaRepository<Reporte, Integer>, JpaSpecificationExecutor<Reporte> {
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT r FROM Reporte r WHERE r.id = :id")
+    Optional<Reporte> findByIdForUpdate(@Param("id") Integer id);
+
     // Listados
     List<Reporte> findByActivoTrue();
     List<Reporte> findByFuncionario_Id(Integer funcionarioId);
@@ -61,5 +68,26 @@ public interface ReporteRepository
     List<Reporte> findActivosByResponsableIdViaGrupo(@Param("responsableId") Integer responsableId);
 
     // Métricas
+    @Query("SELECT COUNT(r) > 0 FROM Reporte r" +
+            " JOIN r.reporteNinios rn" +
+            " JOIN rn.ninio n" +
+            " JOIN n.responsables rsp" +
+            " WHERE r.id = :reporteId AND rsp.responsable.id = :responsableId")
+    boolean existeParaResponsableViaNinio(
+            @Param("reporteId") Integer reporteId,
+            @Param("responsableId") Integer responsableId
+    );
+
+    @Query("SELECT COUNT(r) > 0 FROM Reporte r" +
+            " JOIN r.reporteGrupos rg" +
+            " JOIN rg.grupo g" +
+            " JOIN g.ninios n" +
+            " JOIN n.responsables rsp" +
+            " WHERE r.id = :reporteId AND rsp.responsable.id = :responsableId")
+    boolean existeParaResponsableViaGrupo(
+            @Param("reporteId") Integer reporteId,
+            @Param("responsableId") Integer responsableId
+    );
+
     Long countByActivoTrueAndVistoFalse();
 }
