@@ -2,6 +2,8 @@ package tip.java.sistemacentrocrecer.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -9,10 +11,20 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
-    private static final String SECRET = "centrocrecer-clave-super-secreta-2026-sistema-gestion-v1";
+
+    public static final String COOKIE_NAME = "centrocrecer_token";
+
+    @Value("${app.jwt.secret}")
+    private String secret;
+
     private static final long EXPIRATION_MS = 86400000; // 24 horas
 
-    private final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
+    private Key key;
+
+    @PostConstruct
+    private void init() {
+        this.key = Keys.hmacShaKeyFor(secret.getBytes());
+    }
 
     public String generarToken(String correo, String rol) {
         return Jwts.builder()

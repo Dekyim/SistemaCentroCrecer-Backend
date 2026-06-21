@@ -42,3 +42,6 @@ app:
   default-admin:
     email: ${DEFAULT_ADMIN_EMAIL}
     password: ${DEFAULT_ADMIN_PASSWORD}
+  jwt:
+    secret: ${JWT_SECRET}
+    cookie-secure: ${JWT_COOKIE_SECURE:true}

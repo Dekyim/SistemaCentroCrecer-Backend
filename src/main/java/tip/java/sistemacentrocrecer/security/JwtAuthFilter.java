@@ -2,6 +2,7 @@ package tip.java.sistemacentrocrecer.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -25,15 +26,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        final String authHeader = request.getHeader("Authorization");
+        final String token = extraerToken(request);
 
-        // Si no hay header Bearer, continuar sin autenticar
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        // Si no hay token (ni cookie ni header), continuar sin autenticar
+        if (token == null) {
             filterChain.doFilter(request, response);
             return;
         }
-
-        final String token = authHeader.substring(7);
 
         if (!jwtUtil.esValido(token)) {
             filterChain.doFilter(request, response);
@@ -62,5 +61,27 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         filterChain.doFilter(request, response);
+    }
+
+    /**
+     * Busca el JWT primero en la cookie httpOnly (flujo normal del front Angular).
+     * Si no está, cae al header Authorization (útil para Postman/Swagger/tests
+     * manuales). El front nunca debería volver a mandar este header.
+     */
+    private String extraerToken(HttpServletRequest request) {
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if (JwtUtil.COOKIE_NAME.equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+
+        final String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7);
+        }
+
+        return null;
     }
 }
