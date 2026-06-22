@@ -20,31 +20,6 @@ public class EmailService {
     private String fromEmail;
 
     @Async
-    public void enviarNotificacionVisto(String destinatario, String nombreFuncionario,
-                                        String tituloReporte, String nombreResponsable) {
-        if (mailSender == null || fromEmail.isBlank()) {
-            log.warn("Email no configurado — notificación no enviada a {}", destinatario);
-            return;
-        }
-        try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
-            message.setTo(destinatario);
-            message.setSubject("Tu reporte fue leído — Centro Crecer");
-            message.setText(
-                    "Hola " + nombreFuncionario + ",\n\n" +
-                            "El responsable " + nombreResponsable + " ha leído el reporte \"" + tituloReporte + "\".\n\n" +
-                            "Podés ingresar al sistema para ver más detalles.\n\n" +
-                            "Centro Crecer — Sistema de Gestión"
-            );
-            mailSender.send(message);
-            log.info("Email enviado a {} sobre reporte '{}'", destinatario, tituloReporte);
-        } catch (Exception e) {
-            log.error("Error al enviar email a {}: {}", destinatario, e.getMessage());
-        }
-    }
-
-    @Async
     public void enviarNotificacionNuevoReporte(String destinatario, String nombreResponsable,
                                                String tituloReporte, String nombreNinio) {
         if (mailSender == null || fromEmail.isBlank()) {

@@ -590,15 +590,6 @@ public class ReporteService {
                     nombreNinio
             );
 
-            // Email al funcionario
-            if (funcionario.getEmail() != null && !funcionario.getEmail().isBlank()) {
-                emailService.enviarNotificacionVisto(
-                        funcionario.getEmail(),
-                        funcionario.getNombre() + " " + funcionario.getApellido(),
-                        reporte.getTitulo(),
-                        nombreResponsable
-                );
-            }
         }
     }
 
