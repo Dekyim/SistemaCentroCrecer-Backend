@@ -5,12 +5,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tip.java.sistemacentrocrecer.biz.dao.entities.Actividad;
 import tip.java.sistemacentrocrecer.biz.dao.entities.EmpresaExterna;
+import tip.java.sistemacentrocrecer.biz.dao.entities.Grupo;
 import tip.java.sistemacentrocrecer.biz.dao.entities.Ninio;
 import tip.java.sistemacentrocrecer.biz.dao.entities.Permiso;
+import tip.java.sistemacentrocrecer.biz.dao.entities.Responsable;
+import tip.java.sistemacentrocrecer.biz.dao.entities.ResponsableNinio;
 import tip.java.sistemacentrocrecer.biz.dao.repositories.ActividadRepository;
 import tip.java.sistemacentrocrecer.biz.dao.repositories.EmpresaExternaRepository;
+import tip.java.sistemacentrocrecer.biz.dao.repositories.GrupoRepository;
 import tip.java.sistemacentrocrecer.biz.dao.repositories.NinioRepository;
 import tip.java.sistemacentrocrecer.biz.dao.repositories.PermisoRepository;
+import tip.java.sistemacentrocrecer.biz.dao.repositories.ResponsableNinioRepository;
 import tip.java.sistemacentrocrecer.dto.ActividadRequestDTO;
 import tip.java.sistemacentrocrecer.dto.ActividadResponseDTO;
 import tip.java.sistemacentrocrecer.exceptions.BusinessException;
@@ -19,17 +24,24 @@ import tip.java.sistemacentrocrecer.mapper.ActividadMapper;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 @AllArgsConstructor
 public class ActividadService {
     private final ActividadRepository actividadRepository;
     private final NinioRepository ninioRepository;
+    private final GrupoRepository grupoRepository;
     private final PermisoRepository permisoRepository;
     private final EmpresaExternaRepository empresaExternaRepository;
+    private final ResponsableNinioRepository responsableNinioRepository;
     private final ActividadMapper actividadMapper;
+    private final EmailService emailService;
 
     @Transactional(readOnly = true)
     public List<ActividadResponseDTO> listarTodos() {
@@ -67,7 +79,10 @@ public class ActividadService {
 
         asignarRelaciones(actividad, dto);
 
-        return actividadMapper.toResponseDTO(actividadRepository.save(actividad));
+        actividad = actividadRepository.save(actividad);
+        notificarResponsablesNuevaActividad(actividad);
+
+        return actividadMapper.toResponseDTO(actividad);
     }
 
     @Transactional
@@ -85,6 +100,7 @@ public class ActividadService {
         actividad.setHoraSalida(dto.getHoraSalida());
         actividad.setDescripcion(dto.getDescripcion());
         actividad.setLugar(dto.getLugar());
+        actividad.setDiasLimiteModificacion(dto.getDiasLimiteModificacion());
         asignarRelaciones(actividad, dto);
         return actividadMapper.toResponseDTO(actividadRepository.save(actividad));
     }
@@ -94,10 +110,7 @@ public class ActividadService {
         Actividad actividad = actividadRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Actividad no encontrada"));
 
-        List<Ninio> ninios = ninioRepository.findAllById(niniosIds);
-        if (ninios.size() != niniosIds.size()) {
-            throw new BusinessException("Uno o más niños no encontrados");
-        }
+        List<Ninio> ninios = obtenerNiniosPorIds(niniosIds);
         for (Ninio ninio : ninios) {
             boolean yaExiste = permisoRepository
                     .existsByActividadIdAndNinioId(actividad.getId(), ninio.getId());
@@ -153,8 +166,8 @@ public class ActividadService {
     }
 
     private void asignarRelaciones(Actividad actividad, ActividadRequestDTO dto) {
-        if (dto.getNiniosIds() != null) {
-            actividad.setNinios(ninioRepository.findAllById(dto.getNiniosIds()));
+        if (dto.getNinioIds() != null || dto.getNiniosIds() != null || dto.getGrupoIds() != null) {
+            actividad.setNinios(resolverParticipantes(dto));
         }
         if (dto.getPermisosIds() != null) {
             List<Permiso> permisos = permisoRepository.findAllById(dto.getPermisosIds());
@@ -168,8 +181,107 @@ public class ActividadService {
         }
     }
 
+    private List<Ninio> resolverParticipantes(ActividadRequestDTO dto) {
+        Set<Integer> participantesIds = new LinkedHashSet<>();
+        participantesIds.addAll(normalizarIds(dto.getNinioIds()));
+        participantesIds.addAll(normalizarIds(dto.getNiniosIds()));
+
+        List<Integer> grupoIds = normalizarIds(dto.getGrupoIds());
+        if (!grupoIds.isEmpty()) {
+            validarGruposExistentes(grupoIds);
+            ninioRepository.findByGrupoIdInAndActivoTrue(grupoIds)
+                    .forEach(ninio -> participantesIds.add(ninio.getId()));
+        }
+
+        return obtenerNiniosPorIds(new ArrayList<>(participantesIds));
+    }
+
+    private List<Ninio> obtenerNiniosPorIds(List<Integer> niniosIds) {
+        List<Integer> ids = normalizarIds(niniosIds);
+        List<Ninio> ninios = ninioRepository.findAllById(ids);
+        if (ninios.size() != ids.size()) {
+            throw new BusinessException("Uno o más niños no encontrados");
+        }
+        return ninios;
+    }
+
+    private void validarGruposExistentes(List<Integer> grupoIds) {
+        List<Grupo> grupos = grupoRepository.findAllById(grupoIds);
+        if (grupos.size() != grupoIds.size()) {
+            throw new BusinessException("Uno o más grupos no encontrados");
+        }
+    }
+
+    private List<Integer> normalizarIds(List<Integer> ids) {
+        if (ids == null) {
+            return List.of();
+        }
+        return ids.stream()
+                .filter(id -> id != null)
+                .distinct()
+                .toList();
+    }
+
+    private void notificarResponsablesNuevaActividad(Actividad actividad) {
+        if (actividad.getNinios() == null || actividad.getNinios().isEmpty()) {
+            return;
+        }
+
+        Map<String, ResponsableActividadEmail> responsablesPorEmail = new LinkedHashMap<>();
+
+        for (Ninio ninio : actividad.getNinios()) {
+            if (ninio == null || ninio.getId() == 0) {
+                continue;
+            }
+
+            List<ResponsableNinio> responsables = responsableNinioRepository.findByNinioId(ninio.getId());
+
+            for (ResponsableNinio responsableNinio : responsables) {
+                Responsable responsable = responsableNinio.getResponsable();
+
+                if (responsable == null || Boolean.FALSE.equals(responsable.getActivo())) {
+                    continue;
+                }
+
+                String email = responsable.getEmail();
+                if (email == null || email.isBlank()) {
+                    continue;
+                }
+
+                ResponsableActividadEmail datos = responsablesPorEmail.computeIfAbsent(
+                        email,
+                        key -> new ResponsableActividadEmail(
+                                responsable.getNombre() + " " + responsable.getApellido()
+                        )
+                );
+                datos.nombresNinios().add(ninio.getNombre() + " " + ninio.getApellido());
+            }
+        }
+
+        responsablesPorEmail.forEach((email, datos) ->
+                emailService.enviarNotificacionNuevaActividad(
+                        email,
+                        datos.nombreResponsable(),
+                        actividad.getNombre(),
+                        actividad.getDescripcion(),
+                        actividad.getFechaDesde() != null ? actividad.getFechaDesde().toString() : "-",
+                        actividad.getFechaHasta() != null ? actividad.getFechaHasta().toString() : null,
+                        actividad.getHoraInicio() != null ? actividad.getHoraInicio().toString() : "-",
+                        actividad.getHoraSalida() != null ? actividad.getHoraSalida().toString() : null,
+                        actividad.getLugar(),
+                        String.join(", ", datos.nombresNinios())
+                )
+        );
+    }
+
+    private record ResponsableActividadEmail(String nombreResponsable, Set<String> nombresNinios) {
+        private ResponsableActividadEmail(String nombreResponsable) {
+            this(nombreResponsable, new LinkedHashSet<>());
+        }
+    }
+
     private void validarFechas(LocalDate desde, LocalDate hasta) {
-        if (hasta.isBefore(desde)) {
+        if (hasta != null && hasta.isBefore(desde)) {
             throw new BusinessException("fechaHasta no puede ser anterior a fechaDesde");
         }
     }

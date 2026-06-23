@@ -47,6 +47,7 @@ import java.util.LinkedHashMap;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Service
@@ -136,14 +137,13 @@ public class ReporteService {
     }
 
     private void notificarResponsablesNuevoReporte(Reporte reporte) {
-        Set<String> emailsNotificados = new LinkedHashSet<>();
+        Map<String, ResponsableReporteEmail> responsablesPorEmail = new LinkedHashMap<>();
 
         if (reporte.getReporteNinios() != null) {
             for (ReporteNinio reporteNinio : reporte.getReporteNinios()) {
-                notificarResponsablesDeNinio(
+                agregarResponsablesDeNinio(
                         reporteNinio.getNinio(),
-                        reporte,
-                        emailsNotificados
+                        responsablesPorEmail
                 );
             }
         }
@@ -154,14 +154,27 @@ public class ReporteService {
 
                 if (grupo.getNinios() != null) {
                     for (Ninio ninio : grupo.getNinios()) {
-                        notificarResponsablesDeNinio(ninio, reporte, emailsNotificados);
+                        agregarResponsablesDeNinio(ninio, responsablesPorEmail);
                     }
                 }
             }
         }
+
+        responsablesPorEmail.forEach((email, datos) ->
+                emailService.enviarNotificacionNuevoReporte(
+                        email,
+                        datos.nombreResponsable(),
+                        reporte.getTitulo(),
+                        reporte.getDescripcion(),
+                        reporte.getFechaGeneracion() != null
+                                ? new SimpleDateFormat("dd/MM/yyyy HH:mm").format(reporte.getFechaGeneracion())
+                                : null,
+                        String.join(", ", datos.nombresNinios())
+                )
+        );
     }
 
-    private void notificarResponsablesDeNinio(Ninio ninio, Reporte reporte, Set<String> emailsNotificados) {
+    private void agregarResponsablesDeNinio(Ninio ninio, Map<String, ResponsableReporteEmail> responsablesPorEmail) {
         if (ninio == null || ninio.getId() == 0) {
             return;
         }
@@ -177,16 +190,23 @@ public class ReporteService {
 
             String email = responsable.getEmail();
 
-            if (email == null || email.isBlank() || !emailsNotificados.add(email)) {
+            if (email == null || email.isBlank()) {
                 continue;
             }
 
-            emailService.enviarNotificacionNuevoReporte(
+            ResponsableReporteEmail datos = responsablesPorEmail.computeIfAbsent(
                     email,
-                    responsable.getNombre() + " " + responsable.getApellido(),
-                    reporte.getTitulo(),
-                    ninio.getNombre() + " " + ninio.getApellido()
+                    key -> new ResponsableReporteEmail(
+                            responsable.getNombre() + " " + responsable.getApellido()
+                    )
             );
+            datos.nombresNinios().add(ninio.getNombre() + " " + ninio.getApellido());
+        }
+    }
+
+    private record ResponsableReporteEmail(String nombreResponsable, Set<String> nombresNinios) {
+        private ResponsableReporteEmail(String nombreResponsable) {
+            this(nombreResponsable, new LinkedHashSet<>());
         }
     }
 

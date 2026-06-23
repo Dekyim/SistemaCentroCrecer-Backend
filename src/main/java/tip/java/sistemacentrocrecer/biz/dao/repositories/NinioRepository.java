@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import tip.java.sistemacentrocrecer.biz.dao.entities.Ninio;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,4 +58,6 @@ public interface NinioRepository extends JpaRepository<Ninio, Integer>, JpaSpeci
             "WHERE f.id = :funcionarioId AND n.activo = true AND g.activo = true " +
             "ORDER BY g.nombre, n.nombre")
     List<Ninio> findNiniosByFuncionarioId(@Param("funcionarioId") Integer funcionarioId);
+
+    List<Ninio> findByGrupoIdInAndActivoTrue(Collection<Integer> grupoIds);
 }

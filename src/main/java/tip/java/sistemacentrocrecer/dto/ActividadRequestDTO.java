@@ -18,7 +18,6 @@ public class ActividadRequestDTO {
     @NotNull(message = "fechaDesde es obligatoria")
     private LocalDate fechaDesde;
 
-    @NotNull(message = "fechaHasta es obligatoria")
     private LocalDate fechaHasta;
 
     @NotNull(message = "horaInicio es obligatoria")
@@ -37,7 +36,11 @@ public class ActividadRequestDTO {
     @Min(value = 0, message = "El límite de días no puede ser negativo")
     private Integer diasLimiteModificacion;
 
+    private List<Integer> ninioIds;
+
     private List<Integer> niniosIds;
+
+    private List<Integer> grupoIds;
 
     private List<Integer> permisosIds;
 
