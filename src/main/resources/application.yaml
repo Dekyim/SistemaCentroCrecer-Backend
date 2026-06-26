@@ -8,16 +8,23 @@ spring:
     name: SistemaCentroCrecer
   main:
     allow-bean-definition-overriding: true
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
   datasource:
     url: ${BD_URL}
     username: ${BD_USER}
     password: ${BD_PASSWORD}
     driverClassName: org.postgresql.Driver
+    hikari:
+      schema: public
   jpa:
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
+        default_schema: public
         format_sql: true
         order_updates: true
         order_inserts: true
