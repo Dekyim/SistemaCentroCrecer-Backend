@@ -16,15 +16,41 @@ import tip.java.sistemacentrocrecer.exceptions.ResourceNotFoundException;
 import tip.java.sistemacentrocrecer.mapper.GrupoMapper;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
 @AllArgsConstructor
 public class GrupoService {
+
+    private static final LocalTime HORA_APERTURA_CENTRO = LocalTime.of(7, 0);
+    private static final LocalTime HORA_CIERRE_CENTRO = LocalTime.of(19, 0);
+    private static final String ROL_ADMINISTRADOR_SISTEMA = "ADMINISTRADOR_SISTEMA";
+
     private final GrupoRepository grupoRepository;
     private final FuncionarioRepository funcionarioRepository;
     private final NinioRepository ninioRepository;
     private final GrupoMapper grupoMapper;
+
+    private void validarFuncionariosAsignables(List<Funcionario> funcionarios) {
+        boolean hayAdministradorSistema = funcionarios.stream()
+                .anyMatch(f -> f.getRol() != null && ROL_ADMINISTRADOR_SISTEMA.equalsIgnoreCase(f.getRol().getNombre()));
+        if (hayAdministradorSistema) {
+            throw new BusinessException("No se puede asignar un Administrador del Sistema a un grupo");
+        }
+    }
+
+    private void validarHorario(LocalTime horaInicio, LocalTime horaFin) {
+        if (horaInicio.isBefore(HORA_APERTURA_CENTRO) || horaInicio.isAfter(HORA_CIERRE_CENTRO)) {
+            throw new BusinessException("La hora de inicio debe estar dentro del horario del centro (07:00 a 19:00)");
+        }
+        if (horaFin.isBefore(HORA_APERTURA_CENTRO) || horaFin.isAfter(HORA_CIERRE_CENTRO)) {
+            throw new BusinessException("La hora de fin debe estar dentro del horario del centro (07:00 a 19:00)");
+        }
+        if (horaFin.isBefore(horaInicio)) {
+            throw new BusinessException("La hora de fin no puede ser menor que la de inicio");
+        }
+    }
 
     @Transactional(readOnly = true)
     public List<GrupoResponseDTO> listarTodos() {
@@ -49,14 +75,13 @@ public class GrupoService {
 
     @Transactional
     public GrupoResponseDTO crear(GrupoRequestDTO dto) {
-        if (dto.getHoraFin().isBefore(dto.getHoraInicio())) {
-            throw new BusinessException("La hora de fin no puede ser menor que la de inicio");
-        }
+        validarHorario(dto.getHoraInicio(), dto.getHoraFin());
 
         Grupo grupo = grupoMapper.toEntity(dto);
 
         if (dto.getFuncionariosIds() != null) {
             List<Funcionario> funcionarios = funcionarioRepository.findAllById(dto.getFuncionariosIds());
+            validarFuncionariosAsignables(funcionarios);
             grupo.setFuncionarios(funcionarios);
         }
 
@@ -74,9 +99,7 @@ public class GrupoService {
         Grupo grupo = grupoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Grupo", id));
 
-        if (dto.getHoraFin().isBefore(dto.getHoraInicio())) {
-            throw new BusinessException("La hora de fin no puede ser menor que la de inicio");
-        }
+        validarHorario(dto.getHoraInicio(), dto.getHoraFin());
 
         grupo.setNombre(dto.getNombre());
         grupo.setHoraInicio(dto.getHoraInicio());
@@ -85,6 +108,7 @@ public class GrupoService {
 
         if (dto.getFuncionariosIds() != null) {
             List<Funcionario> funcionarios = funcionarioRepository.findAllById(dto.getFuncionariosIds());
+            validarFuncionariosAsignables(funcionarios);
             grupo.setFuncionarios(funcionarios);
         }
 

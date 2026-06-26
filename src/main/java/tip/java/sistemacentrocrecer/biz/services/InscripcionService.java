@@ -170,6 +170,8 @@ public class InscripcionService {
 
         Ninio ninio = inscripcion.getNinio();
         ninio.setGrupo(grupo);
+        ninio.setActivo(true);
+        ninio.setFechaBaja(null);
         ninioRepository.save(ninio);
 
         inscripcion.setEstadoInscripcion(EstadoInscripcionEnum.ACTIVA);
@@ -194,7 +196,7 @@ public class InscripcionService {
         inscripcion.setFechaBaja(LocalDateTime.now());
         inscripcionRepository.save(inscripcion);
 
-        // Si el niño no tiene ninguna inscripción activa, darlo de baja
+        // Si el niño no tiene ninguna inscripción activa, asegurarse de que quede inactivo
         Ninio ninio = inscripcion.getNinio();
         if (ninio != null) {
             boolean tieneOtraActiva = inscripcionRepository.findByNinioId(ninio.getId())
@@ -203,7 +205,10 @@ public class InscripcionService {
                             && i.getEstadoInscripcion() == EstadoInscripcionEnum.ACTIVA);
             if (!tieneOtraActiva) {
                 ninio.setActivo(false);
-                ninio.setFechaBaja(LocalDateTime.now());
+                // Solo setear fechaBaja si estaba activo antes (por si ya tenía una inscripción activa previa)
+                if (ninio.getFechaBaja() == null) {
+                    ninio.setFechaBaja(LocalDateTime.now());
+                }
                 ninioRepository.save(ninio);
             }
         }

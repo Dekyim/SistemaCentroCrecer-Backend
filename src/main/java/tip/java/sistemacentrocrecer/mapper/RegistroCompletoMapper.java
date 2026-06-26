@@ -19,7 +19,7 @@ import java.util.List;
 public interface RegistroCompletoMapper {
 
     @Mapping(target = "id",           ignore = true)
-    @Mapping(target = "activo",       constant = "true")
+    @Mapping(target = "activo",       constant = "false")
     @Mapping(target = "fechaBaja",    ignore = true)
     @Mapping(target = "grupo",        ignore = true)
     @Mapping(target = "reportes",     ignore = true)
