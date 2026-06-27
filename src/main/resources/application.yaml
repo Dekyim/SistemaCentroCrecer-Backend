@@ -8,10 +8,6 @@ spring:
     name: SistemaCentroCrecer
   main:
     allow-bean-definition-overriding: true
-  sql:
-    init:
-      mode: always
-      schema-locations: classpath:schema.sql
   datasource:
     url: ${BD_URL}
     username: ${BD_USER}
