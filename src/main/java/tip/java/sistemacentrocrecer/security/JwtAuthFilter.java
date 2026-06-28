@@ -63,11 +63,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    /**
-     * Busca el JWT primero en la cookie httpOnly (flujo normal del front Angular).
-     * Si no está, cae al header Authorization (útil para Postman/Swagger/tests
-     * manuales). El front nunca debería volver a mandar este header.
-     */
     private String extraerToken(HttpServletRequest request) {
         if (request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {

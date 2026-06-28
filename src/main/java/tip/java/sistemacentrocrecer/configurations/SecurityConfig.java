@@ -34,12 +34,6 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // Sin esto, Spring Security devuelve 403 (no 401) cuando no hay
-                // token/cookie válida, lo que se confunde con el 403 de @PreAuthorize
-                // por rol insuficiente. Acá separamos ambos casos:
-                // - 401: no autenticado (sin cookie, cookie inválida o vencida)
-                // - 403: autenticado pero sin el rol requerido (lo sigue manejando
-                //        el AccessDeniedHandler por defecto, no se toca)
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(
                         (request, response, authException) ->
                                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "No autenticado o sesión vencida")

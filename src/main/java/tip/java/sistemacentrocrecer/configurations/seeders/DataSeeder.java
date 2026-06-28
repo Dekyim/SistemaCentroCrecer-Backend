@@ -769,6 +769,346 @@ public class DataSeeder implements CommandLineRunner {
                 "Madre",
                 true
         );
+
+        // --- Sala Cuna (0 a 1 anios) ---
+
+        seedResponsable(
+                "65678123",
+                "Camila",
+                "Salinas",
+                "camila.salinas@example.com",
+                "+59898666777",
+                LocalDate.of(1993, 5, 11)
+        );
+
+        seedNinioConResponsable(
+                "90123678",
+                "Bruno",
+                "Salinas",
+                SexoNinioEnum.MASCULINO,
+                LocalDate.of(2025, 9, 4),
+                "Treinta y Tres 880",
+                "Lactante, requiere control de horarios de alimentacion",
+                "65678123",
+                "Madre",
+                true
+        );
+
+        seedResponsable(
+                "66789234",
+                "Bruno",
+                "Techera",
+                "bruno.techera@example.com",
+                "+59898777888",
+                LocalDate.of(1990, 8, 24)
+        );
+
+        seedNinioConResponsable(
+                "91234789",
+                "Mia",
+                "Techera",
+                SexoNinioEnum.FEMENINO,
+                LocalDate.of(2025, 11, 20),
+                "Garibaldi 455",
+                "Lactante, sin observaciones",
+                "66789234",
+                "Padre",
+                true
+        );
+
+        seedResponsable(
+                "67890345",
+                "Yamila",
+                "Correa",
+                "yamila.correa@example.com",
+                "+59898888999",
+                LocalDate.of(1995, 2, 9)
+        );
+
+        seedNinioConResponsable(
+                "92345890",
+                "Thiago",
+                "Correa",
+                SexoNinioEnum.MASCULINO,
+                LocalDate.of(2025, 12, 30),
+                "Wilson Ferreira 700",
+                "Lactante, en proceso de adaptacion",
+                "67890345",
+                "Madre",
+                true
+        );
+
+        // --- Gateadores (1 a 2 anios) ---
+
+        seedResponsable(
+                "68901456",
+                "Diego",
+                "Bauza",
+                "diego.bauza@example.com",
+                "+59898999000",
+                LocalDate.of(1988, 6, 17)
+        );
+
+        seedNinioConResponsable(
+                "93456901",
+                "Camila",
+                "Bauza",
+                SexoNinioEnum.FEMENINO,
+                LocalDate.of(2024, 10, 15),
+                "Florida 1023",
+                "Comenzando a caminar, requiere apoyo motriz",
+                "68901456",
+                "Padre",
+                true
+        );
+
+        seedResponsable(
+                "69012567",
+                "Florencia",
+                "Heguy",
+                "florencia.heguy@example.com",
+                "+59898000111",
+                LocalDate.of(1991, 4, 3)
+        );
+
+        seedNinioConResponsable(
+                "94567012",
+                "Bautista",
+                "Heguy",
+                SexoNinioEnum.MASCULINO,
+                LocalDate.of(2024, 8, 2),
+                "Tacuarembo 1455",
+                "Sin observaciones",
+                "69012567",
+                "Madre",
+                true
+        );
+
+        seedResponsable(
+                "70234789",
+                "Marcelo",
+                "Andrade",
+                "marcelo.andrade@example.com",
+                "+59898111223",
+                LocalDate.of(1986, 9, 28)
+        );
+
+        seedNinioConResponsable(
+                "95678123",
+                "Olivia",
+                "Andrade",
+                SexoNinioEnum.FEMENINO,
+                LocalDate.of(2024, 12, 5),
+                "Cerro Largo 320",
+                "Sin observaciones",
+                "70234789",
+                "Padre",
+                true
+        );
+
+        // --- Descubridores (2 a 3 anios) ---
+
+        seedResponsable(
+                "71345890",
+                "Patricia",
+                "Olivera",
+                "patricia.olivera@example.com",
+                "+59898222334",
+                LocalDate.of(1984, 11, 19)
+        );
+
+        seedNinioConResponsable(
+                "96789234",
+                "Dante",
+                "Olivera",
+                SexoNinioEnum.MASCULINO,
+                LocalDate.of(2023, 6, 22),
+                "Rio Negro 980",
+                "Buena adaptacion al grupo",
+                "71345890",
+                "Madre",
+                true
+        );
+
+        seedResponsable(
+                "72456901",
+                "Ramiro",
+                "Castelli",
+                "ramiro.castelli@example.com",
+                "+59898333445",
+                LocalDate.of(1989, 1, 8)
+        );
+
+        seedNinioConResponsable(
+                "97890345",
+                "Abril",
+                "Castelli",
+                SexoNinioEnum.FEMENINO,
+                LocalDate.of(2023, 9, 17),
+                "Yi 1199",
+                "Sin observaciones",
+                "72456901",
+                "Padre",
+                true
+        );
+
+        seedResponsable(
+                "73567012",
+                "Daiana",
+                "Recoba",
+                "daiana.recoba@example.com",
+                "+59898444556",
+                LocalDate.of(1992, 3, 31)
+        );
+
+        seedNinioConResponsable(
+                "98901456",
+                "Ian",
+                "Recoba",
+                SexoNinioEnum.MASCULINO,
+                LocalDate.of(2023, 11, 11),
+                "Convencion 1340",
+                "Le gustan las actividades al aire libre",
+                "73567012",
+                "Madre",
+                true
+        );
+
+        // --- Aventureros (3 a 4 anios) ---
+
+        seedResponsable(
+                "74678123",
+                "Lorena",
+                "Bentancor",
+                "lorena.bentancor@example.com",
+                "+59898555667",
+                LocalDate.of(1987, 7, 26)
+        );
+
+        seedNinioConResponsable(
+                "99012567",
+                "Maximo",
+                "Bentancor",
+                SexoNinioEnum.MASCULINO,
+                LocalDate.of(2022, 4, 9),
+                "Andes 1567",
+                "Sin observaciones",
+                "74678123",
+                "Madre",
+                true
+        );
+
+        seedResponsable(
+                "75789234",
+                "Ezequiel",
+                "Larrosa",
+                "ezequiel.larrosa@example.com",
+                "+59898666778",
+                LocalDate.of(1985, 10, 13)
+        );
+
+        seedNinioConResponsable(
+                "10123678",
+                "Delfina",
+                "Larrosa",
+                SexoNinioEnum.FEMENINO,
+                LocalDate.of(2022, 7, 28),
+                "Uruguay 2210",
+                "Sin observaciones",
+                "75789234",
+                "Padre",
+                true
+        );
+
+        seedResponsable(
+                "76890345",
+                "Vanessa",
+                "Cardozo",
+                "vanessa.cardozo@example.com",
+                "+59898777889",
+                LocalDate.of(1990, 12, 21)
+        );
+
+        seedNinioConResponsable(
+                "11234789",
+                "Bautista",
+                "Cardozo",
+                SexoNinioEnum.MASCULINO,
+                LocalDate.of(2022, 2, 14),
+                "Paraguay 845",
+                "Requiere acompanamiento en siestas",
+                "76890345",
+                "Madre",
+                true
+        );
+
+        // --- Pequenios Exploradores (4 a 5 anios) ---
+
+        seedResponsable(
+                "77901456",
+                "Nicolas",
+                "Ferraro",
+                "nicolas.ferraro@example.com",
+                "+59898888990",
+                LocalDate.of(1983, 5, 5)
+        );
+
+        seedNinioConResponsable(
+                "12345890",
+                "Helena",
+                "Ferraro",
+                SexoNinioEnum.FEMENINO,
+                LocalDate.of(2021, 8, 19),
+                "Carlos Roxlo 612",
+                "Sin observaciones",
+                "77901456",
+                "Padre",
+                true
+        );
+
+        seedResponsable(
+                "78012567",
+                "Brenda",
+                "Sanguinetti",
+                "brenda.sanguinetti@example.com",
+                "+59898999001",
+                LocalDate.of(1986, 2, 17)
+        );
+
+        seedNinioConResponsable(
+                "13456901",
+                "Ciro",
+                "Sanguinetti",
+                SexoNinioEnum.MASCULINO,
+                LocalDate.of(2021, 5, 3),
+                "Joaquin Suarez 134",
+                "Sin observaciones",
+                "78012567",
+                "Madre",
+                true
+        );
+
+        seedResponsable(
+                "79123678",
+                "Alvaro",
+                "Pintos",
+                "alvaro.pintos@example.com",
+                "+59898000112",
+                LocalDate.of(1991, 9, 30)
+        );
+
+        seedNinioConResponsable(
+                "14567012",
+                "Martina",
+                "Pintos",
+                SexoNinioEnum.FEMENINO,
+                LocalDate.of(2021, 12, 24),
+                "Lord Ponsonby 980",
+                "Le gusta participar en talleres de plastica",
+                "79123678",
+                "Padre",
+                true
+        );
     }
 
     private void seedNinioConResponsable(String cedula, String nombre, String apellido, SexoNinioEnum sexo,
@@ -820,7 +1160,7 @@ public class DataSeeder implements CommandLineRunner {
 
         Grupo exploradores = seedGrupo(
                 "Exploradores",
-                "4 a 5 anios",
+                "5 a 12 anios",
                 LocalTime.of(8, 30),
                 LocalTime.of(12, 30),
                 List.of("lucia.fernandez@centrocrecer.example.com", "diego.pereira@centrocrecer.example.com"),
@@ -829,7 +1169,7 @@ public class DataSeeder implements CommandLineRunner {
 
         Grupo creadores = seedGrupo(
                 "Creadores",
-                "5 a 6 anios",
+                "5 a 12 anios",
                 LocalTime.of(13, 0),
                 LocalTime.of(17, 0),
                 List.of("gonzalo.sosa@centrocrecer.example.com", "noelia.molina@centrocrecer.example.com"),
@@ -838,14 +1178,62 @@ public class DataSeeder implements CommandLineRunner {
 
         Grupo integracion = seedGrupo(
                 "Integracion",
-                "6 a 7 anios",
+                "5 a 12 anios",
                 LocalTime.of(9, 0),
                 LocalTime.of(15, 0),
                 List.of("marcela.rodriguez@centrocrecer.example.com", "valentina.castro@centrocrecer.example.com"),
                 List.of("80123678", "81234789", "82345890", "83456901", "84567012")
         );
 
-        log.info("Grupos de ejemplo listos: {}, {}, {}", exploradores.getNombre(), creadores.getNombre(), integracion.getNombre());
+        Grupo lactantes = seedGrupo(
+                "Sala Cuna",
+                "0 a 1 anios",
+                LocalTime.of(8, 0),
+                LocalTime.of(12, 0),
+                List.of("sofia.mendez@centrocrecer.example.com", "andrea.silva@centrocrecer.example.com"),
+                List.of("90123678", "91234789", "92345890")
+        );
+
+        Grupo gateadores = seedGrupo(
+                "Gateadores",
+                "1 a 2 anios",
+                LocalTime.of(8, 0),
+                LocalTime.of(12, 0),
+                List.of("federico.cabrera@centrocrecer.example.com", "agustina.torres@centrocrecer.example.com"),
+                List.of("93456901", "94567012", "95678123")
+        );
+
+        Grupo descubridores = seedGrupo(
+                "Descubridores",
+                "2 a 3 anios",
+                LocalTime.of(13, 0),
+                LocalTime.of(17, 0),
+                List.of("matias.nunez@centrocrecer.example.com", "florencia.suarez@centrocrecer.example.com"),
+                List.of("96789234", "97890345", "98901456")
+        );
+
+        Grupo aventureros = seedGrupo(
+                "Aventureros",
+                "3 a 4 anios",
+                LocalTime.of(8, 30),
+                LocalTime.of(12, 30),
+                List.of("paula.ibarra@centrocrecer.example.com", "diego.pereira@centrocrecer.example.com"),
+                List.of("99012567", "10123678", "11234789")
+        );
+
+        Grupo exploradoresJunior = seedGrupo(
+                "Pequenios Exploradores",
+                "4 a 5 anios",
+                LocalTime.of(13, 0),
+                LocalTime.of(17, 0),
+                List.of("lucia.fernandez@centrocrecer.example.com", "noelia.molina@centrocrecer.example.com"),
+                List.of("12345890", "13456901", "14567012")
+        );
+
+        log.info("Grupos de ejemplo listos: {}, {}, {}, {}, {}, {}, {}, {}",
+                exploradores.getNombre(), creadores.getNombre(), integracion.getNombre(),
+                lactantes.getNombre(), gateadores.getNombre(), descubridores.getNombre(),
+                aventureros.getNombre(), exploradoresJunior.getNombre());
     }
 
     private Grupo seedGrupo(String nombre, String rangoEdad, LocalTime horaInicio, LocalTime horaFin,
@@ -1494,7 +1882,22 @@ public class DataSeeder implements CommandLineRunner {
                 "81234789",
                 "82345890",
                 "83456901",
-                "84567012"
+                "84567012",
+                "90123678",
+                "91234789",
+                "92345890",
+                "93456901",
+                "94567012",
+                "95678123",
+                "96789234",
+                "97890345",
+                "98901456",
+                "99012567",
+                "10123678",
+                "11234789",
+                "12345890",
+                "13456901",
+                "14567012"
         );
 
         List<String> funcionariosEmails = List.of(
@@ -1502,7 +1905,14 @@ public class DataSeeder implements CommandLineRunner {
                 "diego.pereira@centrocrecer.example.com",
                 "gonzalo.sosa@centrocrecer.example.com",
                 "noelia.molina@centrocrecer.example.com",
-                "marcela.rodriguez@centrocrecer.example.com"
+                "marcela.rodriguez@centrocrecer.example.com",
+                "sofia.mendez@centrocrecer.example.com",
+                "andrea.silva@centrocrecer.example.com",
+                "federico.cabrera@centrocrecer.example.com",
+                "agustina.torres@centrocrecer.example.com",
+                "matias.nunez@centrocrecer.example.com",
+                "florencia.suarez@centrocrecer.example.com",
+                "paula.ibarra@centrocrecer.example.com"
         );
 
         int indice = 0;
