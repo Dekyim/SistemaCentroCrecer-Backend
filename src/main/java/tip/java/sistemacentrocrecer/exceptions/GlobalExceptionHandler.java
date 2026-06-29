@@ -54,6 +54,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
+    @ExceptionHandler(CedulaNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleCedulaNotFound(CedulaNotFoundException ex) {
+        Map<String, Object> body = buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneric(Exception ex) {
         log.error("Error interno no controlado: {}", ex.getMessage(), ex);
