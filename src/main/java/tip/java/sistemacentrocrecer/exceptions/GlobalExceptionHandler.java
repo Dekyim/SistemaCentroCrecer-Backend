@@ -9,6 +9,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -58,6 +59,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleCedulaNotFound(CedulaNotFoundException ex) {
         Map<String, Object> body = buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
+
+    @ExceptionHandler(AsyncRequestNotUsableException.class)
+    public void handleClientAbort(AsyncRequestNotUsableException ex) {
+        log.debug("Cliente cerró la conexión antes de recibir la respuesta completa: {}", ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
